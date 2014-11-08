@@ -1,0 +1,77 @@
+package com.github.dmgcodevil.jmspy.proxy;
+
+import com.github.dmgcodevil.jmspy.graph.Edge;
+import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
+import com.github.dmgcodevil.jmspy.graph.Node;
+import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
+import net.sf.cglib.proxy.MethodInterceptor;
+import net.sf.cglib.proxy.MethodProxy;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.*;
+
+/**
+ * Created by dmgcodevil on 11/7/2014.
+ */
+public class BasicMethodInterceptor implements MethodInterceptor {
+    InvocationGraph invocationGraph;
+
+    public BasicMethodInterceptor(InvocationGraph invocationGraph) {
+        this.invocationGraph = invocationGraph;
+    }
+
+    @Override
+    public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+         // calls super method
+        Object out = proxy.invokeSuper(obj, args);
+
+        if (invocationGraph != null &&
+                method.getDeclaringClass() != Object.class) {
+            String parentId = getIdentifier(obj);
+            Node node = invocationGraph.findById(parentId);
+            if (node == null) {
+                return out;
+            }
+
+            if(out != null && isNotPrimitiveOrWrapper(out.getClass())){
+                if (!isCglibProxy(out)) {
+                    out = new ProxyFactory(invocationGraph).create(out);
+                }
+
+                String outId = getIdentifier(out);
+                Node toNode = invocationGraph.findById(outId);
+
+
+                if (toNode == null) {
+                    toNode = new Node();
+                    toNode.setId(getIdentifier(out));
+                    toNode.setType(getOriginalType(out));
+                    toNode.setId(outId);
+                }
+                toNode.addMethod(method);
+                node.getSubNodes().add(toNode);
+            }
+
+        }
+
+        return out;
+    }
+
+    private String getIdentifier(Object obj) throws InvocationTargetException, IllegalAccessException {
+        if(obj == null){
+            return null;
+        }
+        if (isCglibProxy(obj)) {
+            try {
+                Method method = obj.getClass().getMethod(Constants.GET_PROXY_IDENTIFIER);
+                return (String) method.invoke(obj);
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+        return null;
+    }
+}
