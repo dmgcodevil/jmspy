@@ -1,14 +1,17 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.google.common.base.Throwables;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import com.google.common.primitives.Primitives;
+import org.apache.commons.beanutils.BeanUtils;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -74,6 +77,14 @@ public class CommonUtils {
 
     public static String createIdentifier() {
         return String.valueOf(IdGenerator.getInstance().generate());
+    }
+
+    public static void copyProperties(Object dest, Object orig) {
+        try {
+            BeanUtils.copyProperties(dest, orig);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            Throwables.propagate(e);
+        }
     }
 
     public static Constructor getDefaultConstructor(Class<?> type) {

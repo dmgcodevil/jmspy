@@ -12,7 +12,7 @@ public class IdGenerator {
     private AtomicInteger atomicInteger = new AtomicInteger(0);
 
     public int generate(){
-      return   atomicInteger.incrementAndGet();
+      return atomicInteger.incrementAndGet();
     }
 
     public static IdGenerator getInstance() {

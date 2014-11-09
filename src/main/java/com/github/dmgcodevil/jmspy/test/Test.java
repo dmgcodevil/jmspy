@@ -19,13 +19,14 @@ public class Test {
         user.setProfile(new Profile("test_email"));
         user.addRole(new Role("user"));
         user.addAccount(new Account("test"));
+        user.addAccount(new Account("test2"));
 
         InvocationGraph invocationGraph = InvocationGraph.create(user);
         User proxy = (User) new ProxyFactory(invocationGraph).create(user);
-        for(Map.Entry<String, Account> entry: proxy.getAccounts().entrySet()){
+        for (Map.Entry<String, Account> entry : proxy.getAccounts().entrySet()) {
             System.out.println(entry.getValue().getName());
         }
-       System.out.println(proxy.getAccounts().entrySet().iterator().next().getValue().getName());
+
 
         System.out.println(proxy.getId());
         System.out.println(proxy.getLogin());

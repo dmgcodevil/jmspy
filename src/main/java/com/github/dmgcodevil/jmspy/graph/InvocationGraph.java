@@ -33,7 +33,7 @@ public class InvocationGraph {
         return root;
     }
 
-    public Node findById(final String id) {
+    public synchronized Node findById(final String id) {
         if (id == null) {
             return null;
         }
