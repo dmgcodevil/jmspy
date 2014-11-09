@@ -14,10 +14,10 @@ public class InvocationGraph {
     }
 
     public static InvocationGraph create(Object target) {
-        String id = createIdentifier();
+       ///String id = createIdentifier();
         Node r = new Node();
         r.setType(target.getClass());
-        r.setId(id);
+        ///r.setId(id);
         return new InvocationGraph(r);
     }
 

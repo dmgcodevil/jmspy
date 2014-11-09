@@ -37,11 +37,9 @@ public class EnhancerFactory {
             setters = addSetters(im, target.getClass());
 
         }
-        String id;
-        if(invocationGraph.getRoot().getType().equals(target.getClass())){
-            id = invocationGraph.getRoot().getId();
-        }else {
-            id = createIdentifier();
+        String id = createIdentifier();
+        if (invocationGraph.getRoot() != null && invocationGraph.getRoot().getId() == null) {
+            invocationGraph.getRoot().setId(id);
         }
 
         im.add(createGetProxyIdentifierMethod(), EMPTY_PARAMS);
