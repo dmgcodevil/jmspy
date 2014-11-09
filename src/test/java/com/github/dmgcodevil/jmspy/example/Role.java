@@ -1,17 +1,15 @@
-package com.github.dmgcodevil.jmspy.test;
+package com.github.dmgcodevil.jmspy.example;
 
 /**
  * Created by dmgcodevil on 11/8/2014.
  */
-public class Account {
-
+public class Role extends BaseDomain {
     private String name;
 
-    public Account() {
+    public Role() {
     }
 
-
-    public Account(String name) {
+    public Role(String name) {
         this.name = name;
     }
 

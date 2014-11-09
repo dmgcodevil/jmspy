@@ -1,29 +1,20 @@
 package com.github.dmgcodevil.jmspy.graph;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
  * Created by dmgcodevil on 11/8/2014.
  */
 public class Node {
+
     private String id;
 
     private Class<?> type;
 
-    private List<Node> subNodes = new ArrayList<>();
-    private Set<Method> methods = new HashSet<>();
-
-    // private List<Edge> incomingEdges = new ArrayList<>();
-
-    private List<Edge> outgoingEdges = new ArrayList<>();
+    private Set<Edge> outgoingEdges = new HashSet<>();
 
     public String getId() {
         return id;
@@ -41,29 +32,16 @@ public class Node {
         this.type = type;
     }
 
-    //    public List<Edge> getIncomingEdges() {
-//        return incomingEdges;
-//    }
-//
-//    public void setIncomingEdges(List<Edge> incomingEdges) {
-//        this.incomingEdges = incomingEdges;
-//    }
-//
-    public List<Edge> getOutgoingEdges() {
+    public Set<Edge> getOutgoingEdges() {
         return outgoingEdges;
     }
 
-    public void setOutgoingEdges(List<Edge> outgoingEdges) {
+    public void setOutgoingEdges(Set<Edge> outgoingEdges) {
         this.outgoingEdges = outgoingEdges;
     }
 
     public void addOutgoingEdge(Edge edge) {
         outgoingEdges.add(edge);
-    }
-
-    @Deprecated
-    public List<Node> getSubNodes() {
-        return subNodes;
     }
 
     public synchronized Node findById(final String _id) {
@@ -86,24 +64,23 @@ public class Node {
         return null;
     }
 
-    //    public Node findById(final String id) {
-//        if (id == null) {
-//            return null;
-//        }
-//        if (StringUtils.equals(this.id, id)) {
-//            return this;
-//        }
-//        for (Node node : subNodes) {
-//            if (id.equals(node.getId())) {
-//                return node;
-//            } else {
-//                return node.findById(id);
-//            }
-//        }
-//        return null;
-//    }
-    @Deprecated
-    public void addMethod(Method method) {
-        methods.add(method);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Node node = (Node) o;
+
+        if (id != null ? !id.equals(node.id) : node.id != null) return false;
+        if (type != null ? !type.equals(node.type) : node.type != null) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        return result;
     }
 }

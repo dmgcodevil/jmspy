@@ -1,12 +1,5 @@
 package com.github.dmgcodevil.jmspy.graph;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
 
 /**
@@ -15,7 +8,10 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
 public class InvocationGraph {
 
     private Node root;
-   // private List<Node> nodes = new ArrayList<>();
+
+    public InvocationGraph(Node root) {
+        this.root = root;
+    }
 
     public static InvocationGraph create(Object target) {
         String id = createIdentifier();
@@ -23,10 +19,6 @@ public class InvocationGraph {
         r.setType(target.getClass());
         r.setId(id);
         return new InvocationGraph(r);
-    }
-
-    public InvocationGraph(Node root) {
-        this.root = root;
     }
 
     public Node getRoot() {

@@ -1,7 +1,5 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
-import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
-
 /**
  * Created by dmgcodevil on 11/8/2014.
  */

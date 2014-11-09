@@ -38,8 +38,8 @@ public class BasicMethodInterceptor implements MethodInterceptor {
                     return out;
                 }
 
-                if (out != null && isNotPrimitiveOrWrapper(out.getClass())) {
-                    if (!isCglibProxy(out)) {
+                if (out != null) {
+                    if (isNotPrimitiveOrWrapper(out.getClass()) && !isCglibProxy(out)) {
                         out = new ProxyFactory(invocationGraph).create(out);
                     }
 
@@ -59,7 +59,7 @@ public class BasicMethodInterceptor implements MethodInterceptor {
                     edge.setTo(toNode);
 
                     //toNode.addMethod(method);
-                    node.getOutgoingEdges().add(edge);
+                    node.addOutgoingEdge(edge);
                 }
 
             }

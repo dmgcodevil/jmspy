@@ -1,4 +1,4 @@
-package com.github.dmgcodevil.jmspy.test;
+package com.github.dmgcodevil.jmspy.example;
 
 import java.util.ArrayList;
 import java.util.HashMap;

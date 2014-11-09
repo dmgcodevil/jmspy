@@ -8,6 +8,4 @@ import java.lang.reflect.Method;
 public class InvocationContext {
 
     private Method root;
-
-
 }

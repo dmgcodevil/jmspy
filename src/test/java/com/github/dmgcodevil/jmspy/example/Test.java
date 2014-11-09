@@ -1,7 +1,6 @@
-package com.github.dmgcodevil.jmspy.test;
+package com.github.dmgcodevil.jmspy.example;
 
-import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
-import com.github.dmgcodevil.jmspy.proxy.ProxyFactory;
+import com.github.dmgcodevil.jmspy.MethodInvocationRecorder;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -20,9 +19,10 @@ public class Test {
         user.addRole(new Role("user"));
         user.addAccount(new Account("test"));
         user.addAccount(new Account("test2"));
+        MethodInvocationRecorder invocationRecorder = new MethodInvocationRecorder();
+        User proxy = (User) invocationRecorder.record(user);
 
-        InvocationGraph invocationGraph = InvocationGraph.create(user);
-        User proxy = (User) new ProxyFactory(invocationGraph).create(user);
+
         for (Map.Entry<String, Account> entry : proxy.getAccounts().entrySet()) {
             System.out.println(entry.getValue().getName());
         }
@@ -33,7 +33,8 @@ public class Test {
         System.out.println(proxy.getPassword());
         System.out.println(proxy.getProfile().getEmail());
         System.out.println(proxy.getRoles().iterator().next().getName());
-        System.out.println(invocationGraph);
+        System.out.println(proxy.getRoles().iterator().next().getName());
+        System.out.println(invocationRecorder.getInvocationRecords().iterator().next().getInvocationGraph());
     }
 
 

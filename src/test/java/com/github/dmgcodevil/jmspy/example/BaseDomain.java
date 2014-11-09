@@ -1,4 +1,4 @@
-package com.github.dmgcodevil.jmspy.test;
+package com.github.dmgcodevil.jmspy.example;
 
 /**
  * Created by dmgcodevil on 11/7/2014.

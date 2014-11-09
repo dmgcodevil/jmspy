@@ -19,4 +19,12 @@ public class InvocationRecord {
     public InvocationRecord(InvocationGraph invocationGraph) {
         this.invocationGraph = invocationGraph;
     }
+
+    public Method getRoot() {
+        return root;
+    }
+
+    public InvocationGraph getInvocationGraph() {
+        return invocationGraph;
+    }
 }

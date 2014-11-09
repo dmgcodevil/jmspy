@@ -26,7 +26,6 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
             wrapper = wrapper.create(target);
             Wrapper proxyWrapper = (Wrapper) EnhancerFactory.create(wrapper, invocationGraph).create();
             CommonUtils.copyProperties(proxyWrapper, wrapper);
-            //BeanUtils.copyProperties(proxyWrapper, wrapper);
             return proxyWrapper;
         } else {
             return createProxy(target, type);
