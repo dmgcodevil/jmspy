@@ -52,7 +52,7 @@ final class Type {
     public MapType getMapComponentsTypes() {
         if (parameterizedTypes != null &&
                 parameterizedTypes.length == 2) // this check is required because it's possible that target type is
-        // subtype of Map and has more than two parametrized types, in this case we cannot be sure that
+        // subtype of Map and has more than two parametrized types or property defined without generic types, in this case we cannot be sure that
         // first and second elements from array is correct types of Map key-value pair thus we need to get components types from actual map entries.
         {
             Class<?> keyType = (Class<?>) getParameterizedTypes()[KEY_TYPE];

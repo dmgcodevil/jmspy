@@ -1,8 +1,10 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.exception.ProxyCreationException;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 import com.google.common.base.Optional;
+import com.google.common.base.Verify;
 
 import java.util.Map;
 
@@ -20,7 +22,15 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
     }
 
     @Override
-    public Object create(Object target, Type type) throws Throwable {
+    public Object create(Object target) throws ProxyCreationException {
+        return create(target, Type.builder().target(target.getClass()).build());
+    }
+
+    @Override
+    public Object create(Object target, Type type) throws ProxyCreationException {
+        if (target == null) {
+            return null;
+        }
         Optional<Wrapper> wrapperOptional = findWrapper(target.getClass());
         if (wrapperOptional.isPresent()) {
             Wrapper wrapper = wrapperOptional.get().create(target);
@@ -28,7 +38,11 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
             CommonUtils.copyProperties(proxyWrapper, wrapper);
             return proxyWrapper;
         } else {
-            return createProxy(target, type);
+            try {
+                return createProxy(target, type);
+            } catch (Throwable throwable) {
+                throw new ProxyCreationException(throwable);
+            }
         }
     }
 

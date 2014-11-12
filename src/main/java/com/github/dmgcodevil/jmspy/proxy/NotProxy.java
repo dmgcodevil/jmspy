@@ -6,6 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD) //can use in method only.
+@Target(ElementType.FIELD)
 public @interface NotProxy {
 }

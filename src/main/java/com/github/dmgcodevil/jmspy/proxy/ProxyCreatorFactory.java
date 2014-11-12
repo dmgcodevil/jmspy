@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.exception.ProxyCreationException;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 
@@ -31,6 +32,11 @@ public class ProxyCreatorFactory {
     private static ProxyCreator primitiveProxyCreator = new ProxyCreator() {
         @Override
         public Object create(Object target, Type type) {
+            return target;
+        }
+
+        @Override
+        public Object create(Object target) throws ProxyCreationException {
             return target;
         }
     };

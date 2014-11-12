@@ -10,22 +10,19 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isNotPrimitiveOrWrap
 /**
  * Created by dmgcodevil on 11/8/2014.
  */
-public class MapProxyCreator implements ProxyCreator {
+public class MapProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
-    private InvocationGraph invocationGraph;
-    private Map<Class<?>, Wrapper> wrappers;
 
-    public MapProxyCreator(InvocationGraph invocationGraph, Map<Class<?>, Wrapper> wrappers) {
-        this.invocationGraph = invocationGraph;
-        this.wrappers = wrappers;
+    MapProxyCreator(InvocationGraph invocationGraph, Map<Class<?>, Wrapper> wrappers) {
+        super(invocationGraph, wrappers);
     }
 
     @Override
-    public Object create(Object target, Type type) throws Throwable {
+    Object createProxy(Object target, Type type) throws Throwable {
         return createMapProxy(target, type);
     }
 
-    private Object createMapProxy(Object target, Type type) throws Throwable {
+    protected Object createMapProxy(Object target, Type type) throws Throwable {
         Map map = (Map) target;
         if (map.isEmpty()) {
             return EnhancerFactory.create(target, invocationGraph).create();
@@ -73,5 +70,6 @@ public class MapProxyCreator implements ProxyCreator {
         }
         return builder.keyType(keyType).valueType(valueType).build();
     }
+
 
 }
