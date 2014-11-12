@@ -25,14 +25,15 @@ public class MapProxyCreator implements ProxyCreator {
         return createMapProxy(target, type);
     }
 
-
     private Object createMapProxy(Object target, Type type) throws Throwable {
         Map map = (Map) target;
         if (map.isEmpty()) {
             return EnhancerFactory.create(target, invocationGraph).create();
         }
         MapType mapType = type.getMapComponentsTypes();
-
+        if (mapType.isEmpty()) {
+            mapType = getComponentType(map);
+        }
 
         Map proxy = (Map) EnhancerFactory.create(target, invocationGraph).create();
 
@@ -49,6 +50,28 @@ public class MapProxyCreator implements ProxyCreator {
             proxy.put(key, val);
         }
         return proxy;
+    }
+
+    // fallback
+    private MapType getComponentType(Map map) {
+        MapType.Builder builder = MapType.builder();
+        Class<?> keyType = null;
+        Class<?> valueType = null;
+        for (Object entryObj : map.entrySet()) {
+            Map.Entry entry = (Map.Entry) entryObj;
+            Object key = entry.getKey();
+            Object val = entry.getValue();
+            if (key != null && keyType == null) {
+                keyType = key.getClass();
+            }
+            if (val != null && valueType == null) {
+                valueType = val.getClass();
+            }
+            if (keyType != null && valueType != null) {
+                break;
+            }
+        }
+        return builder.keyType(keyType).valueType(valueType).build();
     }
 
 }
