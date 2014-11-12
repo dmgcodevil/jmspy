@@ -34,12 +34,4 @@ public class CollectionProxyCreator extends AbstractProxyCreator implements Prox
         }
     }
 
-    private static Class<?> getComponentType(Type type) {
-        if (type.getParameterizedTypes() != null && type.getParameterizedTypes().length == 1) {
-            return (Class<?>) type.getParameterizedTypes()[0];
-        } else {
-            return null;
-        }
-    }
-
 }

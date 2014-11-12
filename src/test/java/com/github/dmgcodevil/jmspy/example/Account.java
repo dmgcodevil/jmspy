@@ -6,6 +6,7 @@ package com.github.dmgcodevil.jmspy.example;
 public class Account {
 
     private String name;
+    private CloudService[] cloudService;
 
     public Account() {
     }
@@ -21,5 +22,13 @@ public class Account {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public CloudService[] getCloudService() {
+        return cloudService;
+    }
+
+    public void setCloudService(CloudService[] cloudService) {
+        this.cloudService = cloudService;
     }
 }

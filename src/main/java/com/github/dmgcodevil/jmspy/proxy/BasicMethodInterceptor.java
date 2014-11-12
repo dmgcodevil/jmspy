@@ -7,8 +7,10 @@ import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.*;
 
@@ -39,7 +41,8 @@ public class BasicMethodInterceptor implements MethodInterceptor {
                 }
 
                 if (out != null) {
-                    if (isNotPrimitiveOrWrapper(out.getClass()) && !isCglibProxy(out)) {
+                    if (isNotPrimitiveOrWrapper(out.getClass()) && !isCglibProxy(out) &&
+                            !isArray(out.getClass())) {
                         out = new ProxyFactory(invocationGraph).create(out);
                     }
 
@@ -70,6 +73,9 @@ public class BasicMethodInterceptor implements MethodInterceptor {
     private String getIdentifier(Object obj) throws InvocationTargetException, IllegalAccessException {
         if (obj == null) {
             return null;
+        }
+        if (obj.getClass().isArray() && Array.getLength(obj) > 0) {
+            obj = Array.get(obj, 0);
         }
         if (isCglibProxy(obj)) {
             try {

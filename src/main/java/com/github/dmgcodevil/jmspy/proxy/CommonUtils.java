@@ -12,6 +12,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -39,8 +40,8 @@ public class CommonUtils {
     }
 
     public static boolean isPrimitiveOrWrapper(Class<?> type) {
-        return Primitives.allWrapperTypes().contains(type) || Primitives.allPrimitiveTypes().contains(type)
-                || String.class.equals(type);
+        return type != null && (Primitives.allWrapperTypes().contains(type) || Primitives.allPrimitiveTypes().contains(type)
+                || String.class.equals(type));
     }
 
     public static boolean isNotPrimitiveOrWrapper(Class<?> type) {
@@ -64,7 +65,7 @@ public class CommonUtils {
     }
 
     public static boolean isBean(Class<?> type) {
-        return isNotPrimitiveOrWrapper(type) && !isCollection(type) && !isMap(type);
+        return isNotPrimitiveOrWrapper(type) && !isCollection(type) && !isMap(type) && !isArray(type);
     }
 
     public static Class<?> getOriginalType(Object obj) {
@@ -73,6 +74,10 @@ public class CommonUtils {
 
     public static boolean isCglibProxy(Object o) {
         return o.getClass().getName().contains("$$");
+    }
+
+    public static boolean isFinal(Class<?> type) {
+        return Modifier.isFinal(type.getModifiers());
     }
 
     public static String createIdentifier() {

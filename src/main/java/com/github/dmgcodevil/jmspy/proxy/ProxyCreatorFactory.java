@@ -5,6 +5,7 @@ import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 
 import java.util.Map;
 
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isArray;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isMap;
 
 /**
@@ -17,9 +18,11 @@ public class ProxyCreatorFactory {
             return new BeanProxyCreator(invocationGraph, wrappers);
         } else if (CommonUtils.isCollection(type)) {
             return new CollectionProxyCreator(invocationGraph, wrappers);
-        } else if (isMap(type))
+        } else if (isMap(type)) {
             return new MapProxyCreator(invocationGraph, wrappers);
-        else {
+        } else if (isArray(type)) {
+            return new ArrayProxyCreator(invocationGraph, wrappers);
+        } else {
             return primitiveProxyCreator;
             //throw new RuntimeException("failed to create proxy");
         }
