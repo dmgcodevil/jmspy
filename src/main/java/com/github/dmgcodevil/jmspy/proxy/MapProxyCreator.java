@@ -31,7 +31,7 @@ public class MapProxyCreator implements ProxyCreator {
         if (map.isEmpty()) {
             return EnhancerFactory.create(target, invocationGraph).create();
         }
-        MapType mapType = getComponentType(type);
+        MapType mapType = type.getMapComponentsTypes();
 
 
         Map proxy = (Map) EnhancerFactory.create(target, invocationGraph).create();
@@ -51,49 +51,4 @@ public class MapProxyCreator implements ProxyCreator {
         return proxy;
     }
 
-    private static MapType getComponentType(Type type) {
-        if (type.getParameterizedTypes() != null && type.getParameterizedTypes().length == 2) {
-            Class<?> keyType = (Class<?>) type.getParameterizedTypes()[0];
-            Class<?> valueType = (Class<?>) type.getParameterizedTypes()[1];
-            return new MapType(keyType, valueType);
-        }
-        return new MapType();
-    }
-
-    private static class MapType {
-        Class<?> keyType;
-        Class<?> valueType;
-
-        private MapType() {
-        }
-
-        private MapType(Class<?> keyType, Class<?> valueType) {
-            this.keyType = keyType;
-            this.valueType = valueType;
-        }
-
-        public Class<?> getKeyType() {
-            return keyType;
-        }
-
-        public String getKeyTypeName() {
-            return keyType != null ? keyType.getCanonicalName() : "";
-        }
-
-        public void setKeyType(Class<?> keyType) {
-            this.keyType = keyType;
-        }
-
-        public Class<?> getValueType() {
-            return valueType;
-        }
-
-        public String getValueTypeName() {
-            return valueType != null ? valueType.getCanonicalName() : "";
-        }
-
-        public void setValueType(Class<?> valueType) {
-            this.valueType = valueType;
-        }
-    }
 }

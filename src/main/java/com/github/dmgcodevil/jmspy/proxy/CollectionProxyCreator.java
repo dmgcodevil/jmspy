@@ -22,10 +22,10 @@ public class CollectionProxyCreator extends AbstractProxyCreator implements Prox
 
     private Object createCollectionProxy(Object target, Type type) throws Throwable {
         Collection col = (Collection) target;
-        Class<?> componentType;
-        if (col.isEmpty() || (componentType = getComponentType(type)) == null) {
+        if (col.isEmpty() || !type.getComponentType().isPresent()) {
             return EnhancerFactory.create(target, invocationGraph).create();
         } else {
+            Class<?> componentType = type.getComponentType().get();
             Collection proxy = (Collection) EnhancerFactory.create(target, invocationGraph).create();
             for (Object el : col) {
                 proxy.add(ProxyCreatorFactory.create(componentType, invocationGraph, wrappers).create(el, new Type(el.getClass())));

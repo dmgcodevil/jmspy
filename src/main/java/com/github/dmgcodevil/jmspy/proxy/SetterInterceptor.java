@@ -80,17 +80,15 @@ public class SetterInterceptor implements MethodInterceptor {
     }
 
     private Type getType(Field field) {
-        Type type = new Type(field.getType());
+        Type.Builder builder = Type.builder().target(field.getType());
         java.lang.reflect.Type rtype = field.getGenericType();
         if (rtype instanceof ParameterizedType) {
             ParameterizedType genericType = (ParameterizedType) field.getGenericType();
             if (genericType.getActualTypeArguments().length > 0) {
-                type.setParameterizedTypes(genericType.getActualTypeArguments());
+                builder.parameterizedTypes(genericType.getActualTypeArguments());
             }
         }
-
-        return type;
+        return builder.build();
     }
-
 
 }

@@ -33,7 +33,7 @@ public class ArrayProxyCreator extends AbstractProxyCreator implements ProxyCrea
         Object[] proxy = (Object[]) Array.newInstance(componentType, sourceArray.length);
 
         for (int i = 0; i < sourceArray.length; i++) {
-            proxy[i] = ProxyCreatorFactory.create(componentType, invocationGraph, wrappers).create(sourceArray[i], new Type()); //create(invocationMessage, sourceArray[i]);
+            proxy[i] = ProxyCreatorFactory.create(componentType, invocationGraph, wrappers).create(sourceArray[i], Type.EMPTY); //create(invocationMessage, sourceArray[i]);
         }
 
         return proxy;
