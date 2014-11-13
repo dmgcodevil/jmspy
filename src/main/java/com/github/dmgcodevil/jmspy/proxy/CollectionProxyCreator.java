@@ -4,6 +4,7 @@ import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -22,16 +23,29 @@ public class CollectionProxyCreator extends AbstractProxyCreator implements Prox
 
     private Object createCollectionProxy(Object target, Type type) throws Throwable {
         Collection col = (Collection) target;
-        if (col.isEmpty() || !type.getComponentType().isPresent()) {
+        Class<?> componentType = getComponentType(col);
+        // todo if componentType == null then try to get component type from 'type' argument
+        if (col.isEmpty() || componentType == null) {
             return EnhancerFactory.create(target, invocationGraph).create();
         } else {
-            Class<?> componentType = type.getComponentType().get();
             Collection proxy = (Collection) EnhancerFactory.create(target, invocationGraph).create();
             for (Object el : col) {
                 proxy.add(ProxyCreatorFactory.create(componentType, invocationGraph, wrappers).create(el, new Type(el.getClass())));
             }
             return proxy;
         }
+    }
+
+    private static Class<?> getComponentType(Collection coll) {
+        Iterator iterator = coll.iterator();
+        Object el = null;
+        while (el == null && iterator.hasNext()) {
+            el = iterator.next();
+        }
+        if (el != null) {
+            return el.getClass();
+        }
+        return null; // all elements are null
     }
 
 }

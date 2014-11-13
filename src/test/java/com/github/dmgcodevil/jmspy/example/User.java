@@ -59,4 +59,13 @@ public class User extends BaseDomain {
     public void addAccount(Account account) {
         this.accounts.put(account.getName(), account);
     }
+
+    /**
+     * Returns implementation version.
+     *
+     * @return version.
+     */
+    public int getImplVersion() {
+        return 1;
+    }
 }

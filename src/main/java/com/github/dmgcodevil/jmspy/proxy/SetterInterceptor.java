@@ -12,6 +12,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
 
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.getOriginalType;
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.processUnmodifiable;
 
 /**
  * Created by dmgcodevil on 11/7/2014.
@@ -28,7 +29,7 @@ public class SetterInterceptor implements MethodInterceptor {
     public Object intercept(Object o, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
         System.out.println("--SetterInterceptor--");
         Field field = getField(o, method);
-        if (field!= null && field.getAnnotation(NotProxy.class) != null) {
+        if (field != null && field.getAnnotation(NotProxy.class) != null) {
             return methodProxy.invokeSuper(o, args);
         }
         if (isCglibSynthetic(method)) {
@@ -71,10 +72,11 @@ public class SetterInterceptor implements MethodInterceptor {
     }
 
 
-    private Object[] processArgs(Field field, Object[] args) {
+    private Object[] processArgs(Field field, Object[] args) throws Throwable{
         Object arg = args[0];
         if (arg != null && CommonUtils.isNotPrimitiveOrWrapper(arg.getClass())) {
-            args[0] = new ProxyFactory(invocationGraph).create(arg, getType(field));
+            Object unwrapped = processUnmodifiable(arg);
+            args[0] = new ProxyFactory(invocationGraph).create(unwrapped, getType(field));
         }
         return args;
     }

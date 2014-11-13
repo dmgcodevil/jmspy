@@ -3,8 +3,37 @@ apply plugin: 'java'
 
 sourceCompatibility = 1.7
 
+group = 'com.github.dmgcodevil'
+version = "${versionMajor}.${versionMinor}.${versionBuild}"
+
 repositories {
     mavenCentral()
+
+    ivy {
+        ivyPattern "$projectDir/repo/[organisation]/[module]-ivy-[revision].xml"
+        artifactPattern "$projectDir/repo/[organisation]/[module]-[revision](-[classifier]).[ext]"
+    }
+}
+
+uploadArchives {
+    repositories {
+        ivy { url file(System.getProperty('user.home') + '/.ivylocal') }
+    }
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
+
+artifacts {
+    archives sourcesJar
+    //archives javadocJar
 }
 
 
@@ -13,7 +42,6 @@ dependencies {
     /* ---------------- spring dependencies ---------------- */
     compile('cglib:cglib:3.1')
     compile('aopalliance:aopalliance:1.0')
-
 
     /* ---------------- test dependencies ---------------- */
     testCompile('org.testng:testng:6.8.7')

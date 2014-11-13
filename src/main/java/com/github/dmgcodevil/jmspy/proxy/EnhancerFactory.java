@@ -2,15 +2,19 @@ package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.graph.Node;
+import com.github.dmgcodevil.jmspy.proxy.wrappers.JdkProxyWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Primitives;
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.*;
 import org.apache.commons.lang3.ClassUtils;
 import org.objectweb.asm.Type;
 
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.util.*;
 
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
@@ -48,12 +52,20 @@ public class EnhancerFactory {
         Class proxyHelperInterface = im.create();
 
         Enhancer enhancer = new Enhancer();
+        Class<?> superclass = target.getClass();
 
-
-        enhancer.setSuperclass(target.getClass());
+        enhancer.setSuperclass(superclass);
 
         List<Class<?>> interfaces = new ArrayList<>();
-        interfaces.addAll(ClassUtils.getAllInterfaces(target.getClass()));
+
+        if (target instanceof JdkProxyWrapper) {
+            JdkProxyWrapper jdkProxyWrapper = new JdkProxyWrapper();
+            interfaces.addAll(ClassUtils.getAllInterfaces(jdkProxyWrapper.getProxy().getClass()));
+
+        } else {
+            interfaces.addAll(ClassUtils.getAllInterfaces(target.getClass()));
+        }
+
         interfaces.add(proxyHelperInterface);
 
         Callback[] callbacks = new Callback[]{
@@ -82,7 +94,9 @@ public class EnhancerFactory {
         List<PropertyDescriptor> propertyDescriptors = CommonUtils.getAllProperties(type);
         for (PropertyDescriptor propertyDescriptor : propertyDescriptors) {
             if (propertyDescriptor.getWriteMethod() == null) {
-                Type[] argumentTypes = new Type[]{Type.getType(propertyDescriptor.getPropertyType())};
+                Type[] argumentTypes = new Type[]{
+                        Type.getType(Primitives.wrap(propertyDescriptor.getPropertyType())) // looks like Type.getType doesn't work correctly with primitive types
+                };
                 String setterName = getSetterName(propertyDescriptor);
                 Signature signature = new Signature(setterName, Type.VOID_TYPE, argumentTypes);
                 im.add(signature, argumentTypes);

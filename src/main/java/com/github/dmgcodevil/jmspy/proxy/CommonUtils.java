@@ -1,6 +1,8 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Iterables;
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
 import com.google.common.primitives.Primitives;
@@ -11,10 +13,14 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +28,19 @@ import java.util.Map;
  * Created by dmgcodevil on 11/7/2014.
  */
 public class CommonUtils {
+
+
+    private static final Class<?> UNMODIFIABLE_COLLECTION;
+    private static final Class<?> UNMODIFIABLE_MAP;
+
+    static {
+        try {
+            UNMODIFIABLE_COLLECTION = Class.forName("java.util.Collections$UnmodifiableCollection");
+            UNMODIFIABLE_MAP = Class.forName("java.util.Collections$UnmodifiableMap");
+        } catch (ClassNotFoundException e) {
+            throw Throwables.propagate(e);
+        }
+    }
 
 
     /**
@@ -41,7 +60,7 @@ public class CommonUtils {
 
     public static boolean isPrimitiveOrWrapper(Class<?> type) {
         return type != null && (Primitives.allWrapperTypes().contains(type) || Primitives.allPrimitiveTypes().contains(type)
-                || String.class.equals(type));
+                || String.class.isAssignableFrom(type));
     }
 
     public static boolean isNotPrimitiveOrWrapper(Class<?> type) {
@@ -100,4 +119,64 @@ public class CommonUtils {
             return null;
         }
     }
+
+    public static Object processUnmodifiable(Object source) throws Throwable {
+        if (source == null) {
+            return null;
+        }
+        Class<?> type = source.getClass();
+        List<Field> fields = new ArrayList<>();
+        fields = getAllFields(fields, type);
+        if (UNMODIFIABLE_COLLECTION.isAssignableFrom(type)) {
+            Field list = Iterables.tryFind(fields, new Predicate<Field>() {
+                @Override
+                public boolean apply(Field input) {
+                    return "list".equals(input.getName()) || "c".equals(input.getName());
+                }
+            }).orNull();
+            if (list == null) {
+                throw new RuntimeException("failed to find fields 'list' / 'c' in: " + type.getCanonicalName());
+            }
+            list.setAccessible(true);
+            return list.get(source);
+        }
+        if (UNMODIFIABLE_MAP.isAssignableFrom(type)) {
+            Field map = Iterables.tryFind(fields, new Predicate<Field>() {
+                @Override
+                public boolean apply(Field input) {
+                    return "m".equals(input.getName());
+                }
+            }).orNull();
+            if (map == null) {
+                throw new RuntimeException("failed to find field 'm' in: " + type.getCanonicalName());
+            }
+            map.setAccessible(true);
+            return map.get(source);
+        }
+        return source;
+    }
+
+    public static boolean isUnmodifiable(Object source) {
+        if (source == null) {
+            return true;
+        }
+        Class<?> type = source.getClass();
+        return UNMODIFIABLE_COLLECTION.isAssignableFrom(type) || UNMODIFIABLE_MAP.isAssignableFrom(type);
+    }
+
+    public static List<Field> getAllFields(List<Field> fields, Class<?> type) {
+        fields.addAll(Arrays.asList(type.getDeclaredFields()));
+
+        if (type.getSuperclass() != null) {
+            fields = getAllFields(fields, type.getSuperclass());
+        }
+
+        return fields;
+    }
+
+
+    public static boolean isJdkProxy(Object target) {
+        return target instanceof Proxy;
+    }
+
 }

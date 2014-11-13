@@ -8,6 +8,8 @@ import com.google.common.base.Verify;
 
 import java.util.Map;
 
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isJdkProxy;
+
 /**
  * Created by dmgcodevil on 11/8/2014.
  */
@@ -31,6 +33,10 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
         if (target == null) {
             return null;
         }
+
+        if (isJdkProxy(target)) {
+            // todo
+        }
         Optional<Wrapper> wrapperOptional = findWrapper(target.getClass());
         if (wrapperOptional.isPresent()) {
             Wrapper wrapper = wrapperOptional.get().create(target);
@@ -41,7 +47,7 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
             try {
                 return createProxy(target, type);
             } catch (Throwable throwable) {
-                throw new ProxyCreationException(throwable);
+                throw new ProxyCreationException("type: " + target.getClass(), throwable);
             }
         }
     }

@@ -49,6 +49,7 @@ final class Type {
      *
      * @return the types of a components (key, value)
      */
+    @Deprecated
     public MapType getMapComponentsTypes() {
         if (parameterizedTypes != null &&
                 parameterizedTypes.length == 2) // this check is required because it's possible that target type is
@@ -67,6 +68,7 @@ final class Type {
      *
      * @return the component type
      */
+    @Deprecated
     public Optional<Class<?>> getComponentType() {
         if (parameterizedTypes != null &&
                 parameterizedTypes.length == 1) // reason of this check is same to  getMapComponentsTypes() method

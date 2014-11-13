@@ -27,11 +27,13 @@ public class MapProxyCreator extends AbstractProxyCreator implements ProxyCreato
         if (map.isEmpty()) {
             return EnhancerFactory.create(target, invocationGraph).create();
         }
-        MapType mapType = type.getMapComponentsTypes();
-        if (mapType.isEmpty()) {
-            mapType = getComponentType(map);
-        }
+//        MapType mapType = type.getMapComponentsTypes();
+//        if (mapType.isEmpty()) {
+//            mapType = getComponentType(map);
+//        }
 
+        MapType mapType = getComponentType(map);
+        // todo if mapType == null then try to get map type from 'type' argument
         Map proxy = (Map) EnhancerFactory.create(target, invocationGraph).create();
 
         for (Object entryObj : map.entrySet()) {
