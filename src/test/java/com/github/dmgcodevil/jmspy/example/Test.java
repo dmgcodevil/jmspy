@@ -1,6 +1,7 @@
 package com.github.dmgcodevil.jmspy.example;
 
 import com.github.dmgcodevil.jmspy.MethodInvocationRecorder;
+import com.github.dmgcodevil.jmspy.proxy.ProxyFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
@@ -19,7 +20,7 @@ public class Test {
         user.addRole(new Role("user"));
         user.addAccount(new Account("test"));
         user.addAccount(new Account("test2"));
-        MethodInvocationRecorder invocationRecorder = new MethodInvocationRecorder();
+        MethodInvocationRecorder invocationRecorder = new MethodInvocationRecorder(ProxyFactory.getInstance());
         User proxy = (User) invocationRecorder.record(user);
 
 

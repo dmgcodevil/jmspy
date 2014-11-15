@@ -19,6 +19,16 @@ public class MethodInvocationRecorder {
 
     private InvocationContext invocationContext;
 
+    private ProxyFactory proxyFactory;
+
+    public MethodInvocationRecorder() {
+        proxyFactory = ProxyFactory.getInstance();
+    }
+
+    public MethodInvocationRecorder(ProxyFactory proxyFactory) {
+        this.proxyFactory = proxyFactory;
+    }
+
     public List<InvocationRecord> getInvocationRecords() {
         return invocationRecords;
     }
@@ -34,7 +44,7 @@ public class MethodInvocationRecorder {
     public Object record(Method method, Object target) {
         if (isNotPrimitiveOrWrapper(target)) {
             InvocationGraph invocationGraph = InvocationGraph.create(target);
-            Object proxy = new ProxyFactory(invocationGraph).create(target);
+            Object proxy = proxyFactory.create(target, invocationGraph);
             InvocationRecord invocationRecord = new InvocationRecord(method, invocationGraph);
             invocationRecords.add(invocationRecord);
             return proxy;

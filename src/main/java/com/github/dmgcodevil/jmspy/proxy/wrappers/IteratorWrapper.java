@@ -49,6 +49,16 @@ public class IteratorWrapper implements Wrapper, Iterator {
     }
 
     @Override
+    public void setTarget(Object target) {
+        this.iterator = (Iterator) target;
+    }
+
+    @Override
+    public Object getTarget() {
+        return iterator;
+    }
+
+    @Override
     public Class<?> getType() {
         return IteratorWrapper.class;
     }

@@ -25,40 +25,35 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
 
     @Override
     public Object create(Object target) throws ProxyCreationException {
-        return create(target, Type.builder().target(target.getClass()).build());
-    }
-
-    @Override
-    public Object create(Object target, Type type) throws ProxyCreationException {
         if (target == null) {
             return null;
-        }
-
-        if (isJdkProxy(target)) {
-            // todo
         }
         Optional<Wrapper> wrapperOptional = findWrapper(target.getClass());
         if (wrapperOptional.isPresent()) {
             Wrapper wrapper = wrapperOptional.get().create(target);
             Wrapper proxyWrapper = (Wrapper) EnhancerFactory.create(wrapper, invocationGraph).create();
-            CommonUtils.copyProperties(proxyWrapper, wrapper);
+            proxyWrapper.setTarget(wrapper.getTarget());
+            //BeanCopier.getInstance().copy(wrapper, proxyWrapper);
+            //new BeanCopier(new SetProxyFieldInterceptor(ProxyFactory.getInstance(), invocationGraph)).copy(wrapper, proxyWrapper);
+            //CommonUtils.copyProperties(proxyWrapper, wrapper);
             return proxyWrapper;
         } else {
             try {
-                return createProxy(target, type);
+                return createProxy(target);
             } catch (Throwable throwable) {
                 throw new ProxyCreationException("type: " + target.getClass(), throwable);
             }
         }
     }
 
-    abstract Object createProxy(Object target, Type type) throws Throwable;
+    abstract Object createProxy(Object target) throws Throwable;
 
     /**
      * Tries find a wrapper for the given type.
      *
      * @param type the type to find certain wrapper
-     * @return holder of result object. to check whether holder contains a (non-null) instance use {@link com.google.common.base.Optional#isPresent()}
+     * @return holder of result object. to check whether holder contains a (non-null)
+     * instance use {@link com.google.common.base.Optional#isPresent()}
      */
     Optional<Wrapper> findWrapper(Class<?> type) {
         for (Map.Entry<Class<?>, Wrapper> entry : wrappers.entrySet()) {

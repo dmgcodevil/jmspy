@@ -2,7 +2,6 @@ package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
-import net.sf.cglib.beans.BeanCopier;
 
 import java.util.Map;
 
@@ -17,10 +16,10 @@ public class BeanProxyCreator extends AbstractProxyCreator implements ProxyCreat
     }
 
     @Override
-    Object createProxy(Object target, Type type) throws Throwable {
+    Object createProxy(Object target) throws Throwable {
         Object proxy = EnhancerFactory.create(target, invocationGraph).create();
-        //BeanCopier.create(target.getClass(), proxy.getClass(), false).copy(target, proxy, null);
-        CommonUtils.copyProperties(proxy, target);
+        //BeanCopier.getInstance().copy(target, proxy);
+        new BeanCopier(new SetProxyFieldInterceptor(ProxyFactory.getInstance(), invocationGraph)).copy(target, proxy);
         return proxy;
     }
 

@@ -58,6 +58,16 @@ public class EntryWrapper implements Map.Entry<Object, Object>, Wrapper {
     }
 
     @Override
+    public void setTarget(Object target) {
+        this.entry = (Map.Entry) target;
+    }
+
+    @Override
+    public Object getTarget() {
+        return entry;
+    }
+
+    @Override
     public Class<?> getType() {
         return EntryWrapper.class;
     }

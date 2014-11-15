@@ -21,9 +21,9 @@ public class ArrayProxyCreator extends AbstractProxyCreator implements ProxyCrea
     }
 
     @Override
-    Object createProxy(Object target, Type type) throws Throwable {
-        if (target == null) {
-            return null;
+    Object createProxy(Object target) throws Throwable {
+        if (target == null || !target.getClass().isArray()) {
+            return target;
         }
         Object[] sourceArray = (Object[]) target;
         Class componentType = target.getClass().getComponentType();
@@ -33,11 +33,10 @@ public class ArrayProxyCreator extends AbstractProxyCreator implements ProxyCrea
         Object[] proxy = (Object[]) Array.newInstance(componentType, sourceArray.length);
 
         for (int i = 0; i < sourceArray.length; i++) {
-            proxy[i] = ProxyCreatorFactory.create(componentType, invocationGraph, wrappers).create(sourceArray[i], Type.EMPTY); //create(invocationMessage, sourceArray[i]);
+            ProxyFactory.getInstance().create(sourceArray[i]);
+            proxy[i] = ProxyFactory.getInstance().create(sourceArray[i], invocationGraph);
         }
 
         return proxy;
     }
-
-
 }

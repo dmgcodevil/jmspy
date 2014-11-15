@@ -3,16 +3,17 @@ package com.github.dmgcodevil.jmspy.proxy;
 import com.github.dmgcodevil.jmspy.graph.Edge;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.graph.Node;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
-import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.*;
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.getOriginalType;
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isArray;
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isCglibProxy;
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isUnmodifiable;
 
 /**
  * Created by dmgcodevil on 11/7/2014.
@@ -41,10 +42,11 @@ public class BasicMethodInterceptor implements MethodInterceptor {
                 }
 
                 if (out != null) {
-                    if (isNotPrimitiveOrWrapper(out.getClass()) && !isCglibProxy(out) &&
+                    if (!isCglibProxy(out) &&
                             !isArray(out.getClass()) &&
                             !isUnmodifiable(out)) {
-                        out = new ProxyFactory(invocationGraph).create(out);
+                        out =  ProxyFactory.getInstance().create(out, invocationGraph);
+                        //out =  ProxyFactory.getInstance().create(out);
                     }
 
                     String outId = getIdentifier(out);

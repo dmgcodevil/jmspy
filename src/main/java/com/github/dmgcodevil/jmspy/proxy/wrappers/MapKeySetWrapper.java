@@ -7,16 +7,16 @@ import java.util.Iterator;
 import java.util.Set;
 
 /**
- * Created by dmgcodevil on 11/8/2014.
+ * Created by dmgcodevil on 11/14/2014.
  */
-public class EntrySetWrapper implements Set<Object>, Wrapper {
+public class MapKeySetWrapper implements Set<Object>, Wrapper {
     @NotProxy
     private Set<Object> set;
 
-    public EntrySetWrapper() {
+    public MapKeySetWrapper() {
     }
 
-    public EntrySetWrapper(Set set) {
+    public MapKeySetWrapper(Set set) {
         this.set = set;
     }
 
@@ -54,7 +54,7 @@ public class EntrySetWrapper implements Set<Object>, Wrapper {
     }
 
     @Override
-    public Object[] toArray(Object[] a) {
+    public  Object[] toArray(Object[] a) {
         return set.toArray(a);
     }
 
@@ -104,11 +104,12 @@ public class EntrySetWrapper implements Set<Object>, Wrapper {
 
     @Override
     public Wrapper create(Object target) {
-        return new EntrySetWrapper((Set) target);
+        return new MapKeySetWrapper((Set) target);
     }
 
     @Override
     public Class<?> getType() {
-        return EntrySetWrapper.class;
+        return MapKeySetWrapper.class;
     }
 }
+

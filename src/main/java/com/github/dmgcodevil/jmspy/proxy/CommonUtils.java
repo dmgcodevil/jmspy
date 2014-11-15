@@ -3,10 +3,7 @@ package com.github.dmgcodevil.jmspy.proxy;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
-import com.google.common.hash.Hasher;
-import com.google.common.hash.Hashing;
 import com.google.common.primitives.Primitives;
-import org.apache.commons.beanutils.BeanUtils;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -14,15 +11,15 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by dmgcodevil on 11/7/2014.
@@ -32,11 +29,15 @@ public class CommonUtils {
 
     private static final Class<?> UNMODIFIABLE_COLLECTION;
     private static final Class<?> UNMODIFIABLE_MAP;
+    private static final Set<Class<?>> EMPTY_DATA = new HashSet<>();
 
     static {
         try {
             UNMODIFIABLE_COLLECTION = Class.forName("java.util.Collections$UnmodifiableCollection");
             UNMODIFIABLE_MAP = Class.forName("java.util.Collections$UnmodifiableMap");
+            EMPTY_DATA.add(Class.forName("java.util.Collections$EmptySet"));
+            EMPTY_DATA.add(Class.forName("java.util.Collections$EmptyList"));
+            EMPTY_DATA.add(Class.forName("java.util.Collections$EmptyMap"));
         } catch (ClassNotFoundException e) {
             throw Throwables.propagate(e);
         }
@@ -84,7 +85,11 @@ public class CommonUtils {
     }
 
     public static boolean isBean(Class<?> type) {
-        return isNotPrimitiveOrWrapper(type) && !isCollection(type) && !isMap(type) && !isArray(type);
+        return isNotPrimitiveOrWrapper(type) &&
+                !isCollection(type) &&
+                !isMap(type) &&
+                !isArray(type) &&
+                !type.isEnum();
     }
 
     public static Class<?> getOriginalType(Object obj) {
@@ -101,14 +106,6 @@ public class CommonUtils {
 
     public static String createIdentifier() {
         return String.valueOf(IdGenerator.getInstance().generate());
-    }
-
-    public static void copyProperties(Object dest, Object orig) {
-        try {
-            BeanUtils.copyProperties(dest, orig);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            Throwables.propagate(e);
-        }
     }
 
     public static Constructor getDefaultConstructor(Class<?> type) {
@@ -174,9 +171,13 @@ public class CommonUtils {
         return fields;
     }
 
+    public static boolean isEmptyData(Class<?> aClass) {
+        return EMPTY_DATA.contains(aClass);
+    }
 
     public static boolean isJdkProxy(Object target) {
         return target instanceof Proxy;
     }
+
 
 }
