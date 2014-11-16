@@ -17,7 +17,9 @@ import java.util.List;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
 
 /**
- * Created by dmgcodevil on 11/7/2014.
+ * Factory for {@link Enhancer}.
+ * <p/>
+ * Created by dmgcodevil.
  */
 public class EnhancerFactory {
 

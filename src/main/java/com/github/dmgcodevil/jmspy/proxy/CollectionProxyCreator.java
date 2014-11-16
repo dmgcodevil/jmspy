@@ -10,7 +10,9 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isEmptyData;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.processUnmodifiable;
 
 /**
- * Created by dmgcodevil on 11/8/2014.
+ * {@link ProxyCreator} implementation that allows create proxy for {@link java.util.Collection} instances.
+ *
+ * Created by dmgcodevil.
  */
 public class CollectionProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 

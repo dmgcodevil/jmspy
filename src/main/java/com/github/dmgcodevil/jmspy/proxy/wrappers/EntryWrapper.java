@@ -5,51 +5,45 @@ import com.github.dmgcodevil.jmspy.proxy.NotProxy;
 import java.util.Map;
 
 /**
- * Created by dmgcodevil on 11/8/2014.
+ * Wrapper for {@link java.util.Map.Entry}.
+ * <p/>
+ * Created by dmgcodevil.
  */
 public class EntryWrapper implements Map.Entry<Object, Object>, Wrapper {
 
     @NotProxy
-    private Map.Entry<Object, Object> entry;
+    private Map.Entry<Object, Object> target;
 
     public EntryWrapper() {
     }
 
-    public EntryWrapper(Map.Entry<Object, Object> entry) {
-        this.entry = entry;
-    }
-
-    public Map.Entry<Object, Object> getEntry() {
-        return entry;
-    }
-
-    public void setEntry(Map.Entry<Object, Object> entry) {
-        this.entry = entry;
+    public EntryWrapper(Map.Entry<Object, Object> target) {
+        this.target = target;
     }
 
     @Override
     public Object getKey() {
-        return entry.getKey();
+        return target.getKey();
     }
 
     @Override
     public Object getValue() {
-        return entry.getValue();
+        return target.getValue();
     }
 
     @Override
     public Object setValue(Object value) {
-        return entry.setValue(value);
+        return target.setValue(value);
     }
 
     @Override
     public boolean equals(Object o) {
-        return entry.equals(o);
+        return target.equals(o);
     }
 
     @Override
     public int hashCode() {
-        return entry.hashCode();
+        return target.hashCode();
     }
 
     @Override
@@ -59,12 +53,12 @@ public class EntryWrapper implements Map.Entry<Object, Object>, Wrapper {
 
     @Override
     public void setTarget(Object target) {
-        this.entry = (Map.Entry) target;
+        this.target = (Map.Entry) target;
     }
 
     @Override
     public Object getTarget() {
-        return entry;
+        return target;
     }
 
     @Override

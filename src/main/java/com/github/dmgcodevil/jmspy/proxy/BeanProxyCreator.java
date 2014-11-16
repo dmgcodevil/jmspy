@@ -6,7 +6,7 @@ import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 import java.util.Map;
 
 /**
- * Creates proxy for a java bean.
+ * Creates proxy for a java beans.
  */
 public class BeanProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
@@ -18,7 +18,6 @@ public class BeanProxyCreator extends AbstractProxyCreator implements ProxyCreat
     @Override
     Object createProxy(Object target) throws Throwable {
         Object proxy = EnhancerFactory.create(target, invocationGraph).create();
-        //BeanCopier.getInstance().copy(target, proxy);
         new BeanCopier(new SetProxyFieldInterceptor(ProxyFactory.getInstance(), invocationGraph)).copy(target, proxy);
         return proxy;
     }

@@ -4,14 +4,13 @@ import com.github.dmgcodevil.jmspy.exception.ProxyCreationException;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 import com.google.common.base.Optional;
-import com.google.common.base.Verify;
 
 import java.util.Map;
 
-import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isJdkProxy;
-
 /**
- * Created by dmgcodevil on 11/8/2014.
+ * Basic implementation of {@link ProxyCreator}.
+ *
+ * Created by dmgcodevil.
  */
 public abstract class AbstractProxyCreator implements ProxyCreator {
 
@@ -33,9 +32,6 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
             Wrapper wrapper = wrapperOptional.get().create(target);
             Wrapper proxyWrapper = (Wrapper) EnhancerFactory.create(wrapper, invocationGraph).create();
             proxyWrapper.setTarget(wrapper.getTarget());
-            //BeanCopier.getInstance().copy(wrapper, proxyWrapper);
-            //new BeanCopier(new SetProxyFieldInterceptor(ProxyFactory.getInstance(), invocationGraph)).copy(wrapper, proxyWrapper);
-            //CommonUtils.copyProperties(proxyWrapper, wrapper);
             return proxyWrapper;
         } else {
             try {

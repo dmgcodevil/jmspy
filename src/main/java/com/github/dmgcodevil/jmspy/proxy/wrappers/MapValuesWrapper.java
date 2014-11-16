@@ -3,14 +3,16 @@ package com.github.dmgcodevil.jmspy.proxy.wrappers;
 import java.util.Collection;
 
 /**
- * Created by dmgcodevil on 11/14/2014.
+ * Wrapper for {@link java.util.Map.Entry#values()}.
+ *
+ * Created by dmgcodevil.
  */
-public class MapValuesWrapper extends AbstractCollectionWrapper implements Collection<Object>, Wrapper {
+public class MapValuesWrapper extends AbstractCollectionWrapper {
     public MapValuesWrapper() {
     }
 
-    public MapValuesWrapper(Collection source) {
-        super(source);
+    public MapValuesWrapper(Collection target) {
+        super(target);
     }
 
     @Override

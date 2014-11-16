@@ -9,7 +9,7 @@ import java.util.Map;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isPrimitiveOrWrapper;
 
 /**
- * Class description.
+ * {@link ProxyCreator} implementation to create proxy for array.
  *
  * @author Raman_Pliashkou
  */
