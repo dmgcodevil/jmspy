@@ -2,13 +2,17 @@ package com.github.dmgcodevil.jmspy.graph;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * Created by dmgcodevil on 11/8/2014.
  */
-public class Node {
+public class Node implements Serializable {
+
+
+    private static final long serialVersionUID = 5483570738425483697L;
 
     private String id;
 

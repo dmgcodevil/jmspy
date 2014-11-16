@@ -1,6 +1,7 @@
 package com.github.dmgcodevil.jmspy.example;
 
 import com.github.dmgcodevil.jmspy.MethodInvocationRecorder;
+import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.ProxyFactory;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -54,22 +55,9 @@ public class TestUserProxy {
         System.out.println(proxy.getProfile().getEmail());
         System.out.println(proxy.getRoles().iterator().next().getName());
         System.out.println(proxy.getRoles().iterator().next().getName());
-        //System.out.println(proxy.getAccounts());
-        System.out.println(invocationRecorder.getInvocationRecords().iterator().next().getInvocationGraph());
+        System.out.println(proxy.getAccounts());
+        InvocationGraph.save(invocationRecorder.getInvocationRecords().iterator().next().getInvocationGraph(), "igraph");
+
     }
 
-    public static void main(String[] args) throws IllegalAccessException {
-        List<Field> list = new ArrayList<>();
-        list = getAllFields(list, User.class);
-        Field field = Iterables.tryFind(list, new Predicate<Field>() {
-            @Override
-            public boolean apply(Field input) {
-                return input.getName().equals("id");
-            }
-        }).get();
-        field.setAccessible(true);
-        User user = new User();
-        field.set(user, "1");
-        System.out.println(user.getId());
-    }
 }

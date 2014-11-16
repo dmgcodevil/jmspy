@@ -1,5 +1,7 @@
 apply plugin: 'idea'
 apply plugin: 'java'
+apply plugin: 'scala'
+apply plugin: 'groovy'
 
 sourceCompatibility = 1.7
 
@@ -36,6 +38,18 @@ artifacts {
     //archives javadocJar
 }
 
+sourceSets.main.scala.srcDir "src/main/java"
+sourceSets.main.java.srcDirs = []
+sourceSets.test.scala.srcDir "src/test/java"
+sourceSets.test.java.srcDirs = []
+
+sourceSets.main.java.srcDirs = []
+sourceSets.main.groovy.srcDir 'src/main/java'
+
+
+def jdkHome = System.getenv("JAVA_HOME")
+
+
 
 dependencies {
 
@@ -49,7 +63,9 @@ dependencies {
     /* ---------------- logger dependencies ---------------- */
     compile('org.slf4j:slf4j-api:1.6.4')
     /* ---------------- libs & tools ---------------- */
-
+    //compile('org.scalafx:scalafx_2.11:2.2.67-R10')
+    compile('org.codehaus.groovy:groovy-all:2.3.7')
+    compile files("$jdkHome/jre/lib/jfxrt.jar")
     compile('com.google.guava:guava:18.0')
     compile('commons-collections:commons-collections:3.2.1')
     compile('org.apache.commons:commons-lang3:3.1')

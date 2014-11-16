@@ -1,15 +1,20 @@
 package com.github.dmgcodevil.jmspy.graph;
 
-import java.lang.reflect.Method;
+import com.github.dmgcodevil.jmspy.proxy.JMethod;
+
+import java.io.Serializable;
 
 /**
  * Created by dmgcodevil on 11/8/2014.
  */
-public class Edge {
+public class Edge implements Serializable {
 
+    private static final long serialVersionUID = -5509438349274267407L;
     private Node from;
     private Node to;
-    private Method method;
+    private JMethod method;
+
+
 
     public Node getFrom() {
         return from;
@@ -27,13 +32,14 @@ public class Edge {
         this.to = to;
     }
 
-    public Method getMethod() {
+    public JMethod getMethod() {
         return method;
     }
 
-    public void setMethod(Method method) {
+    public void setMethod(JMethod method) {
         this.method = method;
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -56,4 +62,5 @@ public class Edge {
         result = 31 * result + (method != null ? method.hashCode() : 0);
         return result;
     }
+
 }
