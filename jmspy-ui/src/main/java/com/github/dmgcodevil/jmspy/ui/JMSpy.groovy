@@ -1,5 +1,8 @@
 package com.github.dmgcodevil.jmspy.ui
 
+/**
+ * Created by dmgcodevil on 11/17/2014.
+ */
 import com.github.dmgcodevil.jmspy.graph.Edge
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import javafx.application.Application;
@@ -70,9 +73,9 @@ public class JMSpy extends Application {
         TreeItem<String> rootItem = new TreeItem<String>(invocationGraph.root.type.getName());
         rootItem.setExpanded(true);
 
-            invocationGraph.root.outgoingEdges.each { it ->
-                addItem(rootItem, it)
-            }
+        invocationGraph.root.outgoingEdges.each { it ->
+            addItem(rootItem, it)
+        }
 
 
         TreeView<String> tree = new TreeView<String>(rootItem);

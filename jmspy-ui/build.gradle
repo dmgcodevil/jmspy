@@ -1,0 +1,24 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+
+
+
+sourceSets.main.java.srcDirs = []
+sourceSets.test.java.srcDirs = []
+
+sourceSets.main.java.srcDirs = []
+sourceSets.main.groovy.srcDir 'src/main/java'
+
+
+def jdkHome = System.getenv("JAVA_HOME")
+
+
+
+dependencies {
+    compile project(':jmspy-core')
+    /* ---------------- libs & tools ---------------- */
+    compile('org.codehaus.groovy:groovy-all:2.3.7')
+    compile files("$jdkHome/jre/lib/jfxrt.jar")
+}
+

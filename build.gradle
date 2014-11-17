@@ -1,75 +1,58 @@
-apply plugin: 'idea'
 apply plugin: 'java'
-apply plugin: 'scala'
+apply plugin: 'idea'
 apply plugin: 'groovy'
 
 sourceCompatibility = 1.7
 
-group = 'com.github.dmgcodevil'
-version = "${versionMajor}.${versionMinor}.${versionBuild}"
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'idea'
+    apply plugin: 'groovy'
 
-repositories {
-    mavenCentral()
+    group = 'com.github.dmgcodevil'
+    version = "${versionMajor}.${versionMinor}.${versionBuild}"
 
-    ivy {
-        ivyPattern "$projectDir/repo/[organisation]/[module]-ivy-[revision].xml"
-        artifactPattern "$projectDir/repo/[organisation]/[module]-[revision](-[classifier]).[ext]"
-    }
-}
-
-uploadArchives {
     repositories {
-        ivy { url file(System.getProperty('user.home') + '/.ivylocal') }
+        mavenCentral()
+
+        ivy {
+            ivyPattern "$projectDir/repo/[organisation]/[module]-ivy-[revision].xml"
+            artifactPattern "$projectDir/repo/[organisation]/[module]-[revision](-[classifier]).[ext]"
+        }
     }
+
+    uploadArchives {
+        repositories {
+            ivy { url file(System.getProperty('user.home') + '/.ivylocal') }
+        }
+    }
+
+    task sourcesJar(type: Jar, dependsOn: classes) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+
+    artifacts {
+        archives sourcesJar
+    }
+
+
+    dependencies {
+        /* proxy / aop*/
+        compile('cglib:cglib:3.1')
+        compile('aopalliance:aopalliance:1.0')
+
+        compile('com.google.guava:guava:18.0')
+        compile('commons-collections:commons-collections:3.2.1')
+        compile('org.apache.commons:commons-lang3:3.1')
+        compile('commons-beanutils:commons-beanutils:1.9.2')
+        /* ---------------- test dependencies ---------------- */
+        testCompile('org.testng:testng:6.8.7')
+
+        /* ---------------- logger dependencies ---------------- */
+        compile('org.slf4j:slf4j-api:1.6.4')
+
+    }
+
 }
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-//task javadocJar(type: Jar, dependsOn: javadoc) {
-//    classifier = 'javadoc'
-//    from javadoc.destinationDir
-//}
-
-artifacts {
-    archives sourcesJar
-    //archives javadocJar
-}
-
-sourceSets.main.scala.srcDir "src/main/java"
-sourceSets.main.java.srcDirs = []
-sourceSets.test.scala.srcDir "src/test/java"
-sourceSets.test.java.srcDirs = []
-
-sourceSets.main.java.srcDirs = []
-sourceSets.main.groovy.srcDir 'src/main/java'
-
-
-def jdkHome = System.getenv("JAVA_HOME")
-
-
-
-dependencies {
-
-    /* ---------------- spring dependencies ---------------- */
-    compile('cglib:cglib:3.1')
-    compile('aopalliance:aopalliance:1.0')
-
-    /* ---------------- test dependencies ---------------- */
-    testCompile('org.testng:testng:6.8.7')
-
-    /* ---------------- logger dependencies ---------------- */
-    compile('org.slf4j:slf4j-api:1.6.4')
-    /* ---------------- libs & tools ---------------- */
-    //compile('org.scalafx:scalafx_2.11:2.2.67-R10')
-    compile('org.codehaus.groovy:groovy-all:2.3.7')
-    compile files("$jdkHome/jre/lib/jfxrt.jar")
-    compile('com.google.guava:guava:18.0')
-    compile('commons-collections:commons-collections:3.2.1')
-    compile('org.apache.commons:commons-lang3:3.1')
-    compile 'commons-beanutils:commons-beanutils:1.9.2'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.4.3'
-}
-
