@@ -63,7 +63,7 @@ public class JMSpy extends Application {
 
         ((VBox) scene.getRoot()).getChildren().addAll(menuBar);
 
-        primaryStage.setTitle("Hello World!");
+        primaryStage.setTitle("JMSpy");
         primaryStage.setScene(scene);
 
         primaryStage.show();
