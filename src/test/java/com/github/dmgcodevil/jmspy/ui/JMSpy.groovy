@@ -42,7 +42,7 @@ public class JMSpy extends Application {
             fileChooser.setTitle("Open JMSpy File");
             File file = fileChooser.showOpenDialog(primaryStage);
             InvocationGraph invocationGraph = InvocationGraph.load(file);
-            drawGraph(root);
+            drawGraph(root, invocationGraph);
 
         } as EventHandler<ActionEvent>
 
@@ -69,13 +69,12 @@ public class JMSpy extends Application {
     private void drawGraph(Pane pane, InvocationGraph invocationGraph) {
         TreeItem<String> rootItem = new TreeItem<String>(invocationGraph.root.type.getName());
         rootItem.setExpanded(true);
-        for (int i = 1; i < 6; i++) {
-            invocationGraph.root.outgoingEdges.each { it ->
 
+            invocationGraph.root.outgoingEdges.each { it ->
+                addItem(rootItem, it)
             }
-            TreeItem<String> item = new TreeItem<String>("Message" + i);
-            rootItem.getChildren().add(item);
-        }
+
+
         TreeView<String> tree = new TreeView<String>(rootItem);
         StackPane root = new StackPane();
         pane.getChildren().add(tree);
@@ -87,6 +86,14 @@ public class JMSpy extends Application {
     }
 
     private void addItem(TreeItem<String> rootItem, Edge edge) {
+        TreeItem<String> child = new TreeItem<String>(edge.getMethod().toString());
+        rootItem.getChildren().add(child);
+        if (edge.to != null) {
+            child.setExpanded(false);
+            edge.to.outgoingEdges.each {
+                addItem(child, it)
+            }
+        }
 
     }
 }

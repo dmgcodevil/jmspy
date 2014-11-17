@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.graph;
 
+import com.github.dmgcodevil.jmspy.proxy.JType;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -16,7 +17,7 @@ public class Node implements Serializable {
 
     private String id;
 
-    private Class<?> type;
+    private JType type;
 
     private Set<Edge> outgoingEdges = new HashSet<>();
 
@@ -28,11 +29,11 @@ public class Node implements Serializable {
         this.id = id;
     }
 
-    public Class<?> getType() {
+    public JType getType() {
         return type;
     }
 
-    public void setType(Class<?> type) {
+    public void setType(JType type) {
         this.type = type;
     }
 

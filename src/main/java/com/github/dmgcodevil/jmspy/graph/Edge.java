@@ -14,8 +14,6 @@ public class Edge implements Serializable {
     private Node to;
     private JMethod method;
 
-
-
     public Node getFrom() {
         return from;
     }

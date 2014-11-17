@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.graph;
 
+import com.github.dmgcodevil.jmspy.proxy.JType;
 import com.google.common.base.Throwables;
 
 import java.io.File;
@@ -29,7 +30,7 @@ public class InvocationGraph implements Serializable {
     public static InvocationGraph create(Object target) {
         ///String id = createIdentifier();
         Node r = new Node();
-        r.setType(target.getClass());
+        r.setType(new JType(target.getClass()));
         ///r.setId(id);
         return new InvocationGraph(r);
     }

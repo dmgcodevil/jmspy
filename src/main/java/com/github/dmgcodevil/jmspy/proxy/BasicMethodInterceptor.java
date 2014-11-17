@@ -56,7 +56,7 @@ public class BasicMethodInterceptor implements MethodInterceptor {
                     if (toNode == null) {
                         toNode = new Node();
                         toNode.setId(outId);
-                        toNode.setType(getOriginalType(out));
+                        toNode.setType(new JType(getOriginalType(out)));
                         toNode.setId(outId);
                     }
                     Edge edge = new Edge();
