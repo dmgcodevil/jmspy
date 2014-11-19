@@ -23,6 +23,7 @@ public class JMSpyApp extends Application {
         controller.setStage(primaryStage);
         primaryStage.setTitle(JMSPY_TITLE);
         primaryStage.setScene(new Scene(root));
+        controller.init();
         primaryStage.show();
     }
 

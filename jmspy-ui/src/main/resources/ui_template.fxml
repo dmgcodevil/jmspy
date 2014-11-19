@@ -48,31 +48,78 @@
                 <Insets left="10.0" right="10.0" />
             </VBox.margin>
         </ListView>
-        <HBox prefHeight="33.0" prefWidth="652.0">
-            <children>
-                <Label text="filter">
-                    <HBox.margin>
-                        <Insets left="10.0" top="5.0" />
-                    </HBox.margin>
-                </Label>
-                <TextField>
-                    <HBox.margin>
-                        <Insets left="10.0" top="5.0" />
-                    </HBox.margin>
-                </TextField>
-                <Button mnemonicParsing="false" text="Button">
-                    <HBox.margin>
-                        <Insets left="10.0" top="5.0" />
-                    </HBox.margin>
-                </Button>
-            </children>
+      <HBox prefHeight="174.0" prefWidth="800.0">
+         <children>
+              <HBox prefHeight="73.0" prefWidth="310.0" style="-fx-border-color: black;">
+                  <children>
+                      <Label text="filter">
+                          <HBox.margin>
+                              <Insets left="10.0" top="5.0" />
+                          </HBox.margin>
+                      </Label>
+                      <TextField fx:id="filterEdit" onKeyReleased="#filterGraph" prefHeight="25.0" prefWidth="184.0">
+                          <HBox.margin>
+                              <Insets bottom="5.0" left="10.0" top="5.0" />
+                          </HBox.margin>
+                      </TextField>
+                      <Button fx:id="applyFilterBtn" mnemonicParsing="false" text="apply">
+                          <HBox.margin>
+                              <Insets left="10.0" top="5.0" />
+                          </HBox.margin>
+                      </Button>
+                  </children>
+              </HBox>
+            <VBox prefHeight="150.0" prefWidth="461.0" style="-fx-border-color: black;">
+               <children>
+                  <Label text="skip method">
+                     <VBox.margin>
+                        <Insets left="5.0" top="5.0" />
+                     </VBox.margin>
+                  </Label>
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <TextField fx:id="skipMethodEdit" prefHeight="22.0" prefWidth="209.0">
+                           <HBox.margin>
+                              <Insets />
+                           </HBox.margin>
+                        </TextField>
+                        <Button fx:id="addSkipMethodBtn" mnemonicParsing="false" onMouseClicked="#addSkipMethod" prefHeight="22.0" prefWidth="48.0" text="add">
+                           <HBox.margin>
+                              <Insets left="5.0" right="5.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="clearSkipMethodListBtn" mnemonicParsing="false" onMouseClicked="#clearSkipMethodList" text="clear">
+                           <HBox.margin>
+                              <Insets right="5.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="refreshBtn" mnemonicParsing="false" onMouseClicked="#refreshGraph" text="refresh" />
+                     </children>
+                     <padding>
+                        <Insets left="5.0" right="5.0" />
+                     </padding>
+                  </HBox>
+                  <ListView fx:id="skipMethodList" prefHeight="200.0" prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                     </VBox.margin>
+                  </ListView>
+               </children>
+               <HBox.margin>
+                  <Insets left="10.0" />
+               </HBox.margin>
+            </VBox>
+         </children>
+         <padding>
+            <Insets left="10.0" />
+         </padding>
+         <VBox.margin>
+            <Insets top="10.0" />
+         </VBox.margin>
+      </HBox>
+        <TreeView fx:id="iGraphTree" prefHeight="349.0" prefWidth="780.0">
             <VBox.margin>
                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-            </VBox.margin>
-        </HBox>
-        <TreeView fx:id="iGraphTree" prefHeight="463.0" prefWidth="780.0">
-            <VBox.margin>
-                <Insets bottom="10.0" left="10.0" right="10.0" />
             </VBox.margin>
         </TreeView>
     </children>
