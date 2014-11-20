@@ -3,16 +3,13 @@ package com.github.dmgcodevil.jmspy.ui
 import com.github.dmgcodevil.jmspy.graph.Edge
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph
 import com.github.dmgcodevil.jmspy.proxy.JMethod
+import com.google.common.collect.Lists
 import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.ListView
-import javafx.scene.control.TextField
-import javafx.scene.control.TreeItem
-import javafx.scene.control.TreeView
+import javafx.scene.control.*
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.VBoxBuilder
@@ -54,8 +51,6 @@ class Controller {
 
     private InvocationGraph invocationGraph;
 
-    private String filterValue;
-
     public Stage getStage() {
         return stage;
     }
@@ -87,7 +82,7 @@ class Controller {
                     dialogStage.close();
                 })
                 dialogStage.setScene(new Scene(VBoxBuilder.create().
-                        children(new Text("Failed to open invocation graph, bad format"), button).
+                        children(new Text("Failed to open invocation graph. " + e.getMessage()), button).
                         alignment(Pos.CENTER).padding(new Insets(5)).build()));
                 dialogStage.show();
             }
@@ -117,46 +112,44 @@ class Controller {
     @FXML
     private void filterGraph(KeyEvent event) {
         if (invocationGraph != null) {
-            filterValue = filterEdit.getText();
-            //drawGraph(invocationGraph)
+            def filterValue = filterEdit.getText();
+            Filter filter;
+            if (StringUtils.isNotBlank(filterValue)) {
+                filter = Filter.parse(filterValue);
+            } else {
+                filter = Filter.EMPTY;
+            }
+            drawGraph(invocationGraph, filter)
         }
     }
 
 
     private void drawGraph(InvocationGraph invocationGraph) {
+        drawGraph(invocationGraph, Filter.EMPTY);
+    }
+
+    private void drawGraph(InvocationGraph invocationGraph, Filter filter) {
         clearIGraphTree();
         fillRoot(invocationGraph)
         TreeItem<String> rootItem = iGraphTree.getRoot();
         rootItem.setExpanded(true);
 
         invocationGraph.root.outgoingEdges.each { it ->
-            addItem(rootItem, it)
+            addItem(rootItem, it, 0, filter)
         }
     }
 
-    private void addItem(TreeItem<String> rootItem, Edge edge) {
-        if (!isSkipped(edge.getMethod())) {
+    private void addItem(TreeItem<String> rootItem, Edge edge, int level, Filter filter) {
+        if (!isSkipped(edge.getMethod()) && filter.apply(edge.getMethod().name, level)) {
             TreeItem<String> child = new TreeItem<String>(edge.getMethod().toString());
             rootItem.getChildren().add(child);
             if (edge.to != null) {
                 child.setExpanded(false);
                 edge.to.outgoingEdges.each {
-                    addItem(child, it)
+                    addItem(child, it, level + 1, filter)
                 }
             }
         }
-    }
-
-    private boolean include(Edge edge) {
-        if (edge.to != null && edge.to.outgoingEdges != null && edge.to.outgoingEdges.size() > 0) {
-            edge.to.outgoingEdges.each {
-                if (it.method.getName().startsWith(filterValue)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-        return true;
     }
 
     private void fillRoot(InvocationGraph iGraph) {
@@ -170,6 +163,36 @@ class Controller {
 
     private boolean isSkipped(JMethod jMethod) {
         skipMethodList.getItems().contains(jMethod.name);
+    }
+
+    private static class Filter {
+        List<String> elements;
+        public static Filter EMPTY = new Filter(Collections.emptyList());
+
+        Filter(List<String> elements) {
+            this.elements = elements
+        }
+
+        static Filter parse(String filter) {
+            return new Filter(Lists.newArrayList(StringUtils.split(filter, ".")));
+        }
+
+        boolean apply(String name, def index) {
+
+            if (!EMPTY.equals(this) && elements.size() > index) {
+                def filter = get(index);
+                return "*".equals(filter) || name.startsWith(filter)
+            }
+            return true;
+        }
+
+        String get(int index) {
+            return elements.get(index);
+        }
+
+        boolean isEmpty() {
+            return elements.isEmpty();
+        }
     }
 
 }
