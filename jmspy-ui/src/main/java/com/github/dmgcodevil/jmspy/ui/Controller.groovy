@@ -9,7 +9,16 @@ import javafx.fxml.FXML
 import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Scene
-import javafx.scene.control.*
+import javafx.scene.control.Button
+import javafx.scene.control.ContextMenu
+import javafx.scene.control.ContextMenuBuilder
+import javafx.scene.control.ListView
+import javafx.scene.control.MenuItemBuilder
+import javafx.scene.control.TextField
+import javafx.scene.control.TreeItem
+import javafx.scene.control.TreeView
+import javafx.scene.input.Clipboard
+import javafx.scene.input.ClipboardContent
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.VBoxBuilder
@@ -63,6 +72,39 @@ class Controller {
         TreeItem<String> rootItem = new TreeItem<String>("empty");
         iGraphTree.setRoot(rootItem);
         skipMethodList.getItems().addAll("toString", "equals", "hasNext");
+        addIGraphTreeContextMenu();
+    }
+
+    private void addIGraphTreeContextMenu() {
+
+        def copyToClipboard = { event ->
+            final Clipboard clipboard = Clipboard.getSystemClipboard();
+            final ClipboardContent content = new ClipboardContent();
+            content.putString(iGraphTree.getSelectionModel().getSelectedItem().getValue());
+            clipboard.setContent(content);
+        }
+
+        def copyFullToClipboard = { event ->
+            final Clipboard clipboard = Clipboard.getSystemClipboard();
+            final ClipboardContent content = new ClipboardContent();
+            content.putString(nodeToString(iGraphTree.getSelectionModel().getSelectedItem(), new StringBuilder(), 0));
+            clipboard.setContent(content);
+        }
+
+        def excludeMethod = { event ->
+            String methodName = iGraphTree.getSelectionModel().getSelectedItem().getValue()
+            methodName = methodName.substring(0, methodName.indexOf("("));
+            skipMethodList.getItems().add(methodName)
+            refreshGraph()
+        }
+
+        ContextMenu rootContextMenu = ContextMenuBuilder.create().items(
+                MenuItemBuilder.create().text("Copy to clipboard").onAction(copyToClipboard).build(),
+                MenuItemBuilder.create().text("Copy whole node to clipboard").onAction(copyFullToClipboard).build(),
+                MenuItemBuilder.create().text("Exclude/skip").onAction(excludeMethod).build())
+                .build();
+
+        iGraphTree.setContextMenu(rootContextMenu);
     }
 
     @FXML
@@ -104,6 +146,10 @@ class Controller {
 
     @FXML
     private void refreshGraph(MouseEvent event) {
+        refreshGraph()
+    }
+
+    private void refreshGraph() {
         if (invocationGraph != null) {
             drawGraph(invocationGraph)
         }
@@ -123,6 +169,24 @@ class Controller {
         }
     }
 
+    private String nodeToString(TreeItem<String> item, StringBuilder builder, int step) {
+        builder.append("| " * step)
+        if (item.getChildren().size() > 0) {
+            builder.append("+- ")
+        } else {
+            builder.append("\\- ")
+        }
+        builder.append(item.getValue())
+        if (item.getChildren().size() > 0) {
+            step += 3
+            for (def child : item.getChildren()) {
+                builder.append("\n");
+                nodeToString(child, builder, step)
+            }
+            return builder.toString();
+        }
+        return builder.toString();
+    }
 
     private void drawGraph(InvocationGraph invocationGraph) {
         drawGraph(invocationGraph, Filter.EMPTY);
