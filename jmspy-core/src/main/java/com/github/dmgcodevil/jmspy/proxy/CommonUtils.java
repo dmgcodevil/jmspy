@@ -4,6 +4,8 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
 import com.google.common.primitives.Primitives;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.MapUtils;
 
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
@@ -179,5 +181,20 @@ public class CommonUtils {
         return target instanceof Proxy;
     }
 
+    public static <K, V> void forEach(Map<K, V> map, Consumer<? super Map.Entry<K, V>> consumer) {
+        if (MapUtils.isNotEmpty(map)) {
+            for (Map.Entry<K, V> entry : map.entrySet()) {
+                consumer.consume(entry);
+            }
+        }
+    }
+
+    public static <E> void forEach(Collection<E> collection, Consumer<? super E> consumer) {
+        if (CollectionUtils.isNotEmpty(collection)) {
+            for (E el : collection) {
+                consumer.consume(el);
+            }
+        }
+    }
 
 }
