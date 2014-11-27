@@ -5,6 +5,6 @@ package com.github.dmgcodevil.jmspy.proxy;
  *
  * @author Raman_Pliashkou
  */
-interface Consumer<T> {
+public interface Consumer<T> {
     void consume(T input);
 }
