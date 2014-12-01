@@ -79,9 +79,13 @@ public final class Configuration {
                 wrappers.put(Class.forName("java.util.HashMap$Values"), new MapValuesWrapper());
                 wrappers.put(Class.forName("java.util.HashMap$KeySet"), new MapKeySetWrapper());
                 wrappers.put(Class.forName("java.util.ArrayList$ListItr"), new ListIteratorWrapper());
+                wrappers.put(Class.forName("java.util.ArrayList$Itr"), new IteratorWrapper());
                 wrappers.put(Class.forName("java.util.LinkedHashMap$KeyIterator"), new IteratorWrapper());
                 wrappers.put(Class.forName("java.util.HashMap$KeyIterator"), new IteratorWrapper());
                 wrappers.put(Map.Entry.class, new EntryWrapper());
+
+                ignoreType(java.math.BigDecimal.class);
+
             } catch (ClassNotFoundException e) {
                 throw new ConfigurationException(e);
             }
