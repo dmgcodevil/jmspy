@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.UUID;
 
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
 
@@ -22,9 +23,15 @@ public class InvocationGraph implements Serializable {
 
     private static final long serialVersionUID = -1634474286639697525L;
     private Node root;
+    private final transient String id;
 
     public InvocationGraph(Node root) {
         this.root = root;
+        id = UUID.randomUUID().toString();
+    }
+
+    public String getId() {
+        return id;
     }
 
     public static InvocationGraph create(Object target) {

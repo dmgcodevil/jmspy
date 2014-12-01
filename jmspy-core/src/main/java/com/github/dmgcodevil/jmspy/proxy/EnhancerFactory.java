@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.Producer;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.google.common.base.Optional;
 import net.sf.cglib.core.Signature;
@@ -31,7 +32,10 @@ public class EnhancerFactory {
     public static final int MAIN_INTERCEPTOR = 0;
     public static final int GET_PROXY_ID_INTERCEPTOR = 1;
 
-    private final Map<SoftReference<Class<?>>, Enhancer> enhancers = new WeakHashMap<>();
+
+    private final Holder<Class<?>, Enhancer> enhancerHolder = new Holder<>();
+    private final Holder<String, BasicMethodInterceptor> interceptorHolder = new Holder<>();
+
     private final BasicCallbackFilter basicCallbackFilter = new BasicCallbackFilter();
 
     private static final EnhancerFactory ENHANCER_FACTORY = new EnhancerFactory();
@@ -40,19 +44,26 @@ public class EnhancerFactory {
         return ENHANCER_FACTORY;
     }
 
-    public synchronized Enhancer create(Object target, InvocationGraph invocationGraph) {
+    public synchronized Enhancer create(Object target, final InvocationGraph invocationGraph) {
+        BasicMethodInterceptor basicMethodInterceptor = interceptorHolder.lookup(invocationGraph.getId(),
+                new Producer<BasicMethodInterceptor>() {
+                    @Override
+                    public BasicMethodInterceptor produce() {
+                        return new BasicMethodInterceptor(invocationGraph);
+                    }
+                });
+
         Class<?> targetClass = target.getClass();
-        Optional<Enhancer> enhancerOpt = lookupEnhancer(targetClass);
+        Optional<Enhancer> enhancerOpt = enhancerHolder.lookup(targetClass);
         Enhancer enhancer = enhancerOpt.orNull();
         if (enhancer == null) {
             enhancer = create(targetClass, invocationGraph);
-            enhancers.put(new SoftReference<Class<?>>(targetClass), enhancer);
+            enhancerHolder.hold(targetClass, enhancer);
             return enhancer;
         } else {
-            String id = createIdentifier();
             Callback[] callbacks = new Callback[]{
-                    new BasicMethodInterceptor(invocationGraph),
-                    new ProxyIdentifierCallback(id)};
+                    basicMethodInterceptor,
+                    new ProxyIdentifierCallback(createIdentifier())};
             enhancer.setCallbacks(callbacks);
             return enhancer;
         }
@@ -115,15 +126,35 @@ public class EnhancerFactory {
         }
     }
 
-    private Optional<Enhancer> lookupEnhancer(Class<?> type) {
-        Optional<Enhancer> enhancerOptional = Optional.absent();
-        for (Map.Entry<SoftReference<Class<?>>, Enhancer> entry : enhancers.entrySet()) {
-            Class<?> key = entry.getKey().get();
-            if (key != null && key.equals(type)) {
-                enhancerOptional = Optional.of(entry.getValue());
-                break;
+    // not thread safe
+    private static class Holder<K, V> {
+        private final Map<SoftReference<K>, V> data = new WeakHashMap<>();
+
+        private Optional<V> lookup(K key) {
+            Optional<V> optional = Optional.absent();
+            for (Map.Entry<SoftReference<K>, V> entry : data.entrySet()) {
+                K currKey = entry.getKey().get();
+                if (currKey != null && currKey.equals(key)) {
+                    optional = Optional.of(entry.getValue());
+                    break;
+                }
             }
+            return optional;
         }
-        return enhancerOptional;
+
+        private V lookup(K key, Producer<V> valProducer) {
+            Optional<V> optional = lookup(key);
+            if (optional.isPresent()) {
+                return optional.get();
+            }
+            V val = valProducer.produce();
+            hold(key, val);
+            return val;
+        }
+
+        private void hold(K k, V v) {
+            data.put(new SoftReference<K>(k), v);
+        }
     }
+
 }
