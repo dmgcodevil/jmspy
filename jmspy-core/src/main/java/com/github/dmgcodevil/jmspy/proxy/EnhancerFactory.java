@@ -1,6 +1,7 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
+import com.google.common.base.Optional;
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackFilter;
@@ -10,9 +11,12 @@ import net.sf.cglib.proxy.InterfaceMaker;
 import org.apache.commons.lang3.ClassUtils;
 import org.objectweb.asm.Type;
 
+import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
 
@@ -27,12 +31,34 @@ public class EnhancerFactory {
     public static final int MAIN_INTERCEPTOR = 0;
     public static final int GET_PROXY_ID_INTERCEPTOR = 1;
 
-    public static Enhancer create(Object target, InvocationGraph invocationGraph) {
+    private final Map<SoftReference<Class<?>>, Enhancer> enhancers = new WeakHashMap<>();
+    private final BasicCallbackFilter basicCallbackFilter = new BasicCallbackFilter();
 
+    private static final EnhancerFactory ENHANCER_FACTORY = new EnhancerFactory();
 
-        //Create a dynamice interface
+    public static EnhancerFactory getInstance() {
+        return ENHANCER_FACTORY;
+    }
 
+    public synchronized Enhancer create(Object target, InvocationGraph invocationGraph) {
+        Class<?> targetClass = target.getClass();
+        Optional<Enhancer> enhancerOpt = lookupEnhancer(targetClass);
+        Enhancer enhancer = enhancerOpt.orNull();
+        if (enhancer == null) {
+            enhancer = create(targetClass, invocationGraph);
+            enhancers.put(new SoftReference<Class<?>>(targetClass), enhancer);
+            return enhancer;
+        } else {
+            String id = createIdentifier();
+            Callback[] callbacks = new Callback[]{
+                    new BasicMethodInterceptor(invocationGraph),
+                    new ProxyIdentifierCallback(id)};
+            enhancer.setCallbacks(callbacks);
+            return enhancer;
+        }
+    }
 
+    private Enhancer create(Class<?> type, InvocationGraph invocationGraph) {
         String id = createIdentifier();
         if (invocationGraph != null && invocationGraph.getRoot() != null && invocationGraph.getRoot().getId() == null) {
             invocationGraph.getRoot().setId(id);
@@ -44,12 +70,12 @@ public class EnhancerFactory {
         Class proxyHelperInterface = im.create();
 
         Enhancer enhancer = new Enhancer();
-        Class<?> superclass = target.getClass();
 
-        enhancer.setSuperclass(superclass);
+
+        enhancer.setSuperclass(type);
 
         List<Class<?>> interfaces = new ArrayList<>();
-        interfaces.addAll(ClassUtils.getAllInterfaces(target.getClass()));
+        interfaces.addAll(ClassUtils.getAllInterfaces(type));
         interfaces.add(proxyHelperInterface);
 
         Callback[] callbacks = new Callback[]{
@@ -57,7 +83,7 @@ public class EnhancerFactory {
                 new ProxyIdentifierCallback(id)};
 
         enhancer.setInterfaces(interfaces.toArray(new Class<?>[interfaces.size()]));
-        enhancer.setCallbackFilter(new BasicCallbackFilter());
+        enhancer.setCallbackFilter(basicCallbackFilter);
         enhancer.setCallbacks(callbacks);
         return enhancer;
     }
@@ -66,16 +92,9 @@ public class EnhancerFactory {
         return new Signature(Constants.GET_PROXY_IDENTIFIER, Type.getType(String.class), EMPTY_PARAMS);
     }
 
-
-    private static Signature createSignature(Method method) {
-        return new Signature(method.getName(), Type.getReturnType(method), Type.getArgumentTypes(method));
-    }
-
     private static class BasicCallbackFilter implements CallbackFilter {
         @Override
         public int accept(Method method) {
-            Signature signature = createSignature(method);
-            //System.out.println("apply filter: " + signature);
             if (method.getName().equals(Constants.GET_PROXY_IDENTIFIER)) {
                 return GET_PROXY_ID_INTERCEPTOR;
             }
@@ -94,5 +113,17 @@ public class EnhancerFactory {
         public Object loadObject() throws Exception {
             return id;
         }
+    }
+
+    private Optional<Enhancer> lookupEnhancer(Class<?> type) {
+        Optional<Enhancer> enhancerOptional = Optional.absent();
+        for (Map.Entry<SoftReference<Class<?>>, Enhancer> entry : enhancers.entrySet()) {
+            Class<?> key = entry.getKey().get();
+            if (key != null && key.equals(type)) {
+                enhancerOptional = Optional.of(entry.getValue());
+                break;
+            }
+        }
+        return enhancerOptional;
     }
 }

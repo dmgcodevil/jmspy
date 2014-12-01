@@ -4,6 +4,7 @@ import com.github.dmgcodevil.jmspy.exception.ConfigurationException;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.EntrySetWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.EntryWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.IteratorWrapper;
+import com.github.dmgcodevil.jmspy.proxy.wrappers.ListIteratorWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.MapKeySetWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.MapValuesWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
@@ -15,6 +16,7 @@ import com.google.common.collect.Sets;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -30,11 +32,13 @@ public final class Configuration {
     private Map<Class<?>, Wrapper> wrappers = new HashMap<>();
     private SetFieldInterceptor setFieldInterceptor;
     private Set<Class<?>> ignoreTypes = Sets.newHashSet();
+    private Set<String> ignorePackages = Sets.newHashSet();
 
     private Configuration(Builder builder) {
         wrappers = ImmutableMap.copyOf(builder.wrappers);
         ignoreTypes = ImmutableSet.copyOf(builder.ignoreTypes);
         setFieldInterceptor = builder.setFieldInterceptor;
+        ignorePackages = ImmutableSet.copyOf(builder.ignorePackages);
     }
 
     public static Builder builder() {
@@ -53,10 +57,15 @@ public final class Configuration {
         return ignoreTypes;
     }
 
+    public Set<String> getIgnorePackages() {
+        return ignorePackages;
+    }
+
     public static class Builder {
         private Map<Class<?>, Wrapper> wrappers = Maps.newHashMap();
         private SetFieldInterceptor setFieldInterceptor;
         private Set<Class<?>> ignoreTypes = Sets.newHashSet();
+        private Set<String> ignorePackages = Sets.newHashSet();
 
         public Builder() {
             initDefaultWrappers();
@@ -65,9 +74,13 @@ public final class Configuration {
         private void initDefaultWrappers() {
             try {
                 wrappers.put(Iterator.class, new IteratorWrapper());
+                wrappers.put(ListIterator.class, new ListIteratorWrapper());
                 wrappers.put(Class.forName("java.util.HashMap$EntrySet"), new EntrySetWrapper());
                 wrappers.put(Class.forName("java.util.HashMap$Values"), new MapValuesWrapper());
                 wrappers.put(Class.forName("java.util.HashMap$KeySet"), new MapKeySetWrapper());
+                wrappers.put(Class.forName("java.util.ArrayList$ListItr"), new ListIteratorWrapper());
+                wrappers.put(Class.forName("java.util.LinkedHashMap$KeyIterator"), new IteratorWrapper());
+                wrappers.put(Class.forName("java.util.HashMap$KeyIterator"), new IteratorWrapper());
                 wrappers.put(Map.Entry.class, new EntryWrapper());
             } catch (ClassNotFoundException e) {
                 throw new ConfigurationException(e);
@@ -122,6 +135,22 @@ public final class Configuration {
         public Builder ignoreType(Class<?> type) {
             Verify.verifyNotNull(type, "type cannot be null");
             this.ignoreTypes.add(type);
+            return this;
+        }
+
+        public Builder ignorePackages(Set<Class<?>> ignorePackages) {
+            forEach(ignorePackages, new Consumer<Class<?>>() {
+                @Override
+                public void consume(Class<?> input) {
+                    ignoreType(input);
+                }
+            });
+            return this;
+        }
+
+        public Builder ignorePackage(String ipackage) {
+            Verify.verifyNotNull(ipackage, "ignore package cannot be null");
+            this.ignorePackages.add(ipackage);
             return this;
         }
 

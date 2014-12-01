@@ -26,6 +26,7 @@ public class BeanCopier {
     private static final SetFieldErrorHandler DEFAULT_ERROR_HANDLER = new SetFieldErrorHandler() {
         @Override
         public void handle(Object target, Field field, Throwable error) {
+            error.printStackTrace();
             System.out.println("failed to set a value to field: '" + field + "', error: " + error);
         }
     };

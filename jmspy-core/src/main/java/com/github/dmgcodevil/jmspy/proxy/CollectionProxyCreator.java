@@ -31,7 +31,7 @@ public class CollectionProxyCreator extends AbstractProxyCreator implements Prox
         }
         target = processUnmodifiable(target);
         Collection sourceCol = (Collection) target;
-        Collection proxy = (Collection) EnhancerFactory.create(target, invocationGraph).create();
+        Collection proxy = (Collection) enhancerFactory.create(target, invocationGraph).create();
         if (sourceCol.isEmpty()) {
             return proxy;
         } else {

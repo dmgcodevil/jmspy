@@ -16,7 +16,7 @@ public class JMSpyApp extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/ui_template.fxml"));
+        FXMLLoader loader = new FXMLLoader(JMSpyApp.class.getResource("/ui_template.fxml"));
         Parent root = (Parent) loader.load();
 
         Controller controller = loader.getController();

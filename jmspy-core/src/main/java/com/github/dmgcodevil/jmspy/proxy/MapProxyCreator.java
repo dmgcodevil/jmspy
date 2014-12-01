@@ -29,7 +29,7 @@ public class MapProxyCreator extends AbstractProxyCreator implements ProxyCreato
         }
         target = processUnmodifiable(target);
         Map sourceMap = (Map) target;
-        Map proxy = (Map) EnhancerFactory.create(target, invocationGraph).create();
+        Map proxy = (Map) enhancerFactory.create(target, invocationGraph).create();
         if (sourceMap.isEmpty()) {
             return proxy;
         }

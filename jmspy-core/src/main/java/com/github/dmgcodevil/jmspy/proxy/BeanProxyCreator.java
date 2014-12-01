@@ -17,7 +17,7 @@ public class BeanProxyCreator extends AbstractProxyCreator implements ProxyCreat
 
     @Override
     Object createProxy(Object target) throws Throwable {
-        Object proxy = EnhancerFactory.create(target, invocationGraph).create();
+        Object proxy = enhancerFactory.create(target, invocationGraph).create();
         new BeanCopier(new SetProxyFieldInterceptor(ProxyFactory.getInstance(), invocationGraph)).copy(target, proxy);
         return proxy;
     }

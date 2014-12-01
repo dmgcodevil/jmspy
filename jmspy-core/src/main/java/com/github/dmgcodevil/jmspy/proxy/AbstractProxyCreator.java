@@ -9,13 +9,14 @@ import java.util.Map;
 
 /**
  * Basic implementation of {@link ProxyCreator}.
- *
+ * <p/>
  * Created by dmgcodevil.
  */
 public abstract class AbstractProxyCreator implements ProxyCreator {
 
     InvocationGraph invocationGraph;
     Map<Class<?>, Wrapper> wrappers;
+    EnhancerFactory enhancerFactory = EnhancerFactory.getInstance();
 
     AbstractProxyCreator(InvocationGraph invocationGraph, Map<Class<?>, Wrapper> wrappers) {
         this.invocationGraph = invocationGraph;
@@ -30,7 +31,7 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
         Optional<Wrapper> wrapperOptional = findWrapper(target.getClass());
         if (wrapperOptional.isPresent()) {
             Wrapper wrapper = wrapperOptional.get().create(target);
-            Wrapper proxyWrapper = (Wrapper) EnhancerFactory.create(wrapper, invocationGraph).create();
+            Wrapper proxyWrapper = (Wrapper) enhancerFactory.create(wrapper, invocationGraph).create();
             proxyWrapper.setTarget(wrapper.getTarget());
             return proxyWrapper;
         } else {
@@ -53,7 +54,7 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
      */
     Optional<Wrapper> findWrapper(Class<?> type) {
         for (Map.Entry<Class<?>, Wrapper> entry : wrappers.entrySet()) {
-            if (entry.getKey().isAssignableFrom(type)) {
+            if (entry.getKey().equals(type)) {
                 return Optional.of(entry.getValue());
             }
         }

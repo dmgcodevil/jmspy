@@ -2,13 +2,16 @@ package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
+import com.google.common.base.Predicate;
 import com.google.common.base.Verify;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isCglibProxy;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isEmptyData;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isJdkProxy;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isNotPrimitiveOrWrapper;
@@ -22,11 +25,11 @@ public class ProxyFactory {
 
     private Map<Class<?>, Wrapper> wrappers = new HashMap<>();
     private Set<Class<?>> ignoreTypes = Sets.newHashSet();
+    private Set<String> ignorePackages = Sets.newHashSet();
     private static volatile ProxyFactory instance;
     private static final Configuration DEF_CONFIGURATION = Configuration.builder().build();
 
     private ProxyFactory() {
-        throw new UnsupportedOperationException("it's prohibited to create instances of this class");
     }
 
     /**
@@ -44,6 +47,7 @@ public class ProxyFactory {
                     instance = localInstance = new ProxyFactory();
                     instance.wrappers = config.getWrappers();
                     instance.ignoreTypes = config.getIgnoreTypes();
+                    instance.ignorePackages = config.getIgnorePackages();
                 }
             }
         }
@@ -93,6 +97,8 @@ public class ProxyFactory {
                 //Jdk proxies aren't supported because cannot be wrapped in CGLIB proxy without some preparatory work.
                 !isJdkProxy(target) &&
 
+                !isCglibProxy(target) &&
+
                 // specific implementations such java.util.Collections$EmptySet, java.util.Collections$EmptyList are also not supported
                 !isEmptyData(target.getClass()) &&
 
@@ -100,7 +106,22 @@ public class ProxyFactory {
                 isNotPrimitiveOrWrapper(target.getClass()) && !target.getClass().isEnum() &&
 
                 // specific types that defined by user and must be ignored
-                !ignoreTypes.contains(target.getClass());
+                !ignore(target.getClass());
     }
+
+    private boolean ignore(final Class<?> aClass) {
+        boolean ignore = Iterables.tryFind(ignorePackages, new Predicate<String>() {
+            @Override
+            public boolean apply(String input) {
+                return aClass.getName().startsWith(input);
+            }
+        }).isPresent();
+        if (ignoreTypes.contains(aClass) || ignore) {
+            System.out.println("ignore: " + aClass);
+            return true;
+        }
+        return false;
+    }
+
 
 }
