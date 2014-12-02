@@ -8,6 +8,9 @@ import java.util.Arrays;
  * Created by dmgcodevil on 11/16/2014.
  */
 public class JMethod implements Serializable {
+
+    private static final long serialVersionUID = -404618293637362098L;
+
     private String name;
     private String parameters;
     private String returnType;

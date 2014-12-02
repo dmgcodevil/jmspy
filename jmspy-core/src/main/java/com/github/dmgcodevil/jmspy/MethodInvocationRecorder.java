@@ -1,5 +1,7 @@
 package com.github.dmgcodevil.jmspy;
 
+import com.github.dmgcodevil.jmspy.context.ContextExplorer;
+import com.github.dmgcodevil.jmspy.context.InvocationContext;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.ProxyFactory;
 
@@ -16,9 +18,7 @@ public class MethodInvocationRecorder {
 
 
     private List<InvocationRecord> invocationRecords = new ArrayList<>();
-
-    private InvocationContext invocationContext;
-
+    private ContextExplorer contextExplorer;
     private ProxyFactory proxyFactory;
 
     public MethodInvocationRecorder() {
@@ -33,10 +33,6 @@ public class MethodInvocationRecorder {
         return invocationRecords;
     }
 
-    public InvocationContext getInvocationContext() {
-        return invocationContext;
-    }
-
     public Object record(Object target) {
         return record(null, target);
     }
@@ -45,11 +41,22 @@ public class MethodInvocationRecorder {
         if (isNotPrimitiveOrWrapper(target)) {
             InvocationGraph invocationGraph = InvocationGraph.create(target);
             Object proxy = proxyFactory.create(target, invocationGraph);
-            InvocationRecord invocationRecord = new InvocationRecord(method, invocationGraph);
+            InvocationRecord invocationRecord = new InvocationRecord(createInvocationContext(method), invocationGraph);
             invocationRecords.add(invocationRecord);
             return proxy;
         } else {
             return target;
         }
+    }
+
+    public Snapshot makeSnapshot() {
+        return Snapshot.save(new Snapshot(invocationRecords));
+    }
+
+    private InvocationContext createInvocationContext(Method method) {
+        return InvocationContext.builder().root(method)
+                .contextExplorer(contextExplorer)
+                .stackTrace(Thread.currentThread().getStackTrace())
+                .build();
     }
 }

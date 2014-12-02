@@ -1,5 +1,7 @@
 package com.github.dmgcodevil.jmspy.ui
 
+import com.github.dmgcodevil.jmspy.InvocationRecord
+import com.github.dmgcodevil.jmspy.Snapshot
 import com.github.dmgcodevil.jmspy.graph.Edge
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph
 import com.github.dmgcodevil.jmspy.proxy.JMethod
@@ -27,6 +29,8 @@ import javafx.stage.FileChooser
 import javafx.stage.Modality
 import javafx.stage.Stage
 import org.apache.commons.lang3.StringUtils
+
+import java.text.SimpleDateFormat
 
 /**
  * Created by dmgcodevil on 11/18/2014.
@@ -57,6 +61,13 @@ class Controller {
 
     @FXML
     private Button clearSkipMethodListBtn;
+
+    @FXML
+    private ListView<InvocationRecordListItem> invocationRecordsListView;
+
+    private Snapshot snapshot;
+
+    private File currDir;
 
     private InvocationGraph invocationGraph;
 
@@ -111,11 +122,18 @@ class Controller {
     private void handleMenuItemOpenGraph(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open JMSpy invocation graph");
+        FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Jmspy snapshot (*.jmspy)", "*.jmspy");
+        fileChooser.getExtensionFilters().add(extFilter);
+        if (currDir != null) {
+            fileChooser.setInitialDirectory(currDir);
+        }
+
         File file = fileChooser.showOpenDialog(stage);
         if (file != null) {
+            currDir = file;
             try {
-                invocationGraph = InvocationGraph.load(file);
-                drawGraph(invocationGraph)
+                snapshot = Snapshot.load(file);
+                loadRecords();
             } catch (e) {
                 final Stage dialogStage = new Stage();
                 dialogStage.initModality(Modality.WINDOW_MODAL);
@@ -131,6 +149,55 @@ class Controller {
 
         }
 
+    }
+
+    @FXML
+    private void drawInvocationGraph(MouseEvent event) {
+        if (invocationRecordsListView.getItems().isEmpty()) {
+            return
+        }
+        InvocationRecordListItem item = invocationRecordsListView.getSelectionModel().getSelectedItem();
+        if (item != null) {
+            InvocationRecord invocationRecord = getInvocationRecordById(item.id);
+            invocationGraph = invocationRecord.invocationGraph
+            drawGraph(invocationGraph)
+        }
+    }
+
+    private InvocationRecord getInvocationRecordById(def id) {
+        InvocationRecord record = null
+        if (snapshot != null) {
+            record = snapshot.invocationRecords.find {
+                it.id.equals(id)
+            }
+        }
+        return record
+    }
+
+    private void loadRecords() {
+        def label = {
+            InvocationRecord record ->
+                String lbl = "method: '" + (record?.invocationContext?.root?.toString() ?: "unknown") + "'";
+                if (!lbl.isEmpty()) {
+                    lbl += " - "
+                }
+                def created = record?.created;
+                if (created != null) {
+                    SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+
+                    lbl += dt.format(created);
+                } else {
+                    lbl += "unknown date";
+                }
+
+                return lbl
+        }
+        if (snapshot != null) {
+            snapshot.invocationRecords.each { it ->
+                InvocationRecordListItem item = new InvocationRecordListItem(label(it), it.id);
+                invocationRecordsListView.getItems().add(item)
+            }
+        }
     }
 
     @FXML
@@ -256,6 +323,21 @@ class Controller {
 
         boolean isEmpty() {
             return elements.isEmpty();
+        }
+    }
+
+    private class InvocationRecordListItem {
+        String label;
+        def id;
+
+        InvocationRecordListItem(String label, def id) {
+            this.label = label
+            this.id = id
+        }
+
+        @Override
+        public String toString() {
+            return label
         }
     }
 

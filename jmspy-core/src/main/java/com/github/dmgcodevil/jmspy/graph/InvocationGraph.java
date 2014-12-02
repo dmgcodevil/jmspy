@@ -54,6 +54,7 @@ public class InvocationGraph implements Serializable {
 
     }
 
+    @Deprecated
     public static void save(InvocationGraph invocationGraph, String fileName) {
         FileOutputStream fout = null;
         try {
@@ -66,6 +67,7 @@ public class InvocationGraph implements Serializable {
 
     }
 
+    @Deprecated
     public static InvocationGraph load(File file) {
         FileInputStream fin = null;
         try {
