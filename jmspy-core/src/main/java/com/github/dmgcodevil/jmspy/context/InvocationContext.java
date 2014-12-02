@@ -52,6 +52,10 @@ public class InvocationContext implements Serializable {
         return contextExplorer;
     }
 
+    public InvocationContextInfo getContextInfo() {
+        return contextInfo;
+    }
+
     public static class Builder {
         private Method root;
         private StackTraceElement[] stackTrace;

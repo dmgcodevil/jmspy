@@ -14,6 +14,7 @@ public class JMethod implements Serializable {
     private String name;
     private String parameters;
     private String returnType;
+    private String targetClass;
 
     public JMethod() {
     }
@@ -22,7 +23,7 @@ public class JMethod implements Serializable {
         name = method.getName();
         parameters = Arrays.toString(method.getParameterTypes());
         returnType = method.getReturnType().getName();
-
+        targetClass = method.getDeclaringClass().getName();
     }
 
     public String getName() {
@@ -39,6 +40,10 @@ public class JMethod implements Serializable {
 
     public void setReturnType(String returnType) {
         this.returnType = returnType;
+    }
+
+    public String getTargetClass() {
+        return targetClass;
     }
 
     @Override

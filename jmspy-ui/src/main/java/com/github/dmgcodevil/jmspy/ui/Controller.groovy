@@ -2,11 +2,13 @@ package com.github.dmgcodevil.jmspy.ui
 
 import com.github.dmgcodevil.jmspy.InvocationRecord
 import com.github.dmgcodevil.jmspy.Snapshot
+import com.github.dmgcodevil.jmspy.context.InvocationContext
 import com.github.dmgcodevil.jmspy.graph.Edge
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph
 import com.github.dmgcodevil.jmspy.proxy.JMethod
 import com.google.common.collect.Lists
 import javafx.event.ActionEvent
+import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.geometry.Insets
 import javafx.geometry.Pos
@@ -14,6 +16,7 @@ import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.ContextMenuBuilder
+import javafx.scene.control.Label
 import javafx.scene.control.ListView
 import javafx.scene.control.MenuItemBuilder
 import javafx.scene.control.TextField
@@ -24,10 +27,14 @@ import javafx.scene.input.ClipboardContent
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.VBoxBuilder
+import javafx.scene.paint.Color
+import javafx.scene.shape.Circle
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import javafx.stage.Modality
+import javafx.stage.Popup
 import javafx.stage.Stage
+import javafx.stage.WindowEvent
 import org.apache.commons.lang3.StringUtils
 
 import java.text.SimpleDateFormat
@@ -65,11 +72,25 @@ class Controller {
     @FXML
     private ListView<InvocationRecordListItem> invocationRecordsListView;
 
+    @FXML
+    private Label methodLbl;
+
+    @FXML
+    private Label targetClassLbl;
+
+    @FXML
+    private Label invocationInfoLbl;
+
+    @FXML
+    private Button copyStacktraceBtn;
+
     private Snapshot snapshot;
 
     private File currDir;
 
     private InvocationGraph invocationGraph;
+
+    private InvocationContext context;
 
     public Stage getStage() {
         return stage;
@@ -160,8 +181,17 @@ class Controller {
         if (item != null) {
             InvocationRecord invocationRecord = getInvocationRecordById(item.id);
             invocationGraph = invocationRecord.invocationGraph
+            context = invocationRecord.invocationContext;
+            fillInvocationContext()
             drawGraph(invocationGraph)
+
         }
+    }
+
+    private void fillInvocationContext() {
+        methodLbl.setText(context?.root?.toString() ?: "unknown");
+        targetClassLbl.setText(context?.root?.targetClass ?: "unknown")
+        invocationInfoLbl.setText(context?.contextInfo?.description ?: "unknown")
     }
 
     private InvocationRecord getInvocationRecordById(def id) {
@@ -204,6 +234,17 @@ class Controller {
     private void addSkipMethod(MouseEvent event) {
         skipMethodList.getItems().add(skipMethodEdit.getText());
         skipMethodEdit.clear();
+    }
+
+    @FXML
+    private void copyStacktraceToClipboard(MouseEvent event) {
+        if (context != null) {
+            final Clipboard clipboard = Clipboard.getSystemClipboard();
+            final ClipboardContent content = new ClipboardContent();
+            content.putString(StringUtils.join(context.stackTrace, "\n"));
+            clipboard.setContent(content);
+            showPopupMessage("Successfully copied to clipboard", stage)
+        }
     }
 
     @FXML
@@ -339,6 +380,28 @@ class Controller {
         public String toString() {
             return label
         }
+    }
+
+    public static Popup createPopup(final String message) {
+        final Popup popup = new Popup();
+        popup.setAutoFix(true);
+        popup.setAutoHide(true);
+        popup.setHideOnEscape(true);
+        Label label = new Label(message);
+        label.setOnMouseReleased({ MouseEvent e -> popup.hide() });
+        label.getStylesheets().add("/css/styles.css");
+        label.getStyleClass().add("popup");
+        popup.getContent().add(label);
+        return popup;
+    }
+
+    public static void showPopupMessage(final String message, final Stage stage) {
+        final Popup popup = createPopup(message);
+        popup.setOnShown({ WindowEvent e ->
+            popup.setX(stage.getX() + stage.getWidth() / 2 - popup.getWidth() / 2);
+            popup.setY(stage.getY() + stage.getHeight() / 2 - popup.getHeight() / 2);
+        });
+        popup.show(stage);
     }
 
 }

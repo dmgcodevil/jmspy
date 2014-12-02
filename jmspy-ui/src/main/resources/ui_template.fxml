@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.text.*?>
 <?import java.lang.*?>
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
@@ -49,15 +50,44 @@
             <Insets left="10.0" right="10.0" />
          </VBox.margin>
       </ListView>
-        <Label text="Invocation context">
-            <VBox.margin>
-                <Insets left="10.0" />
-            </VBox.margin></Label>
-        <ListView minHeight="-Infinity" prefHeight="50.0" prefWidth="580.0">
-            <VBox.margin>
-                <Insets left="10.0" right="10.0" />
-            </VBox.margin>
-        </ListView>
+      <GridPane style="-fx-border-color: black;" vgap="3.0">
+        <columnConstraints>
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="375.0" minWidth="10.0" prefWidth="208.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="592.0" minWidth="10.0" prefWidth="592.0" />
+        </columnConstraints>
+        <rowConstraints>
+          <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="45.0" vgrow="SOMETIMES" />
+        </rowConstraints>
+         <children>
+            <Label text="Method" GridPane.rowIndex="1" />
+            <Label text="Target class" GridPane.rowIndex="2" />
+            <Label fx:id="methodLbl" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label fx:id="targetClassLbl" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label text="Stacktrace" GridPane.rowIndex="4" />
+            <Button fx:id="copyStacktraceBtn" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onMouseClicked="#copyStacktraceToClipboard" prefHeight="22.0" prefWidth="77.0" text="copy" GridPane.columnIndex="1" GridPane.rowIndex="4">
+               <font>
+                  <Font size="10.0" />
+               </font>
+            </Button>
+              <Label text="Invocation context" underline="true">
+               <GridPane.margin>
+                  <Insets />
+               </GridPane.margin>
+            </Label>
+            <Label text="Additional info" GridPane.rowIndex="3" />
+            <Label fx:id="invocationInfoLbl" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+         </children>
+         <VBox.margin>
+            <Insets bottom="5.0" left="10.0" right="10.0" top="5.0" />
+         </VBox.margin>
+         <padding>
+            <Insets left="5.0" />
+         </padding>
+      </GridPane>
       <HBox prefHeight="174.0" prefWidth="800.0">
          <children>
               <HBox prefHeight="73.0" prefWidth="310.0" style="-fx-border-color: black;">
