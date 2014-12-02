@@ -14,11 +14,11 @@ import java.util.Map;
  */
 public abstract class AbstractProxyCreator implements ProxyCreator {
 
-    InvocationGraph invocationGraph;
-    Map<Class<?>, Wrapper> wrappers;
-    EnhancerFactory enhancerFactory = EnhancerFactory.getInstance();
+    protected InvocationGraph invocationGraph;
+    protected Map<Class<?>, Wrapper> wrappers;
+    protected EnhancerFactory enhancerFactory = EnhancerFactory.getInstance();
 
-    AbstractProxyCreator(InvocationGraph invocationGraph, Map<Class<?>, Wrapper> wrappers) {
+    protected AbstractProxyCreator(InvocationGraph invocationGraph, Map<Class<?>, Wrapper> wrappers) {
         this.invocationGraph = invocationGraph;
         this.wrappers = wrappers;
     }
@@ -43,6 +43,14 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
         }
     }
 
+    /**
+     * This abstract method is a part of template method {@link AbstractProxyCreator#createProxy(Object)}
+     * and used to create proxies.
+     *
+     * @param target the target object
+     * @return proxy
+     * @throws Throwable in a case of any errors
+     */
     abstract Object createProxy(Object target) throws Throwable;
 
     /**

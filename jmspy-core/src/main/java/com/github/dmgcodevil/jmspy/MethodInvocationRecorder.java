@@ -12,10 +12,21 @@ import java.util.List;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isNotPrimitiveOrWrapper;
 
 /**
- * Created by dmgcodevil on 11/8/2014.
+ * Class provides several methods to start invocation recording for some objects.
+ * <p/>
+ * Basically overall process comprises several steps, namely:
+ * 1. Create proxy for the target object.
+ * 2. Create invocation record
+ * <p/>
+ * There is ability to register {@link ContextExplorer} to get more information about execution context.
+ * Basically this information will be common for all invocation records
+ * thus it doesn't make sense to register multiple explorers.
+ * <p/>
+ * Also there is ability to save invocation snapshot.
+ *
+ * @author dmgcodevil
  */
 public class MethodInvocationRecorder {
-
 
     private List<InvocationRecord> invocationRecords = new ArrayList<>();
     private ContextExplorer contextExplorer;
@@ -26,6 +37,16 @@ public class MethodInvocationRecorder {
     }
 
     public MethodInvocationRecorder(ProxyFactory proxyFactory) {
+        this.proxyFactory = proxyFactory;
+    }
+
+    public MethodInvocationRecorder(ContextExplorer contextExplorer) {
+        this();
+        this.contextExplorer = contextExplorer;
+    }
+
+    public MethodInvocationRecorder(ContextExplorer contextExplorer, ProxyFactory proxyFactory) {
+        this.contextExplorer = contextExplorer;
         this.proxyFactory = proxyFactory;
     }
 

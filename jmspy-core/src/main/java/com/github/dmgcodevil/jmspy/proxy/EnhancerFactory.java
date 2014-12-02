@@ -1,6 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
-import com.github.dmgcodevil.jmspy.Producer;
+import com.github.dmgcodevil.jmspy.functional.Producer;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.google.common.base.Optional;
 import net.sf.cglib.core.Signature;

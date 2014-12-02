@@ -4,19 +4,17 @@ import com.github.dmgcodevil.jmspy.exception.ProxyCreationException;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isArray;
-import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isJdkProxy;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isMap;
 
 /**
- * Created by dmgcodevil on 11/8/2014.
+ * Factory to create instances of specific {@link ProxyCreator} implementations depending on type
+ *
+ * @author dmgcodevil
  */
 public class ProxyCreatorFactory {
-
-   // private Map<Class<?>, Wrapper> wrappers;
 
     public static ProxyCreator create(Class<?> type, InvocationGraph invocationGraph, Map<Class<?>, Wrapper> wrappers) {
         if (CommonUtils.isBean(type)) {

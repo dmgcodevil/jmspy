@@ -16,7 +16,13 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isCglibProxy;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isUnmodifiable;
 
 /**
- * Created by dmgcodevil on 11/7/2014.
+ * Intercepts methods and adds new edges and nodes to the invocation graph.
+ * <p/>
+ * This interceptor has some restrictions that may be eliminated in future:
+ * Arrays aren't supported, since array is specific type in java thus we can't just wrap it a wrapper and instrument it as well.
+ * Unmodifiable collections and maps aren't supported, will be fixed in the near future.
+ *
+ * @author dmgcodevil
  */
 public class BasicMethodInterceptor implements MethodInterceptor {
     InvocationGraph invocationGraph;

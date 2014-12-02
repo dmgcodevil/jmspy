@@ -17,9 +17,9 @@ import java.util.List;
 import static org.slf4j.helpers.MessageFormatter.format;
 
 /**
- * Class description.
+ * Represents a snapshot of invocations.
  *
- * @author Raman_Pliashkou
+ * @author dmgcodevil
  */
 public class Snapshot implements Serializable {
 

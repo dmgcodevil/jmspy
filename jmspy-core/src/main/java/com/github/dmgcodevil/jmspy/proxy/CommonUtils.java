@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.functional.Consumer;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
@@ -44,7 +45,6 @@ public class CommonUtils {
             throw Throwables.propagate(e);
         }
     }
-
 
     /**
      * Gets all properties for the specified type including all super classes except Object.class.

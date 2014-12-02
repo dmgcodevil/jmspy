@@ -3,9 +3,9 @@ package com.github.dmgcodevil.jmspy.context;
 import java.io.Serializable;
 
 /**
- * Class description.
+ * Additional information about execution environment, such as app name, url and etc.
  *
- * @author Raman_Pliashkou
+ * @author dmgcodevil
  */
 public class InvocationContextInfo implements Serializable {
 

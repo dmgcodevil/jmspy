@@ -1,6 +1,10 @@
 package com.github.dmgcodevil.jmspy.graph;
 
+import com.github.dmgcodevil.jmspy.proxy.JMethod;
 import com.github.dmgcodevil.jmspy.proxy.JType;
+import com.google.common.base.Predicate;
+import com.google.common.base.Verify;
+import com.google.common.collect.Iterables;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
@@ -67,6 +71,16 @@ public class Node implements Serializable {
 
         }
         return null;
+    }
+
+    public synchronized Edge getEdge(Node parent, final JMethod jMethod) {
+        Verify.verifyNotNull(jMethod, "jMethod cannot be null");
+        return Iterables.tryFind(parent.getOutgoingEdges(), new Predicate<Edge>() {
+            @Override
+            public boolean apply(Edge input) {
+                return input != null && input.getMethod().equals(jMethod);
+            }
+        }).orNull();
     }
 
     @Override

@@ -6,14 +6,18 @@ import java.io.Serializable;
 import java.lang.reflect.Method;
 
 /**
- * Created by dmgcodevil on 11/8/2014.
+ * Represents information about invocation context.
+ *
+ * @author dmgcodevil
  */
 public class InvocationContext implements Serializable {
 
     private static final long serialVersionUID = -766181999235753653L;
+
     private JMethod root;
     private StackTraceElement[] stackTrace;
     private InvocationContextInfo contextInfo;
+    // used only to get InvocationContextInfo and shouldn't serialized
     private transient ContextExplorer contextExplorer;
 
     public InvocationContext() {
@@ -23,7 +27,6 @@ public class InvocationContext implements Serializable {
         if (root != null) {
             this.root = new JMethod(root);
         }
-
         this.stackTrace = stackTrace;
         this.contextExplorer = contextExplorer;
         if (contextExplorer != null) {
@@ -48,10 +51,6 @@ public class InvocationContext implements Serializable {
         return stackTrace;
     }
 
-    public ContextExplorer getContextExplorer() {
-        return contextExplorer;
-    }
-
     public InvocationContextInfo getContextInfo() {
         return contextInfo;
     }
@@ -61,16 +60,34 @@ public class InvocationContext implements Serializable {
         private StackTraceElement[] stackTrace;
         private ContextExplorer contextExplorer;
 
+        /**
+         * Sets root method that returns instrumented object.
+         *
+         * @param root the method
+         * @return this Builder
+         */
         public Builder root(Method root) {
             this.root = root;
             return this;
         }
 
+        /**
+         * Sets invocation stack trace.
+         *
+         * @param stackTrace the array of {@link StackTraceElement}
+         * @return this Builder
+         */
         public Builder stackTrace(StackTraceElement[] stackTrace) {
             this.stackTrace = stackTrace;
             return this;
         }
 
+        /**
+         * Sets specific {@link ContextExplorer} implementation in order to get additional info about execution environment.
+         *
+         * @param contextExplorer the context explorer
+         * @return this Builder
+         */
         public Builder contextExplorer(ContextExplorer contextExplorer) {
             this.contextExplorer = contextExplorer;
             return this;

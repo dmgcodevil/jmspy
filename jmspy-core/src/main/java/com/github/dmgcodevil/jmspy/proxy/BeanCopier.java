@@ -1,6 +1,8 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.exception.BeanCopierException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -9,12 +11,15 @@ import java.util.List;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.getOriginalType;
 
 /**
- * Created by dmgcodevil on 11/14/2014.
+ * Copies entire of one bean to second and in the same time creates proxies for complex properties.
+ *
+ * @author dmgcodevil
  */
 public class BeanCopier {
 
     private SetFieldInterceptor setFieldInterceptor = DEFAULT_SET_FIELD_INTERCEPTOR;
     private SetFieldErrorHandler setFieldErrorHandler = DEFAULT_ERROR_HANDLER;
+    private static final Logger LOGGER = LoggerFactory.getLogger(BasicMethodInterceptor.class);
 
     private static final SetFieldInterceptor DEFAULT_SET_FIELD_INTERCEPTOR = new SetFieldInterceptor() {
         @Override
@@ -26,8 +31,8 @@ public class BeanCopier {
     private static final SetFieldErrorHandler DEFAULT_ERROR_HANDLER = new SetFieldErrorHandler() {
         @Override
         public void handle(Object target, Field field, Throwable error) {
-            error.printStackTrace();
-            System.out.println("failed to set a value to field: '" + field + "', error: " + error);
+            error.printStackTrace(); // todo remove it
+            LOGGER.error("failed to set a value to field: '{}', error: '{}'", field, error);
         }
     };
 
@@ -49,6 +54,12 @@ public class BeanCopier {
         return BEAN_COPIER;
     }
 
+    /**
+     * Copies entire of 'from' bean to 'to' bean and in the same time creates proxies for complex properties.
+     *
+     * @param from the bean to copy from
+     * @param to   the bean to copy to
+     */
     public void copy(Object from, Object to) {
         Class<?> fromType = getOriginalType(from);
         Class<?> toType = getOriginalType(from);

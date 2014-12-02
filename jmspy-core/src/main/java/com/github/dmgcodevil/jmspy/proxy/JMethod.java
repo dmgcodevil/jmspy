@@ -5,7 +5,9 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 
 /**
- * Created by dmgcodevil on 11/16/2014.
+ * Simple representation of {@link java.lang.reflect.Method}.
+ *
+ * @author dmgcodevil
  */
 public class JMethod implements Serializable {
 

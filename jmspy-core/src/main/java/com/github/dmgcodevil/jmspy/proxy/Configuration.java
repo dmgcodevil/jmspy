@@ -1,6 +1,7 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.exception.ConfigurationException;
+import com.github.dmgcodevil.jmspy.functional.Consumer;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.EntrySetWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.EntryWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.IteratorWrapper;

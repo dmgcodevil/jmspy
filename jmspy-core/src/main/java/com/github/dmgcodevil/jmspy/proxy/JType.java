@@ -3,7 +3,9 @@ package com.github.dmgcodevil.jmspy.proxy;
 import java.io.Serializable;
 
 /**
- * Created by dmgcodevil on 11/17/2014.
+ * Simple representation of {@link java.lang.Class}.
+ *
+ * @author dmgcodevil
  */
 public class JType implements Serializable{
     private String name;
