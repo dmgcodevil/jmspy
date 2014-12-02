@@ -11,7 +11,7 @@ public class Edge implements Serializable {
 
     private static final long serialVersionUID = -5509438349274267407L;
     private Node from;
-    private Node to;
+    private Node to; // todo change it to collection, because method can return same objects but with different used fields
     private JMethod method;
 
     public Node getFrom() {
