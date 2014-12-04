@@ -34,7 +34,6 @@ public class EnhancerFactory {
 
 
     private final Holder<Class<?>, Enhancer> enhancerHolder = new Holder<>();
-    private final Holder<String, BasicMethodInterceptor> interceptorHolder = new Holder<>();
 
     private final BasicCallbackFilter basicCallbackFilter = new BasicCallbackFilter();
 

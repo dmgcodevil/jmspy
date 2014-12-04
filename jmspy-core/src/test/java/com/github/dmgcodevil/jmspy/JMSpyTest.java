@@ -34,7 +34,6 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class JMSpyTest {
 
-    private static final String NONE = "NONE";
     private MethodInvocationRecorder invocationRecorder = new MethodInvocationRecorder();
     private ExecutorService executor = Executors.newFixedThreadPool(100);
 
@@ -108,12 +107,54 @@ public class JMSpyTest {
         assertNotNull(invocationRecord);
         Node rootNode = invocationRecord.getInvocationGraph().getRoot();
         assertEquals(5, rootNode.getOutgoingEdges().size());
+        assertTrue(exists(rootNode, "getAccounts"));
+        assertTrue(exists(rootNode, "getAccounts.iterator"));
+        assertTrue(exists(rootNode, "getAccounts.iterator.next"));
+        assertTrue(exists(rootNode, "getAccounts.iterator.next.getName"));
+
         invocationRecord = getInvocationRecord(JMSpyTest.class.getMethod("testUnmodifiableList"));
         assertNotNull(invocationRecord);
         Node rootNodeTestUnmodifiableList = invocationRecord.getInvocationGraph().getRoot();
         assertEquals(8, rootNodeTestUnmodifiableList.getOutgoingEdges().size());
+
+        assertTrue(exists(rootNodeTestUnmodifiableList, "getAccounts"));
+        assertTrue(exists(rootNodeTestUnmodifiableList, "getAccounts.iterator"));
+        assertTrue(exists(rootNodeTestUnmodifiableList, "getAccounts.iterator.hasNext"));
+
+        assertTrue(exists(rootNodeTestUnmodifiableList, "getContacts"));
+        assertTrue(exists(rootNodeTestUnmodifiableList, "getContacts.iterator"));
+        assertTrue(exists(rootNodeTestUnmodifiableList, "getContacts.iterator.next"));
+        assertTrue(exists(rootNodeTestUnmodifiableList, "getContacts.iterator.next.getName"));
+
     }
 
+
+    private boolean exists(Node root, String path) {
+        List<String> methods = Lists.newArrayList(StringUtils.split(path, "."));
+        return exists(root, methods.get(0), methods, 0);
+    }
+
+    private boolean exists(Node root, String method, List<String> methods, int level) {
+        boolean exists = false;
+        if (level <= methods.size() - 1) {
+            for (Edge edge : root.getOutgoingEdges()) {
+                if (edge.getMethod().getName().equals(method)) {
+                    if (CollectionUtils.isNotEmpty(edge.getTo().getOutgoingEdges())) {
+                        int nextLevel = level + 1;
+                        if (nextLevel != methods.size() && exists(edge.getTo(),
+                                methods.get(nextLevel), methods, nextLevel)) {
+                            exists = true;
+                            break;
+                        }
+                    } else {
+                        exists = true;
+                    }
+
+                }
+            }
+        }
+        return exists;
+    }
 
     // todo improve this method and add to MethodInvocationRecorder class
     public InvocationRecord getInvocationRecord(final Method method) {
