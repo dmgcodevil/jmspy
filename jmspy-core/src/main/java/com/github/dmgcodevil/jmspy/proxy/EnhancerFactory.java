@@ -10,6 +10,9 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.FixedValue;
 import net.sf.cglib.proxy.InterfaceMaker;
 import org.apache.commons.lang3.ClassUtils;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.lang.ref.SoftReference;
@@ -93,6 +96,11 @@ public class EnhancerFactory {
         enhancer.setInterfaces(interfaces.toArray(new Class<?>[interfaces.size()]));
         enhancer.setCallbackFilter(basicCallbackFilter);
         enhancer.setCallbacks(callbacks);
+        try {
+            enhancer.generateClass(createDefaultConstructor(type));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return enhancer;
     }
 
@@ -152,6 +160,25 @@ public class EnhancerFactory {
         private void hold(K k, V v) {
             data.put(new SoftReference<>(k), v);
         }
+    }
+
+    private ClassWriter createDefaultConstructor(Class<?> superClass) {
+        String packageName = superClass.getPackage().getName();
+        String className = superClass.getSimpleName();
+        String fullName = packageName + "/" + className;
+        ClassWriter cw = new ClassWriter(0);
+        cw.visit(Opcodes.V1_7, Opcodes.ACC_PUBLIC, fullName, null, "java/lang/Object", null);
+        {
+            // constructor
+            MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
+            mv.visitMaxs(2, 1);
+            mv.visitVarInsn(Opcodes.ALOAD, 0); // push `this` to the operand stack
+            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(Object.class), "<init>", "()V"); // call the constructor of super class
+            mv.visitInsn(Opcodes.RETURN);
+            mv.visitEnd();
+        }
+        cw.visitEnd();
+        return cw;
     }
 
 }
