@@ -7,9 +7,9 @@ import java.util.Iterator;
 /**
  * Wrapper for {@link Iterator}.
  *
- * Created by dmgcodevil on 11/8/2014.
+ * @author dmgcodevil
  */
-public class IteratorWrapper implements Wrapper, Iterator {
+public class IteratorWrapper implements Wrapper<Iterator>, Iterator {
 
     @NotProxy
     private Iterator target;
@@ -38,22 +38,22 @@ public class IteratorWrapper implements Wrapper, Iterator {
     }
 
     @Override
-    public Wrapper create(Object target) {
-        return new IteratorWrapper((Iterator) target);
+    public Wrapper create(Iterator target) {
+        return new IteratorWrapper(target);
     }
 
     @Override
-    public void setTarget(Object target) {
-        this.target = (Iterator) target;
+    public void setTarget(Iterator target) {
+        this.target = target;
     }
 
     @Override
-    public Object getTarget() {
+    public Iterator getTarget() {
         return target;
     }
 
     @Override
-    public Class<?> getType() {
+    public Class<? extends Wrapper<Iterator>> getType() {
         return IteratorWrapper.class;
     }
 

@@ -5,11 +5,11 @@ import com.github.dmgcodevil.jmspy.proxy.NotProxy;
 import java.util.ListIterator;
 
 /**
- * Class description.
+ * Wrapper for {@link ListIterator}.
  *
- * @author Raman_Pliashkou
+ * @author dmgcodevil
  */
-public class ListIteratorWrapper implements Wrapper, ListIterator {
+public class ListIteratorWrapper implements Wrapper<ListIterator>, ListIterator {
 
     @NotProxy
     private ListIterator target;
@@ -67,22 +67,22 @@ public class ListIteratorWrapper implements Wrapper, ListIterator {
     }
 
     @Override
-    public Wrapper create(Object target) {
-        return new ListIteratorWrapper((ListIterator) target);
+    public Wrapper create(ListIterator target) {
+        return new ListIteratorWrapper(target);
     }
 
     @Override
-    public void setTarget(Object target) {
-        this.target = (ListIterator) target;
+    public void setTarget(ListIterator target) {
+        this.target = target;
     }
 
     @Override
-    public Object getTarget() {
+    public ListIterator getTarget() {
         return target;
     }
 
     @Override
-    public Class<?> getType() {
+    public Class<? extends Wrapper<ListIterator>> getType() {
         return ListIteratorWrapper.class;
     }
 }

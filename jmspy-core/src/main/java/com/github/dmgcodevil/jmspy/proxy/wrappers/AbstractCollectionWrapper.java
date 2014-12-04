@@ -7,27 +7,28 @@ import java.util.Iterator;
 
 /**
  * Basic implementation of {@link Collection} interface.
- * Created by dmgcodevil on 11/14/2014.
+ *
+ * @author dmgcodevil
  */
-public abstract class AbstractCollectionWrapper implements Collection<Object>, Wrapper {
+public abstract class AbstractCollectionWrapper<T extends Collection> implements Collection, Wrapper<T> {
 
     @NotProxy
-    private Collection<Object> target;
+    T target;
 
     public AbstractCollectionWrapper() {
     }
 
-    public AbstractCollectionWrapper(Collection target) {
+    public AbstractCollectionWrapper(T target) {
         this.target = target;
     }
 
     @Override
-    public void setTarget(Object target) {
-        this.target = (Collection) target;
+    public void setTarget(T target) {
+        this.target = target;
     }
 
     @Override
-    public Object getTarget() {
+    public T getTarget() {
         return target;
     }
 
@@ -47,7 +48,7 @@ public abstract class AbstractCollectionWrapper implements Collection<Object>, W
     }
 
     @Override
-    public Iterator<Object> iterator() {
+    public Iterator iterator() {
         return target.iterator();
     }
 
@@ -72,22 +73,22 @@ public abstract class AbstractCollectionWrapper implements Collection<Object>, W
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean containsAll(Collection c) {
         return target.containsAll(c);
     }
 
     @Override
-    public boolean addAll(Collection<?> c) {
+    public boolean addAll(Collection c) {
         return target.addAll(c);
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(Collection c) {
         return target.retainAll(c);
     }
 
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(Collection c) {
         return target.retainAll(c);
     }
 
@@ -95,5 +96,4 @@ public abstract class AbstractCollectionWrapper implements Collection<Object>, W
     public void clear() {
         target.clear();
     }
-
 }

@@ -9,12 +9,14 @@ import java.util.Set;
 /**
  * Basic implementation of {@link Set} interface.
  *
- * Created by dmgcodevil on 11/16/2014.
+ * @author dmgcodevil
+ * @deprecated see {@link AbstractCollectionWrapper}
  */
-public abstract class AbstractSetWrapper implements Set<Object>, Wrapper {
+@Deprecated
+public abstract class AbstractSetWrapper implements Set, Wrapper<Set> {
 
     @NotProxy
-    private Set<Object> target;
+    private Set target;
 
     /* default constructor is required */
     public AbstractSetWrapper() {
@@ -24,12 +26,12 @@ public abstract class AbstractSetWrapper implements Set<Object>, Wrapper {
         this.target = target;
     }
 
-    public Object getTarget() {
+    public Set getTarget() {
         return target;
     }
 
-    public void setTarget(Object target) {
-        this.target = (Set) target;
+    public void setTarget(Set target) {
+        this.target = target;
     }
 
     @Override
@@ -48,7 +50,7 @@ public abstract class AbstractSetWrapper implements Set<Object>, Wrapper {
     }
 
     @Override
-    public Iterator<Object> iterator() {
+    public Iterator iterator() {
         return target.iterator();
     }
 
@@ -72,22 +74,23 @@ public abstract class AbstractSetWrapper implements Set<Object>, Wrapper {
     }
 
     @Override
-    public boolean containsAll(Collection<?> c) {
+    public boolean containsAll(Collection c) {
         return target.containsAll(c);
     }
 
     @Override
-    public boolean addAll(Collection<? extends Object> c) {
+    public boolean addAll(Collection c) {
         return target.addAll(c);
     }
 
+
     @Override
-    public boolean retainAll(Collection<?> c) {
+    public boolean retainAll(Collection c) {
         return target.retainAll(c);
     }
 
     @Override
-    public boolean removeAll(Collection<?> c) {
+    public boolean removeAll(Collection c) {
         return target.removeAll(c);
     }
 

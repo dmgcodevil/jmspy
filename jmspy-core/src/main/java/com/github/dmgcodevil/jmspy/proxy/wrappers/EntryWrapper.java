@@ -6,18 +6,18 @@ import java.util.Map;
 
 /**
  * Wrapper for {@link java.util.Map.Entry}.
- * <p/>
- * Created by dmgcodevil.
+ *
+ * @author dmgcodevil
  */
-public class EntryWrapper implements Map.Entry<Object, Object>, Wrapper {
+public class EntryWrapper implements Map.Entry, Wrapper<Map.Entry> {
 
     @NotProxy
-    private Map.Entry<Object, Object> target;
+    private Map.Entry target;
 
     public EntryWrapper() {
     }
 
-    public EntryWrapper(Map.Entry<Object, Object> target) {
+    public EntryWrapper(Map.Entry target) {
         this.target = target;
     }
 
@@ -47,22 +47,22 @@ public class EntryWrapper implements Map.Entry<Object, Object>, Wrapper {
     }
 
     @Override
-    public Wrapper create(Object target) {
-        return new EntryWrapper((Map.Entry) target);
+    public Wrapper create(Map.Entry target) {
+        return new EntryWrapper(target);
     }
 
     @Override
-    public void setTarget(Object target) {
-        this.target = (Map.Entry) target;
+    public void setTarget(Map.Entry target) {
+        this.target = target;
     }
 
     @Override
-    public Object getTarget() {
+    public Map.Entry getTarget() {
         return target;
     }
 
     @Override
-    public Class<?> getType() {
+    public Class<? extends Wrapper<Map.Entry>> getType() {
         return EntryWrapper.class;
     }
 }

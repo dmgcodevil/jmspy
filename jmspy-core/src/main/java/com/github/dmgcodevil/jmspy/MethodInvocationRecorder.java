@@ -4,6 +4,8 @@ import com.github.dmgcodevil.jmspy.context.ContextExplorer;
 import com.github.dmgcodevil.jmspy.context.InvocationContext;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.ProxyFactory;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -54,14 +56,14 @@ public class MethodInvocationRecorder {
         return invocationRecords;
     }
 
-    public Object record(Object target) {
+    public <T> T record(T target) {
         return record(null, target);
     }
 
-    public Object record(Method method, Object target) {
+    public <T> T record(Method method, T target) {
         if (isNotPrimitiveOrWrapper(target)) {
             InvocationGraph invocationGraph = InvocationGraph.create(target);
-            Object proxy = proxyFactory.create(target, invocationGraph);
+            T proxy = (T) proxyFactory.create(target, invocationGraph);
             InvocationRecord invocationRecord = new InvocationRecord(createInvocationContext(method), invocationGraph);
             invocationRecords.add(invocationRecord);
             return proxy;

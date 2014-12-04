@@ -45,14 +45,6 @@ public class EnhancerFactory {
     }
 
     public synchronized Enhancer create(Object target, final InvocationGraph invocationGraph) {
-        BasicMethodInterceptor basicMethodInterceptor = interceptorHolder.lookup(invocationGraph.getId(),
-                new Producer<BasicMethodInterceptor>() {
-                    @Override
-                    public BasicMethodInterceptor produce() {
-                        return new BasicMethodInterceptor(invocationGraph);
-                    }
-                });
-
         Class<?> targetClass = target.getClass();
         Optional<Enhancer> enhancerOpt = enhancerHolder.lookup(targetClass);
         Enhancer enhancer = enhancerOpt.orNull();
@@ -61,19 +53,25 @@ public class EnhancerFactory {
             enhancerHolder.hold(targetClass, enhancer);
             return enhancer;
         } else {
+            String id = createIdentifier();
+            initInvocationGraph(id, invocationGraph);
             Callback[] callbacks = new Callback[]{
-                    basicMethodInterceptor,
-                    new ProxyIdentifierCallback(createIdentifier())};
+                    new BasicMethodInterceptor(invocationGraph),
+                    new ProxyIdentifierCallback(id)};
             enhancer.setCallbacks(callbacks);
-            return enhancer;
+        }
+        return enhancer;
+    }
+
+    private void initInvocationGraph(String id, InvocationGraph invocationGraph) {
+        if (invocationGraph != null && invocationGraph.getRoot() != null && invocationGraph.getRoot().getId() == null) {
+            invocationGraph.getRoot().setId(id);
         }
     }
 
     private Enhancer create(Class<?> type, InvocationGraph invocationGraph) {
         String id = createIdentifier();
-        if (invocationGraph != null && invocationGraph.getRoot() != null && invocationGraph.getRoot().getId() == null) {
-            invocationGraph.getRoot().setId(id);
-        }
+        initInvocationGraph(id, invocationGraph);
         InterfaceMaker im = new InterfaceMaker();
         im.add(createGetProxyIdentifierMethod(), EMPTY_PARAMS);
 
@@ -153,7 +151,7 @@ public class EnhancerFactory {
         }
 
         private void hold(K k, V v) {
-            data.put(new SoftReference<K>(k), v);
+            data.put(new SoftReference<>(k), v);
         }
     }
 

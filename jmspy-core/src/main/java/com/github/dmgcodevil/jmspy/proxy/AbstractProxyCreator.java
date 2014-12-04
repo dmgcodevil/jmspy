@@ -61,12 +61,30 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
      * instance use {@link com.google.common.base.Optional#isPresent()}
      */
     Optional<Wrapper> findWrapper(Class<?> type) {
+        Optional<Wrapper> optional = Optional.absent();
         for (Map.Entry<Class<?>, Wrapper> entry : wrappers.entrySet()) {
             if (entry.getKey().equals(type)) {
-                return Optional.of(entry.getValue());
+                optional = Optional.of(entry.getValue());
+                break;
             }
         }
-        return Optional.absent();
+
+        // this iteration is required because if we deal with nested
+        // or anonymous classes that are subclasses of some public classes or interfaces then condition based
+        // on equals() between two classes isn't enough
+        // for example unmodifiable set returns iterator that is anonymous class in unmodifiable
+        // list and has next class name in runtime 'java.util.Collections$UnmodifiableCollection$1'
+        // thus we need to use isAssignableFrom() to find wrapper
+
+        if (!optional.isPresent()) {
+            for (Map.Entry<Class<?>, Wrapper> entry : wrappers.entrySet()) {
+                if (entry.getKey().isAssignableFrom(type)) {
+                    optional = Optional.of(entry.getValue());
+                    break;
+                }
+            }
+        }
+        return optional;
     }
 
 }

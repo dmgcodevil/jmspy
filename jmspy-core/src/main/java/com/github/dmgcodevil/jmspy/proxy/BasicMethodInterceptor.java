@@ -48,9 +48,7 @@ public class BasicMethodInterceptor implements MethodInterceptor {
                 }
 
                 if (out != null) {
-                    if (!isCglibProxy(out) &&
-                            !isArray(out.getClass()) &&
-                            !isUnmodifiable(out)) {
+                    if (!isArray(out.getClass())) {
                         out =  ProxyFactory.getInstance().create(out, invocationGraph);
                         //out =  ProxyFactory.getInstance().create(out);
                     }

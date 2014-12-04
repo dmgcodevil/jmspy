@@ -5,15 +5,12 @@ import com.google.common.base.Throwables;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.UUID;
-
-import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
 
 /**
  * Created by dmgcodevil on 11/8/2014.
@@ -54,6 +51,13 @@ public class InvocationGraph implements Serializable {
 
     }
 
+    /**
+     * Saves invocationGraph to a file with the given fileName.
+     *
+     * @param invocationGraph the current invocation graph
+     * @param fileName        the name of file
+     * @deprecated see {@link com.github.dmgcodevil.jmspy.Snapshot#save(com.github.dmgcodevil.jmspy.Snapshot)}
+     */
     @Deprecated
     public static void save(InvocationGraph invocationGraph, String fileName) {
         FileOutputStream fout = null;
@@ -67,6 +71,13 @@ public class InvocationGraph implements Serializable {
 
     }
 
+    /**
+     * Loads invocationGraph from the given file.
+     *
+     * @param file the file to load invocationGraph
+     * @return {@link InvocationGraph}
+     * @deprecated see {@link com.github.dmgcodevil.jmspy.Snapshot#load(java.io.File)}
+     */
     @Deprecated
     public static InvocationGraph load(File file) {
         FileInputStream fin = null;
@@ -77,7 +88,6 @@ public class InvocationGraph implements Serializable {
         } catch (IOException | ClassNotFoundException e) {
             throw Throwables.propagate(e);
         }
-
     }
 
 }

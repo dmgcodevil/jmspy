@@ -2,12 +2,16 @@ package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.exception.ConfigurationException;
 import com.github.dmgcodevil.jmspy.functional.Consumer;
+import com.github.dmgcodevil.jmspy.proxy.wrappers.CollectionWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.EntrySetWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.EntryWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.IteratorWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.ListIteratorWrapper;
+import com.github.dmgcodevil.jmspy.proxy.wrappers.ListWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.MapKeySetWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.MapValuesWrapper;
+import com.github.dmgcodevil.jmspy.proxy.wrappers.MapWrapper;
+import com.github.dmgcodevil.jmspy.proxy.wrappers.SetWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableMap;
@@ -24,7 +28,7 @@ import java.util.Set;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.forEach;
 
 /**
- * Configuration.
+ * Configuration for ProxyFactory.
  *
  * @author Raman_Pliashkou
  */
@@ -63,7 +67,7 @@ public final class Configuration {
     }
 
     public static class Builder {
-        private Map<Class<?>, Wrapper> wrappers = Maps.newHashMap();
+        private Map<Class<?>, Wrapper> wrappers = Maps.newLinkedHashMap();
         private SetFieldInterceptor setFieldInterceptor;
         private Set<Class<?>> ignoreTypes = Sets.newHashSet();
         private Set<String> ignorePackages = Sets.newHashSet();
@@ -79,10 +83,17 @@ public final class Configuration {
                 wrappers.put(Class.forName("java.util.HashMap$EntrySet"), new EntrySetWrapper());
                 wrappers.put(Class.forName("java.util.HashMap$Values"), new MapValuesWrapper());
                 wrappers.put(Class.forName("java.util.HashMap$KeySet"), new MapKeySetWrapper());
-                wrappers.put(Class.forName("java.util.ArrayList$ListItr"), new ListIteratorWrapper());
-                wrappers.put(Class.forName("java.util.ArrayList$Itr"), new IteratorWrapper());
-                wrappers.put(Class.forName("java.util.LinkedHashMap$KeyIterator"), new IteratorWrapper());
                 wrappers.put(Class.forName("java.util.HashMap$KeyIterator"), new IteratorWrapper());
+                wrappers.put(Class.forName("java.util.LinkedHashMap$KeyIterator"), new IteratorWrapper());
+
+                wrappers.put(Class.forName("java.util.ArrayList$Itr"), new IteratorWrapper());
+                wrappers.put(Class.forName("java.util.ArrayList$ListItr"), new ListIteratorWrapper());
+
+                wrappers.put(Class.forName("java.util.Collections$UnmodifiableMap"), new MapWrapper());
+                wrappers.put(Class.forName("java.util.Collections$UnmodifiableSet"), new SetWrapper());
+                wrappers.put(Class.forName("java.util.Collections$UnmodifiableRandomAccessList"), new ListWrapper());
+                wrappers.put(Class.forName("java.util.Collections$UnmodifiableList"), new ListWrapper());
+                wrappers.put(Class.forName("java.util.Collections$UnmodifiableCollection"), new CollectionWrapper());
                 wrappers.put(Map.Entry.class, new EntryWrapper());
 
                 ignoreType(java.math.BigDecimal.class);
