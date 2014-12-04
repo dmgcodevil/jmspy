@@ -12,10 +12,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created by dmgcodevil on 11/8/2014.
+ * Node in {@link InvocationGraph} is a vertex in graph that has outgoing edges to other nodes in a graph.
+ * A node has id and type that also can be used to identify a node in a graph i.e. used for navigation and comparison logic.
+ * <p/>
+ *
+ * @author dmgcodevil
  */
 public class Node implements Serializable {
-
 
     private static final long serialVersionUID = 5483570738425483697L;
 

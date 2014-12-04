@@ -17,7 +17,7 @@ public class InvocationContext implements Serializable {
     private JMethod root;
     private StackTraceElement[] stackTrace;
     private InvocationContextInfo contextInfo;
-    // used only to get InvocationContextInfo and shouldn't serialized
+    // used only to get InvocationContextInfo and shouldn't be serialized
     private transient ContextExplorer contextExplorer;
 
     public InvocationContext() {

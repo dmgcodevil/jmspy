@@ -5,13 +5,16 @@ import com.github.dmgcodevil.jmspy.proxy.JMethod;
 import java.io.Serializable;
 
 /**
- * Created by dmgcodevil on 11/8/2014.
+ * Edge is a connection between nodes and represented as java method.
+ * Edge has two references for bidirectional navigation namely 'from' and 'to'.
+ *
+ * @author dmgcodevil
  */
 public class Edge implements Serializable {
 
     private static final long serialVersionUID = -5509438349274267407L;
     private Node from;
-    private Node to; // todo change it to collection, because method can return same objects but with different used fields
+    private Node to;
     private JMethod method;
 
     public Node getFrom() {

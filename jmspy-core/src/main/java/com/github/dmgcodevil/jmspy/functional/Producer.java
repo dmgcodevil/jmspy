@@ -3,7 +3,7 @@ package com.github.dmgcodevil.jmspy.functional;
 /**
  * Functional interface is used to create an objects.
  *
- * @author Raman_Pliashkou
+ * @author dmgcodevil
  */
 public interface Producer<T> {
 

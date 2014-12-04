@@ -3,7 +3,7 @@ package com.github.dmgcodevil.jmspy.functional;
 /**
  * Functional interface to be used in methods such as forEach.
  *
- * @author Raman_Pliashkou
+ * @author dmgcodevil
  */
 public interface Consumer<T> {
     /**

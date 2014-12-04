@@ -119,6 +119,9 @@ public final class Configuration {
 
         /**
          * Register an batch of wrappers for the given types types.
+         * Wrappers make possible to create proxies for classes that don't have default constructor.
+         * Basically default constructor can be created by changing byte code of a class but for the initial version
+         * this problem was solved by adding the Wrappers mechanism.
          *
          * @param wrappers the wrappers
          * @return this instance

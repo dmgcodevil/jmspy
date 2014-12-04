@@ -63,6 +63,7 @@ public class JMethod implements Serializable {
         if (name != null ? !name.equals(jMethod.name) : jMethod.name != null) return false;
         if (parameters != null ? !parameters.equals(jMethod.parameters) : jMethod.parameters != null) return false;
         if (returnType != null ? !returnType.equals(jMethod.returnType) : jMethod.returnType != null) return false;
+        if (targetClass != null ? !targetClass.equals(jMethod.targetClass) : jMethod.targetClass != null) return false;
 
         return true;
     }
@@ -72,6 +73,7 @@ public class JMethod implements Serializable {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
         result = 31 * result + (returnType != null ? returnType.hashCode() : 0);
+        result = 31 * result + (targetClass != null ? targetClass.hashCode() : 0);
         return result;
     }
 }
