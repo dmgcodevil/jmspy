@@ -37,6 +37,7 @@ import javafx.stage.Stage
 import javafx.stage.WindowEvent
 import org.apache.commons.lang3.StringUtils
 
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 
 /**
@@ -146,7 +147,7 @@ class Controller {
         FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("Jmspy snapshot (*.jmspy)", "*.jmspy");
         fileChooser.getExtensionFilters().add(extFilter);
         if (currDir != null) {
-            fileChooser.setInitialDirectory(currDir);
+            fileChooser.setInitialDirectory(Paths.get(currDir.getParent()).toFile());
         }
 
         File file = fileChooser.showOpenDialog(stage);

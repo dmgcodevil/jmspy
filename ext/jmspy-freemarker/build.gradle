@@ -1,0 +1,73 @@
+apply plugin: 'idea'
+apply plugin: 'war'
+apply plugin: 'tomcat'
+
+sourceCompatibility = 1.7
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+
+buildscript {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    dependencies {
+        classpath 'org.gradle.api.plugins:gradle-tomcat-plugin:0.9.9'
+    }
+}
+def tomcatVersion = '7.0.11'
+dependencies {
+
+    compile('com.github.dmgcodevil:jmspy-core:1.0.0')
+
+    /* ---------------- spring dependencies ---------------- */
+    compile('org.springframework:spring-core:3.1.2.RELEASE')
+    compile('org.springframework:spring-beans:3.1.4.RELEASE')
+    compile('org.springframework:spring-context:3.1.4.RELEASE')
+    compile('org.springframework:spring-aop:3.1.4.RELEASE')
+    compile('org.springframework:spring-asm:3.1.4.RELEASE')
+    compile('org.springframework:spring-expression:3.1.4.RELEASE')
+    compile('org.springframework:spring-web:3.1.2.RELEASE')
+    compile('org.springframework:spring-webmvc:3.1.2.RELEASE')
+    compile('org.springframework:spring-test:3.1.2.RELEASE')
+    compile('org.freemarker:freemarker:2.3.14')
+    compile('jstl:jstl:1.2')
+    compile('javax.servlet:servlet-api:2.5')
+    compile('taglibs:standard:1.1.2')
+    compile('org.aspectj:aspectjrt:1.8.2')
+    compile('org.aspectj:aspectjweaver:1.8.2')
+    compile('cglib:cglib:3.1')
+    compile('aopalliance:aopalliance:1.0')
+    compile('com.fasterxml.jackson.core:jackson-databind:2.4.3')
+
+    //classpath 'org.gradle.api.plugins:gradle-tomcat-plugin:0.9.9'
+
+    /* ---------------- test dependencies ---------------- */
+    testCompile('org.testng:testng:6.8.7')
+
+    /* ---------------- logger dependencies ---------------- */
+    compile('log4j:log4j:1.2.17')
+    compile('org.slf4j:slf4j-simple:1.6.4')
+    compile('org.slf4j:slf4j-api:1.6.4')
+    /* ---------------- libs & tools ---------------- */
+
+    compile('com.google.guava:guava:18.0')
+    compile('commons-collections:commons-collections:3.2.1')
+    compile('org.apache.commons:commons-lang3:3.1')
+    compile 'commons-beanutils:commons-beanutils:1.9.2'
+
+
+
+
+    tomcat "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}",
+            "org.apache.tomcat.embed:tomcat-embed-logging-juli:${tomcatVersion}"
+    tomcat("org.apache.tomcat.embed:tomcat-embed-jasper:${tomcatVersion}") {
+        exclude group: 'org.eclipse.jdt.core.compiler', module: 'ecj'
+    }
+}
+
