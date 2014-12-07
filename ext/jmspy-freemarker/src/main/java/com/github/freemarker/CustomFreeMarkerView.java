@@ -17,7 +17,6 @@ public class CustomFreeMarkerView extends FreeMarkerView {
 
     @Override
     protected Template getTemplate(String name, Locale locale) throws IOException {
-        FreemarkerContextExplorer.executionInfo(CustomDispatcherServlet.getRequestURL(), getUrl());
         return super.getTemplate(name, locale);
     }
 

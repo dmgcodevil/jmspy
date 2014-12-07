@@ -2,8 +2,11 @@ package com.github.freemarker;
 
 import com.github.dmgcodevil.jmspy.context.ContextExplorer;
 import com.github.dmgcodevil.jmspy.context.InvocationContextInfo;
+import freemarker.core.Environment;
+import freemarker.template.Template;
 
-import java.util.Stack;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Class description.
@@ -12,30 +15,31 @@ import java.util.Stack;
  */
 public class FreemarkerContextExplorer implements ContextExplorer {
 
-    private static ThreadLocal<Stack<ExecutionInfo>> threadLocals = new InheritableThreadLocal<>();
-
-    public static void executionInfo(String url, String template) {
-        Stack<ExecutionInfo> executionInfos = threadLocals.get();
-        if (executionInfos == null) {
-            executionInfos = new Stack<>();
-            threadLocals.set(executionInfos);
+    @Override
+    public InvocationContextInfo getRootContextInfo() {
+        InvocationContextInfo invocationContextInfo = new InvocationContextInfo();
+        HttpServletRequestInfo requestInfo = HttpServletRequestInfoHolder.getInstance().unhold();
+        if (requestInfo != null) {
+            invocationContextInfo.setInfo("requestUrl: '" + requestInfo.getRequestUrl() + "'");
         }
-        ExecutionInfo executionInfo = new ExecutionInfo();
-        executionInfo.setRequestUrl(url);
-        executionInfo.setTemplate(template);
-        executionInfos.push(executionInfo);
+        return invocationContextInfo;
     }
 
     @Override
-    public InvocationContextInfo getInfo() {
+    public InvocationContextInfo getCurrentContextInfo() {
         InvocationContextInfo invocationContextInfo = new InvocationContextInfo();
-        Stack<ExecutionInfo> executionInfos = threadLocals.get();
-        if (executionInfos != null && !executionInfos.empty()) {
-            ExecutionInfo executionInfo = executionInfos.pop();
-            StringBuilder builder = new StringBuilder();
-            builder.append("requestUrl: '").append(executionInfo.getRequestUrl()).append("';  ");
-            builder.append("template: '").append(executionInfo.getTemplate()).append("'");
-            invocationContextInfo.setDescription(builder.toString());
+        Environment environment = Environment.getCurrentEnvironment();
+        if (environment != null) {
+            Template template = environment.getMainNamespace().getTemplate();
+            if (template != null) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("template name: '").append(template.getName()).append("'; ");
+                invocationContextInfo.setInfo(builder.toString());
+                Map<String, String> details = new HashMap<>();
+                details.put("Root TreeNode", template.getRootTreeNode().toString());
+                invocationContextInfo.setDetails(details);
+            }
+
         }
         return invocationContextInfo;
     }

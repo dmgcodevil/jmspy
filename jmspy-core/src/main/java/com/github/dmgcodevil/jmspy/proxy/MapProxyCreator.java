@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 
@@ -16,8 +17,8 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.processUnmodifiable;
 public class MapProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
 
-    MapProxyCreator(InvocationGraph invocationGraph, Map<Class<?>, Wrapper> wrappers) {
-        super(invocationGraph, wrappers);
+    MapProxyCreator(InvocationRecord invocationRecord, Map<Class<?>, Wrapper> wrappers) {
+        super(invocationRecord, wrappers);
     }
 
     @Override
@@ -31,7 +32,7 @@ public class MapProxyCreator extends AbstractProxyCreator implements ProxyCreato
         }
         target = processUnmodifiable(target);
         Map sourceMap = (Map) target;
-        Map proxy = (Map) enhancerFactory.create(target, invocationGraph).create();
+        Map proxy = (Map) enhancerFactory.create(target, invocationRecord).create();
         if (sourceMap.isEmpty()) {
             return proxy;
         }
@@ -39,8 +40,8 @@ public class MapProxyCreator extends AbstractProxyCreator implements ProxyCreato
             Map.Entry entry = (Map.Entry) entryObj;
             Object key = entry.getKey();
             Object val = entry.getValue();
-            key = ProxyFactory.getInstance().create(key, invocationGraph);
-            val = ProxyFactory.getInstance().create(val, invocationGraph);
+            key = ProxyFactory.getInstance().create(key, invocationRecord);
+            val = ProxyFactory.getInstance().create(val, invocationRecord);
             proxy.put(key, val);
         }
         return proxy;

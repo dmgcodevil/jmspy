@@ -12,15 +12,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class CustomDispatcherServlet extends DispatcherServlet {
 
-    private static ThreadLocal<String> requestURL = new ThreadLocal<>();
-
-    public static String getRequestURL() {
-        return requestURL.get();
-    }
-
     @Override
     protected void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
-        requestURL.set(request.getRequestURL().toString());
+        HttpServletRequestInfoHolder.getInstance().hold(new HttpServletRequestInfo(request));
         super.doService(request, response);
     }
 

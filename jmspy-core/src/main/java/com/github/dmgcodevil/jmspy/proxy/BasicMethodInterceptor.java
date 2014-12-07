@@ -1,5 +1,8 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.InvocationRecord;
+import com.github.dmgcodevil.jmspy.context.ContextExplorer;
+import com.github.dmgcodevil.jmspy.context.InvocationContextInfo;
 import com.github.dmgcodevil.jmspy.graph.Edge;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.graph.Node;
@@ -13,7 +16,6 @@ import java.lang.reflect.Method;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.getOriginalType;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isArray;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isCglibProxy;
-import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isUnmodifiable;
 
 /**
  * Intercepts methods and adds new edges and nodes to the invocation graph.
@@ -25,11 +27,11 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isUnmodifiable;
  * @author dmgcodevil
  */
 public class BasicMethodInterceptor implements MethodInterceptor {
-    InvocationGraph invocationGraph;
+    InvocationRecord invocationRecord;
     private final Object lock = new Object();
 
-    public BasicMethodInterceptor(InvocationGraph invocationGraph) {
-        this.invocationGraph = invocationGraph;
+    public BasicMethodInterceptor(InvocationRecord invocationRecord) {
+        this.invocationRecord = invocationRecord;
     }
 
     @Override
@@ -38,7 +40,7 @@ public class BasicMethodInterceptor implements MethodInterceptor {
         Object out = null;
         synchronized (lock) {
             out = proxy.invokeSuper(obj, args);
-
+            InvocationGraph invocationGraph = invocationRecord.getInvocationGraph();
             if (invocationGraph != null &&
                     method.getDeclaringClass() != Object.class) {
                 String parentId = getIdentifier(obj);
@@ -49,7 +51,7 @@ public class BasicMethodInterceptor implements MethodInterceptor {
 
                 if (out != null) {
                     if (!isArray(out.getClass())) {
-                        out =  ProxyFactory.getInstance().create(out, invocationGraph);
+                        out = ProxyFactory.getInstance().create(out, invocationRecord);
                         //out =  ProxyFactory.getInstance().create(out);
                     }
 
@@ -65,6 +67,7 @@ public class BasicMethodInterceptor implements MethodInterceptor {
                     }
                     Edge edge = new Edge();
                     edge.setMethod(new JMethod(method));
+                    edge.setContextInfo(getCurrentContextInfo());
                     edge.setFrom(node);
                     edge.setTo(toNode);
 
@@ -94,5 +97,10 @@ public class BasicMethodInterceptor implements MethodInterceptor {
             }
         }
         return null;
+    }
+
+    private InvocationContextInfo getCurrentContextInfo() {
+        ContextExplorer contextExplorer = invocationRecord.getInvocationContext().getContextExplorer();
+        return contextExplorer != null ? contextExplorer.getCurrentContextInfo() : null;
     }
 }

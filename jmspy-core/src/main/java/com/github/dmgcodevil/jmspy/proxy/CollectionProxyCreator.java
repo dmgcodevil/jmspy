@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 
@@ -16,8 +17,8 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.processUnmodifiable;
  */
 public class CollectionProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
-    CollectionProxyCreator(InvocationGraph invocationGraph, Map<Class<?>, Wrapper> wrappers) {
-        super(invocationGraph, wrappers);
+    CollectionProxyCreator(InvocationRecord invocationRecord, Map<Class<?>, Wrapper> wrappers) {
+        super(invocationRecord, wrappers);
     }
 
     @Override
@@ -31,12 +32,12 @@ public class CollectionProxyCreator extends AbstractProxyCreator implements Prox
         }
         target = processUnmodifiable(target);
         Collection sourceCol = (Collection) target;
-        Collection proxy = (Collection) enhancerFactory.create(target, invocationGraph).create();
+        Collection proxy = (Collection) enhancerFactory.create(target, invocationRecord).create();
         if (sourceCol.isEmpty()) {
             return proxy;
         } else {
             for (Object el : sourceCol) {
-                proxy.add(ProxyFactory.getInstance().create(el, invocationGraph));
+                proxy.add(ProxyFactory.getInstance().create(el, invocationRecord));
             }
             return proxy;
         }

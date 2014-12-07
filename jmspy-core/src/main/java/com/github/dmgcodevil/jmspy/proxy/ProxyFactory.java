@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 import com.google.common.base.Predicate;
@@ -70,23 +71,23 @@ public class ProxyFactory {
      * @return proxy
      */
     public Object create(Object target) {
-        return create(target, InvocationGraph.create(target));
+        return create(target, new InvocationRecord(InvocationGraph.create(target)));
     }
 
     /**
      * Creates proxy for the given target object.
      *
      * @param target the object to create proxy
-     * @param igraph the invocation graph
+     * @param invocationRecord the invocation record
      * @return proxy
      */
-    public Object create(Object target, InvocationGraph igraph) {
+    public Object create(Object target, InvocationRecord invocationRecord) {
         if (target == null) {
             return null;
         }
-        Verify.verifyNotNull(igraph, "invocation graph cannot be null");
+        Verify.verifyNotNull(invocationRecord, "invocation graph cannot be null");
         if (acceptable(target)) {
-            return ProxyCreatorFactory.create(target.getClass(), igraph, wrappers)
+            return ProxyCreatorFactory.create(target.getClass(), invocationRecord, wrappers)
                     .create(target);
         }
         return target;

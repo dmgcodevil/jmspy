@@ -10,8 +10,10 @@ import com.google.common.collect.Lists
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.fxml.FXML
+import javafx.fxml.FXMLLoader
 import javafx.geometry.Insets
 import javafx.geometry.Pos
+import javafx.scene.Parent
 import javafx.scene.Scene
 import javafx.scene.control.Button
 import javafx.scene.control.ContextMenu
@@ -47,7 +49,7 @@ class Controller {
 
     private Stage stage;
     @FXML
-    private TreeView<String> iGraphTree;
+    private TreeView<EdgeTreeItem> iGraphTree;
 
     @FXML
     private TextField filterEdit;
@@ -102,7 +104,7 @@ class Controller {
     }
 
     public void init() {
-        TreeItem<String> rootItem = new TreeItem<String>("empty");
+        TreeItem<EdgeTreeItem> rootItem = new TreeItem<>(new EdgeTreeItem());
         iGraphTree.setRoot(rootItem);
         skipMethodList.getItems().addAll("toString", "equals", "hasNext");
         addIGraphTreeContextMenu();
@@ -113,7 +115,7 @@ class Controller {
         def copyToClipboard = { event ->
             final Clipboard clipboard = Clipboard.getSystemClipboard();
             final ClipboardContent content = new ClipboardContent();
-            content.putString(iGraphTree.getSelectionModel().getSelectedItem().getValue());
+            content.putString(iGraphTree.getSelectionModel().getSelectedItem().getValue().label);
             clipboard.setContent(content);
         }
 
@@ -131,10 +133,28 @@ class Controller {
             refreshGraph()
         }
 
+        def showInfo = { event ->
+            def contextInfo = iGraphTree.getSelectionModel().getSelectedItem().getValue().edge.contextInfo
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/invocation_context.fxml"));
+                Parent root = (Parent) loader.load();
+                InvocationContextInfoController controller = loader.getController();
+                controller.init(contextInfo)
+                Stage stage = new Stage();
+                stage.setScene(new Scene(root));
+                stage.show();
+            }
+            catch (t) {
+                t.printStackTrace()
+            }
+
+        }
+
         ContextMenu rootContextMenu = ContextMenuBuilder.create().items(
                 MenuItemBuilder.create().text("Copy to clipboard").onAction(copyToClipboard).build(),
                 MenuItemBuilder.create().text("Copy whole node to clipboard").onAction(copyFullToClipboard).build(),
-                MenuItemBuilder.create().text("Exclude/skip").onAction(excludeMethod).build())
+                MenuItemBuilder.create().text("Exclude/skip").onAction(excludeMethod).build(),
+                MenuItemBuilder.create().text("Show info").onAction(showInfo).build())
                 .build();
 
         iGraphTree.setContextMenu(rootContextMenu);
@@ -192,7 +212,7 @@ class Controller {
     private void fillInvocationContext() {
         methodLbl.setText(context?.root?.toString() ?: "unknown");
         targetClassLbl.setText(context?.root?.targetClass ?: "unknown")
-        invocationInfoLbl.setText(context?.contextInfo?.description ?: "unknown")
+        invocationInfoLbl.setText(context?.rootContextInfo?.info ?: "unknown")
     }
 
     private InvocationRecord getInvocationRecordById(def id) {
@@ -278,7 +298,7 @@ class Controller {
         }
     }
 
-    private String nodeToString(TreeItem<String> item, StringBuilder builder, int step) {
+    private String nodeToString(TreeItem<EdgeTreeItem> item, StringBuilder builder, int step) {
         builder.append("| " * step)
         if (item.getChildren().size() > 0) {
             builder.append("+- ")
@@ -304,7 +324,7 @@ class Controller {
     private void drawGraph(InvocationGraph invocationGraph, Filter filter) {
         clearIGraphTree();
         fillRoot(invocationGraph)
-        TreeItem<String> rootItem = iGraphTree.getRoot();
+        TreeItem<EdgeTreeItem> rootItem = iGraphTree.getRoot();
         rootItem.setExpanded(true);
 
         invocationGraph.root.outgoingEdges.each { it ->
@@ -312,9 +332,9 @@ class Controller {
         }
     }
 
-    private void addItem(TreeItem<String> rootItem, Edge edge, int level, Filter filter) {
+    private void addItem(TreeItem<EdgeTreeItem> rootItem, Edge edge, int level, Filter filter) {
         if (!isSkipped(edge.getMethod()) && filter.apply(edge.getMethod().name, level)) {
-            TreeItem<String> child = new TreeItem<String>(edge.getMethod().toString());
+            TreeItem<EdgeTreeItem> child = new TreeItem<>(new EdgeTreeItem(edge));
             rootItem.getChildren().add(child);
             if (edge.to != null) {
                 child.setExpanded(false);
@@ -326,12 +346,12 @@ class Controller {
     }
 
     private void fillRoot(InvocationGraph iGraph) {
-        iGraphTree.getRoot().setValue(iGraph.root.type.getName());
+        iGraphTree.getRoot().setValue(new EdgeTreeItem(iGraph.root.type.getName()));
     }
 
     private void clearIGraphTree() {
         iGraphTree.getRoot().getChildren().clear();
-        iGraphTree.getRoot().setValue("empty")
+        iGraphTree.getRoot().setValue(new EdgeTreeItem())
     }
 
     private boolean isSkipped(JMethod jMethod) {
@@ -403,6 +423,28 @@ class Controller {
             popup.setY(stage.getY() + stage.getHeight() / 2 - popup.getHeight() / 2);
         });
         popup.show(stage);
+    }
+
+    private static class EdgeTreeItem {
+        String label = "empty";
+        Edge edge;
+
+        EdgeTreeItem() {
+        }
+
+        EdgeTreeItem(String label) {
+            this.label = label
+        }
+
+        EdgeTreeItem(Edge edge) {
+            this.edge = edge
+            label = edge.method.toString();
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
     }
 
 }
