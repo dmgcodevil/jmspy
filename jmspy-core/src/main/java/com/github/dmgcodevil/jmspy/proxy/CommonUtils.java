@@ -63,7 +63,7 @@ public class CommonUtils {
 
     public static boolean isPrimitiveOrWrapper(Class<?> type) {
         return type != null && (Primitives.allWrapperTypes().contains(type) || Primitives.allPrimitiveTypes().contains(type)
-                || String.class.isAssignableFrom(type));
+                || String.class.equals(type));
     }
 
     public static boolean isNotPrimitiveOrWrapper(Class<?> type) {
@@ -108,15 +108,6 @@ public class CommonUtils {
 
     public static String createIdentifier() {
         return String.valueOf(IdGenerator.getInstance().generate());
-    }
-
-    public static Constructor getDefaultConstructor(Class<?> type) {
-        try {
-            return type.getDeclaredConstructor(new Class[]{});
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            return null;
-        }
     }
 
     public static Object processUnmodifiable(Object source) throws Throwable {

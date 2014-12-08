@@ -1,6 +1,10 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import sun.reflect.ReflectionFactory;
+
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -26,6 +30,37 @@ public final class ReflectionUtils {
         }
 
         return fields;
+    }
+
+    public static boolean hasDefaultConstructor(Class<?> type) {
+        return getDefaultConstructor(type) != null;
+    }
+
+    public static Constructor getDefaultConstructor(Class<?> type) {
+        try {
+            return type.getDeclaredConstructor(new Class[]{});
+        } catch (NoSuchMethodException e) {
+            return null;
+        }
+    }
+
+    @SuppressWarnings("restriction")
+    public static <T> T newInstance(final Class<T> type) {
+
+        try {
+            if (hasDefaultConstructor(type)) {
+                return type.newInstance();
+            }
+            final Constructor<?> constructor
+                    = ReflectionFactory.getReflectionFactory()
+                    .newConstructorForSerialization(
+                            type, Object.class.getDeclaredConstructor());
+            return type.cast(constructor.newInstance());
+        } catch (NoSuchMethodException | InstantiationException e) {
+            throw new UnsupportedOperationException(e);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
 }

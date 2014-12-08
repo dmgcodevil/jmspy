@@ -1,4 +1,4 @@
-package com.github.dmgcodevil.jmspy.proxy;
+package com.github.dmgcodevil.jmspy.proxy.callback;
 
 import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.context.ContextExplorer;
@@ -6,6 +6,10 @@ import com.github.dmgcodevil.jmspy.context.InvocationContextInfo;
 import com.github.dmgcodevil.jmspy.graph.Edge;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.graph.Node;
+import com.github.dmgcodevil.jmspy.proxy.Constants;
+import com.github.dmgcodevil.jmspy.proxy.JMethod;
+import com.github.dmgcodevil.jmspy.proxy.JType;
+import com.github.dmgcodevil.jmspy.proxy.ProxyFactory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
@@ -27,11 +31,16 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isCglibProxy;
  * @author dmgcodevil
  */
 public class BasicMethodInterceptor implements MethodInterceptor {
-    InvocationRecord invocationRecord;
+
+    public static int INDEX = 1;
+
+    private final InvocationRecord invocationRecord;
+    private final Object original;
     private final Object lock = new Object();
 
-    public BasicMethodInterceptor(InvocationRecord invocationRecord) {
+    public BasicMethodInterceptor(Object original, InvocationRecord invocationRecord) {
         this.invocationRecord = invocationRecord;
+        this.original = original;
     }
 
     @Override
@@ -39,10 +48,14 @@ public class BasicMethodInterceptor implements MethodInterceptor {
         // calls super method
         Object out = null;
         synchronized (lock) {
-            out = proxy.invokeSuper(obj, args);
-            InvocationGraph invocationGraph = invocationRecord.getInvocationGraph();
-            if (invocationGraph != null &&
-                    method.getDeclaringClass() != Object.class) {
+            if (original != null) {
+                out = method.invoke(original, args);
+            } else {
+                out = proxy.invokeSuper(obj, args);
+            }
+
+            InvocationGraph invocationGraph = getInvocationGraph();
+            if (invocationGraph != null && method.getDeclaringClass() != Object.class) {
                 String parentId = getIdentifier(obj);
                 Node node = invocationGraph.findById(parentId);
                 if (node == null) {
@@ -100,7 +113,16 @@ public class BasicMethodInterceptor implements MethodInterceptor {
     }
 
     private InvocationContextInfo getCurrentContextInfo() {
-        ContextExplorer contextExplorer = invocationRecord.getInvocationContext().getContextExplorer();
+        if (invocationRecord == null) {
+            return null;
+        }
+        ContextExplorer contextExplorer = invocationRecord.getInvocationContext() != null ?
+                invocationRecord.getInvocationContext().getContextExplorer() : null;
         return contextExplorer != null ? contextExplorer.getCurrentContextInfo() : null;
     }
+
+    private InvocationGraph getInvocationGraph() {
+        return invocationRecord != null ? invocationRecord.getInvocationGraph() : null;
+    }
+
 }

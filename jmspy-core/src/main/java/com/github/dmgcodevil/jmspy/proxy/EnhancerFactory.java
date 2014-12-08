@@ -3,7 +3,10 @@ package com.github.dmgcodevil.jmspy.proxy;
 import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.functional.Producer;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
+import com.github.dmgcodevil.jmspy.proxy.callback.BasicMethodInterceptor;
+import com.github.dmgcodevil.jmspy.proxy.callback.ProxyIdentifierCallback;
 import com.google.common.base.Optional;
+import com.google.common.base.Verify;
 import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackFilter;
@@ -11,9 +14,6 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.FixedValue;
 import net.sf.cglib.proxy.InterfaceMaker;
 import org.apache.commons.lang3.ClassUtils;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 import java.lang.ref.SoftReference;
@@ -39,7 +39,7 @@ public class EnhancerFactory {
 
     private final Holder<Class<?>, Enhancer> enhancerHolder = new Holder<>();
 
-    private final BasicCallbackFilter basicCallbackFilter = new BasicCallbackFilter();
+
 
     private static final EnhancerFactory ENHANCER_FACTORY = new EnhancerFactory();
 
@@ -47,23 +47,33 @@ public class EnhancerFactory {
         return ENHANCER_FACTORY;
     }
 
+    public synchronized Enhancer create(Object target) {
+        return create(target, null);
+    }
+
     public synchronized Enhancer create(Object target, final InvocationRecord invocationRecord) {
+        Verify.verifyNotNull(target, "target object cannot be null");
         Class<?> targetClass = target.getClass();
-        Optional<Enhancer> enhancerOpt = enhancerHolder.lookup(targetClass);
-        Enhancer enhancer = enhancerOpt.orNull();
+        Enhancer enhancer = enhancerHolder.lookup(targetClass).orNull();
         if (enhancer == null) {
-            enhancer = create(targetClass, invocationRecord);
+            enhancer = createNew(target, invocationRecord);
             enhancerHolder.hold(targetClass, enhancer);
             return enhancer;
         } else {
             String id = createIdentifier();
-            initInvocationGraph(id, invocationRecord.getInvocationGraph());
+            initInvocationGraph(id, invocationRecord);
             Callback[] callbacks = new Callback[]{
-                    new BasicMethodInterceptor(invocationRecord),
+                    new BasicMethodInterceptor(target, invocationRecord),
                     new ProxyIdentifierCallback(id)};
             enhancer.setCallbacks(callbacks);
         }
         return enhancer;
+    }
+
+    private void initInvocationGraph(String id, InvocationRecord invocationRecord) {
+        if (invocationRecord != null) {
+            initInvocationGraph(id, invocationRecord.getInvocationGraph());
+        }
     }
 
     private void initInvocationGraph(String id, InvocationGraph invocationGraph) {
@@ -72,9 +82,10 @@ public class EnhancerFactory {
         }
     }
 
-    private Enhancer create(Class<?> type, InvocationRecord invocationRecord) {
+    private Enhancer createNew(Object target, InvocationRecord invocationRecord) {
+        Class<?> type = target.getClass();
         String id = createIdentifier();
-        initInvocationGraph(id, invocationRecord.getInvocationGraph());
+        initInvocationGraph(id, invocationRecord);
         InterfaceMaker im = new InterfaceMaker();
         im.add(createGetProxyIdentifierMethod(), EMPTY_PARAMS);
 
@@ -91,46 +102,24 @@ public class EnhancerFactory {
         interfaces.add(proxyHelperInterface);
 
         Callback[] callbacks = new Callback[]{
-                new BasicMethodInterceptor(invocationRecord),
+                new BasicMethodInterceptor(target, invocationRecord),
                 new ProxyIdentifierCallback(id)};
 
         enhancer.setInterfaces(interfaces.toArray(new Class<?>[interfaces.size()]));
-        enhancer.setCallbackFilter(basicCallbackFilter);
+       // enhancer.setCallbackFilter(basicCallbackFilter);
         enhancer.setCallbacks(callbacks);
-        try {
-            enhancer.generateClass(createDefaultConstructor(type));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+
         return enhancer;
     }
 
     private static Signature createGetProxyIdentifierMethod() {
-        return new Signature(Constants.GET_PROXY_IDENTIFIER, Type.getType(String.class), EMPTY_PARAMS);
+        return new Signature(ProxyIdentifierCallback.GET_PROXY_IDENTIFIER, Type.getType(String.class), EMPTY_PARAMS);
     }
 
-    private static class BasicCallbackFilter implements CallbackFilter {
-        @Override
-        public int accept(Method method) {
-            if (method.getName().equals(Constants.GET_PROXY_IDENTIFIER)) {
-                return GET_PROXY_ID_INTERCEPTOR;
-            }
-            return MAIN_INTERCEPTOR;
-        }
-    }
 
-    private static class ProxyIdentifierCallback implements FixedValue {
-        private String id;
 
-        private ProxyIdentifierCallback(String id) {
-            this.id = id;
-        }
 
-        @Override
-        public Object loadObject() throws Exception {
-            return id;
-        }
-    }
 
     // not thread safe
     private static class Holder<K, V> {
@@ -163,23 +152,5 @@ public class EnhancerFactory {
         }
     }
 
-    private ClassWriter createDefaultConstructor(Class<?> superClass) {
-        String packageName = superClass.getPackage().getName();
-        String className = superClass.getSimpleName();
-        String fullName = packageName + "/" + className;
-        ClassWriter cw = new ClassWriter(0);
-        cw.visit(Opcodes.V1_7, Opcodes.ACC_PUBLIC, fullName, null, "java/lang/Object", null);
-        {
-            // constructor
-            MethodVisitor mv = cw.visitMethod(Opcodes.ACC_PUBLIC, "<init>", "()V", null, null);
-            mv.visitMaxs(2, 1);
-            mv.visitVarInsn(Opcodes.ALOAD, 0); // push `this` to the operand stack
-            mv.visitMethodInsn(Opcodes.INVOKESPECIAL, Type.getInternalName(Object.class), "<init>", "()V"); // call the constructor of super class
-            mv.visitInsn(Opcodes.RETURN);
-            mv.visitEnd();
-        }
-        cw.visitEnd();
-        return cw;
-    }
 
 }

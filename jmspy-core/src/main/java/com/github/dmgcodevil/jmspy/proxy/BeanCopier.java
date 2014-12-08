@@ -1,6 +1,7 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.exception.BeanCopierException;
+import com.github.dmgcodevil.jmspy.proxy.callback.BasicMethodInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
