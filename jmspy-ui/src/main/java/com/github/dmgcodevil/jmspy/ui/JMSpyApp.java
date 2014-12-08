@@ -11,7 +11,7 @@ import javafx.stage.Stage;
  */
 public class JMSpyApp extends Application {
 
-    private static final String JMSPY_TITLE = "JMSpy";
+    private static final String JMSPY_TITLE = "JMSpy Viewer";
 
     @Override
     public void start(Stage primaryStage) throws Exception {
