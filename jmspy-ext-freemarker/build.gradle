@@ -1,0 +1,52 @@
+apply plugin: 'idea'
+apply plugin: 'maven-publish'
+
+group = 'com.github.dmgcodevil'
+archivesBaseName='jmspy-core'
+version = '1.0.0'
+
+configurations {
+    provided
+}
+
+
+publishing {
+    repositories {
+        mavenLocal()
+        maven {
+            url "$buildDir/repo"
+        }
+    }
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+configurations {
+    provided
+}
+
+sourceSets {
+    main.compileClasspath += configurations.provided
+    test.compileClasspath += configurations.provided
+    test.runtimeClasspath += configurations.provided
+}
+
+idea {
+    module {
+        scopes.PROVIDED.plus += [configurations.provided]
+    }
+}
+
+dependencies {
+    compile project(':jmspy-core')
+    provided 'org.freemarker:freemarker:2.3.21'
+    provided 'org.springframework:spring-webmvc:3.2.12.RELEASE'
+    provided 'javax.servlet:servlet-api:2.5'
+}
+

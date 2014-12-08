@@ -2,3 +2,4 @@ rootProject.name='jmspy'
 
 include 'jmspy-core'
 include 'jmspy-ui'
+include 'jmspy-ext-freemarker'
