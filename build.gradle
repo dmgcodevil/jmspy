@@ -8,6 +8,9 @@ subprojects {
     apply plugin: 'java'
     apply plugin: 'idea'
     apply plugin: 'groovy'
+    apply plugin: 'maven'
+    apply plugin: 'signing'
+
 
     group = 'com.github.dmgcodevil'
     version = "${versionMajor}.${versionMinor}.${versionBuild}"
@@ -23,7 +26,46 @@ subprojects {
 
     uploadArchives {
         repositories {
+
+            mavenLocal()
+
             ivy { url file(System.getProperty('user.home') + '/.ivylocal') }
+
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+
+                pom.project {
+                    name 'jmspy-core'
+                    packaging 'jar'
+                    description 'Library to record method invocations'
+                    url 'http://github.com/dmgcodevil/jmspy'
+
+                    scm {
+                        url 'scm:git@github.com:dmgcodevil/jmspy.git'
+                        connection 'scm:git@github.com:dmgcodevil/jmspy.git'
+                        developerConnection 'scm:git@github.com:dmgcodevil/jmspy.git'
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache Software License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            distribution 'repo'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'dmgcodevil'
+                            name 'Roman Pleshkov'
+                        }
+                    }
+                }
+            }
         }
     }
 

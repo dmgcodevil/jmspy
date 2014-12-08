@@ -1,31 +1,10 @@
-apply plugin: 'idea'
-apply plugin: 'maven-publish'
-
-group = 'com.github.dmgcodevil'
-archivesBaseName='jmspy-core'
-version = '1.0.0'
+archivesBaseName='jmspy-ext-freemarker'
 
 configurations {
     provided
 }
 
 
-publishing {
-    repositories {
-        mavenLocal()
-        maven {
-            url "$buildDir/repo"
-        }
-    }
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            from components.java
-        }
-    }
-}
 
 configurations {
     provided
