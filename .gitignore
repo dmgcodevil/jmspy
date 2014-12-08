@@ -2,6 +2,7 @@ target
 out
 .gradle
 *.class
+classes
 
 # IntelliJ project files 
 *.iml
