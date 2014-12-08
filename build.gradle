@@ -80,9 +80,15 @@ subprojects {
     }
 
     artifacts {
-        archives jar, javadocJar, sourcesJar
+        archives jar
+
+        archives javadocJar
+        archives sourcesJar
     }
 
+    signing {
+        sign configurations.archives
+    }
 
     dependencies {
         /* proxy / aop*/
