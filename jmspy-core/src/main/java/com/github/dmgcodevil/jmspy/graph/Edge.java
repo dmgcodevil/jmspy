@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.graph;
 
+import com.github.dmgcodevil.jmspy.context.InvocationContextInfo;
 import com.github.dmgcodevil.jmspy.proxy.JMethod;
 
 import java.io.Serializable;
@@ -16,6 +17,7 @@ public class Edge implements Serializable {
     private Node from;
     private Node to;
     private JMethod method;
+    private InvocationContextInfo contextInfo;
 
     public Node getFrom() {
         return from;
@@ -41,6 +43,13 @@ public class Edge implements Serializable {
         this.method = method;
     }
 
+    public InvocationContextInfo getContextInfo() {
+        return contextInfo;
+    }
+
+    public void setContextInfo(InvocationContextInfo contextInfo) {
+        this.contextInfo = contextInfo;
+    }
 
     @Override
     public boolean equals(Object o) {

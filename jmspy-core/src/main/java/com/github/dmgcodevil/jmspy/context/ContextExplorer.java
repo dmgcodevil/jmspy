@@ -10,9 +10,19 @@ package com.github.dmgcodevil.jmspy.context;
 public interface ContextExplorer {
 
     /**
-     * Gets info about execution environment such as application name, url and etc.
+     * Gets info about root invocation context such as application name, request url and etc.
+     * This method is invoked as soon as a invocation record is created i.e.
+     * {@link com.github.dmgcodevil.jmspy.MethodInvocationRecorder#record(java.lang.reflect.Method, Object)} method is called.
      *
      * @return {@link InvocationContextInfo}
      */
-    InvocationContextInfo getInfo();
+    InvocationContextInfo getRootContextInfo();
+
+    /**
+     * Gets info about current invocation context such as page name and etc.
+     * This method is invoked as soon as a method of proxy object is intercepted.
+     *
+     * @return {@link InvocationContextInfo}
+     */
+    InvocationContextInfo getCurrentContextInfo();
 }

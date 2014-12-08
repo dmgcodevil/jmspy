@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 
@@ -16,8 +17,8 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isPrimitiveOrWrapper
 public class ArrayProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
 
-    ArrayProxyCreator(InvocationGraph invocationGraph, Map<Class<?>, Wrapper> wrappers) {
-        super(invocationGraph, wrappers);
+    ArrayProxyCreator(InvocationRecord invocationRecord, Map<Class<?>, Wrapper> wrappers) {
+        super(invocationRecord, wrappers);
     }
 
     @Override
@@ -34,7 +35,7 @@ public class ArrayProxyCreator extends AbstractProxyCreator implements ProxyCrea
 
         for (int i = 0; i < sourceArray.length; i++) {
             ProxyFactory.getInstance().create(sourceArray[i]);
-            proxy[i] = ProxyFactory.getInstance().create(sourceArray[i], invocationGraph);
+            proxy[i] = ProxyFactory.getInstance().create(sourceArray[i], invocationRecord);
         }
 
         return proxy;

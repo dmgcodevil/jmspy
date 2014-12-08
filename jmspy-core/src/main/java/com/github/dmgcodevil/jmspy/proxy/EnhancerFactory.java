@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.functional.Producer;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.google.common.base.Optional;
@@ -46,19 +47,19 @@ public class EnhancerFactory {
         return ENHANCER_FACTORY;
     }
 
-    public synchronized Enhancer create(Object target, final InvocationGraph invocationGraph) {
+    public synchronized Enhancer create(Object target, final InvocationRecord invocationRecord) {
         Class<?> targetClass = target.getClass();
         Optional<Enhancer> enhancerOpt = enhancerHolder.lookup(targetClass);
         Enhancer enhancer = enhancerOpt.orNull();
         if (enhancer == null) {
-            enhancer = create(targetClass, invocationGraph);
+            enhancer = create(targetClass, invocationRecord);
             enhancerHolder.hold(targetClass, enhancer);
             return enhancer;
         } else {
             String id = createIdentifier();
-            initInvocationGraph(id, invocationGraph);
+            initInvocationGraph(id, invocationRecord.getInvocationGraph());
             Callback[] callbacks = new Callback[]{
-                    new BasicMethodInterceptor(invocationGraph),
+                    new BasicMethodInterceptor(invocationRecord),
                     new ProxyIdentifierCallback(id)};
             enhancer.setCallbacks(callbacks);
         }
@@ -71,9 +72,9 @@ public class EnhancerFactory {
         }
     }
 
-    private Enhancer create(Class<?> type, InvocationGraph invocationGraph) {
+    private Enhancer create(Class<?> type, InvocationRecord invocationRecord) {
         String id = createIdentifier();
-        initInvocationGraph(id, invocationGraph);
+        initInvocationGraph(id, invocationRecord.getInvocationGraph());
         InterfaceMaker im = new InterfaceMaker();
         im.add(createGetProxyIdentifierMethod(), EMPTY_PARAMS);
 
@@ -90,7 +91,7 @@ public class EnhancerFactory {
         interfaces.add(proxyHelperInterface);
 
         Callback[] callbacks = new Callback[]{
-                new BasicMethodInterceptor(invocationGraph),
+                new BasicMethodInterceptor(invocationRecord),
                 new ProxyIdentifierCallback(id)};
 
         enhancer.setInterfaces(interfaces.toArray(new Class<?>[interfaces.size()]));

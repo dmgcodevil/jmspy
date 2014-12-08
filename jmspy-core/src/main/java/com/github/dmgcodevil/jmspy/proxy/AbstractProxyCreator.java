@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.exception.ProxyCreationException;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
@@ -14,12 +15,12 @@ import java.util.Map;
  */
 public abstract class AbstractProxyCreator implements ProxyCreator {
 
-    protected InvocationGraph invocationGraph;
+    protected InvocationRecord invocationRecord;
     protected Map<Class<?>, Wrapper> wrappers;
     protected EnhancerFactory enhancerFactory = EnhancerFactory.getInstance();
 
-    protected AbstractProxyCreator(InvocationGraph invocationGraph, Map<Class<?>, Wrapper> wrappers) {
-        this.invocationGraph = invocationGraph;
+    protected AbstractProxyCreator(InvocationRecord invocationRecord, Map<Class<?>, Wrapper> wrappers) {
+        this.invocationRecord = invocationRecord;
         this.wrappers = wrappers;
     }
 
@@ -31,7 +32,7 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
         Optional<Wrapper> wrapperOptional = findWrapper(target.getClass());
         if (wrapperOptional.isPresent()) {
             Wrapper wrapper = wrapperOptional.get().create(target);
-            Wrapper proxyWrapper = (Wrapper) enhancerFactory.create(wrapper, invocationGraph).create();
+            Wrapper proxyWrapper = (Wrapper) enhancerFactory.create(wrapper, invocationRecord).create();
             proxyWrapper.setTarget(wrapper.getTarget());
             return proxyWrapper;
         } else {

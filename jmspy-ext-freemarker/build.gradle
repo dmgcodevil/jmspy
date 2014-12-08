@@ -1,0 +1,31 @@
+archivesBaseName='jmspy-ext-freemarker'
+
+configurations {
+    provided
+}
+
+
+
+configurations {
+    provided
+}
+
+sourceSets {
+    main.compileClasspath += configurations.provided
+    test.compileClasspath += configurations.provided
+    test.runtimeClasspath += configurations.provided
+}
+
+idea {
+    module {
+        scopes.PROVIDED.plus += [configurations.provided]
+    }
+}
+
+dependencies {
+    compile project(':jmspy-core')
+    provided 'org.freemarker:freemarker:2.3.21'
+    provided 'org.springframework:spring-webmvc:3.2.12.RELEASE'
+    provided 'javax.servlet:servlet-api:2.5'
+}
+

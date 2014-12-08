@@ -16,7 +16,7 @@ public class InvocationContext implements Serializable {
 
     private JMethod root;
     private StackTraceElement[] stackTrace;
-    private InvocationContextInfo contextInfo;
+    private InvocationContextInfo rootContextInfo;
     // used only to get InvocationContextInfo and shouldn't be serialized
     private transient ContextExplorer contextExplorer;
 
@@ -30,7 +30,7 @@ public class InvocationContext implements Serializable {
         this.stackTrace = stackTrace;
         this.contextExplorer = contextExplorer;
         if (contextExplorer != null) {
-            this.contextInfo = contextExplorer.getInfo();
+            this.rootContextInfo = contextExplorer.getRootContextInfo();
         }
 
     }
@@ -51,8 +51,12 @@ public class InvocationContext implements Serializable {
         return stackTrace;
     }
 
-    public InvocationContextInfo getContextInfo() {
-        return contextInfo;
+    public InvocationContextInfo getRootContextInfo() {
+        return rootContextInfo;
+    }
+
+    public ContextExplorer getContextExplorer() {
+        return contextExplorer;
     }
 
     public static class Builder {

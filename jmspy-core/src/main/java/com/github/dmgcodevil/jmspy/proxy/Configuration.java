@@ -13,6 +13,7 @@ import com.github.dmgcodevil.jmspy.proxy.wrappers.MapValuesWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.MapWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.SetWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
+import com.google.common.annotations.Beta;
 import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -136,6 +137,7 @@ public final class Configuration {
             return this;
         }
 
+        @Beta
         public Builder setFieldInterceptor(SetFieldInterceptor setFieldInterceptor) {
             this.setFieldInterceptor = setFieldInterceptor;
             return this;
