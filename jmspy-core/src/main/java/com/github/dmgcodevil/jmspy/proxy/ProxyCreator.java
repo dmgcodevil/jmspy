@@ -1,5 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.exception.ProxyCreationException;
 
 /**
@@ -16,5 +17,5 @@ public interface ProxyCreator {
      * @return the proxy for the target object
      * @throws ProxyCreationException in a case of any errors
      */
-    Object create(Object target) throws ProxyCreationException;
+    <T> T create(T target, String proxyId, InvocationRecord invocationRecord) throws ProxyCreationException;
 }

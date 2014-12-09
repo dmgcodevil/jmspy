@@ -13,14 +13,29 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Verify;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
+import net.sf.cglib.core.ReflectUtils;
 import net.sf.cglib.core.Signature;
+import net.sf.cglib.core.TypeUtils;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.InterfaceMaker;
+import net.sf.cglib.transform.AbstractClassTransformer;
 import org.apache.commons.lang3.ClassUtils;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,9 +57,11 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isNotPrimitiveOrWrap
  */
 public class ProxyFactory {
 
+    ProxyCreationStrategy proxyCreationStrategy = ProxyCreationStrategy.COPY;
     private Map<Class<?>, Wrapper> wrappers = new HashMap<>();
     private Set<Class<?>> ignoreTypes = Sets.newHashSet();
     private Set<String> ignorePackages = Sets.newHashSet();
+    private final Holder<Class<?>, Enhancer> enhancerHolder = new Holder<>();
     private static volatile ProxyFactory instance;
     private static final Configuration DEF_CONFIGURATION = Configuration.builder().build();
     public static final Type[] EMPTY_PARAMS = new Type[]{};
@@ -103,8 +120,9 @@ public class ProxyFactory {
      * @return proxy
      */
     public <T> T create(T target) {
-        return create(target, new InvocationRecord(InvocationGraph.create(target)));
+        return create(target, null);
     }
+
 
     /**
      * Creates proxy for the given target object.
@@ -118,14 +136,14 @@ public class ProxyFactory {
             return null;
         }
         if (acceptable(target)) {
-            Class<?> proxyClass = createProxyClass(target, invocationRecord);
-            return (T) Instantiator.getInstance().newInstance(proxyClass);
+            String proxyId = createIdentifier();
+            initInvocationGraph(proxyId, invocationRecord);
+            return ProxyCreatorFactory.create(target.getClass(), wrappers).create(target, proxyId, invocationRecord);
 
-//            return ProxyCreatorFactory.create(target.getClass(), invocationRecord, wrappers)
-//                    .create(target);
         }
         return target;
     }
+
 
     protected boolean acceptable(Object target) {
         return target != null &&
@@ -158,35 +176,79 @@ public class ProxyFactory {
         return false;
     }
 
-
-    private Class<?> createProxyClass(Object target, InvocationRecord invocationRecord) {
-        Class<?> type = target.getClass();
-        String id = createIdentifier();
-        initInvocationGraph(id, invocationRecord); // todo remove it from this method
-
-
-        Enhancer enhancer = new Enhancer();
-        enhancer.setSuperclass(type);
-
-//        List<Class<?>> interfaces = new ArrayList<>();
-//        interfaces.addAll(ClassUtils.getAllInterfaces(type));
-//        interfaces.add(proxyHelperInterface);
-
+    @SuppressWarnings("unchecked")
+    public <T> Class<T> createProxyClass(Object target, String proxyId, InvocationRecord invocationRecord) {
+        Verify.verifyNotNull(target, "target object cannot be null");
+        Class<?> superClass = target.getClass();
+        Optional<Enhancer> enhancerOpt = enhancerHolder.lookup(superClass);
         Callback[] callbacks = new Callback[]{
-                new ProxyIdentifierCallback(id),
+                new ProxyIdentifierCallback(proxyId),
                 new BasicMethodInterceptor(target, invocationRecord),
         };
+        if (enhancerOpt.isPresent()) {
+            Enhancer enhancer = enhancerOpt.get();
+            Class<T> proxyClass = enhancer.createClass();
+            Enhancer.registerCallbacks(proxyClass, callbacks);
+            return proxyClass;
+        }
 
-        enhancer.setCallbackTypes(new Class[]{ProxyIdentifierCallback.class, BasicMethodInterceptor.class});
+        Class<?> transformed = null;
+        try {
+            if (TypeUtils.isFinal(superClass.getModifiers())) {
+                ClassWriter classWriter = new ClassWriter(0);
+                ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM4, classWriter) {
+                    @Override
+                    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+                        super.visit(version, access & (~Opcodes.ACC_FINAL), name, signature, superName, interfaces);
+                    }
+                };
 
-        enhancer.setInterfaces(SERVICE_INTERFACES);
-        enhancer.setCallbackFilter(CglibCallbackFilter.getInstance());
-        Class<?> proxyClass = enhancer.createClass();
+                ClassReader classReader = new ClassReader(superClass.getName());
 
+                classReader.accept(classVisitor, 0);
+                ClassManager classManager = new ClassManager();
+                transformed = classManager.loadClass(superClass.getName(), superClass.getClassLoader(), classWriter.toByteArray());
+
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+        Enhancer enhancer;
+        if (transformed != null) {
+            enhancer = createEnhancer(transformed);
+        } else {
+            enhancer = createEnhancer(superClass);
+        }
+        enhancerHolder.hold(superClass, enhancer);
+        Class<T> proxyClass = enhancer.createClass();
         Enhancer.registerCallbacks(proxyClass, callbacks);
+        try {
+            Class<?> act = Class.forName(superClass.getName());
+            System.out.println(act.isAssignableFrom(proxyClass));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
         return proxyClass;
     }
 
+
+    private Enhancer createEnhancer(Class<?> type) {
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(type);
+        enhancer.setCallbackTypes(new Class[]{ProxyIdentifierCallback.class, BasicMethodInterceptor.class});
+        enhancer.setInterfaces(SERVICE_INTERFACES);
+        enhancer.setCallbackFilter(CglibCallbackFilter.getInstance());
+        return enhancer;
+    }
+
+    private Enhancer lookupEnhancer(final Class<?> type) {
+        return enhancerHolder.lookup(type, new Producer<Enhancer>() {
+            @Override
+            public Enhancer produce() {
+                return createEnhancer(type);
+            }
+        });
+    }
 
     private void initInvocationGraph(String id, InvocationRecord invocationRecord) {
         if (invocationRecord != null) {
@@ -231,4 +293,34 @@ public class ProxyFactory {
         }
     }
 
+
+    private static class EnhancerHolder {
+        private Class<?> targetClass;
+        private Class<?> proxyClass;
+        private Enhancer enhancer;
+
+        public Class<?> getTargetClass() {
+            return targetClass;
+        }
+
+        public void setTargetClass(Class<?> targetClass) {
+            this.targetClass = targetClass;
+        }
+
+        public Class<?> getProxyClass() {
+            return proxyClass;
+        }
+
+        public void setProxyClass(Class<?> proxyClass) {
+            this.proxyClass = proxyClass;
+        }
+
+        public Enhancer getEnhancer() {
+            return enhancer;
+        }
+
+        public void setEnhancer(Enhancer enhancer) {
+            this.enhancer = enhancer;
+        }
+    }
 }

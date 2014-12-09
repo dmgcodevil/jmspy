@@ -1,10 +1,12 @@
-package com.github.dmgcodevil.jmspy.example;
+package com.github.dmgcodevil.jmspy.test.data;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-
+/**
+ * Final class with default constructor.
+ */
 public final class User {
 
     private String login;

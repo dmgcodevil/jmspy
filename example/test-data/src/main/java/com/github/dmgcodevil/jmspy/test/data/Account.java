@@ -1,10 +1,15 @@
-package com.github.dmgcodevil.jmspy.example;
+package com.github.dmgcodevil.jmspy.test.data;
 
-
-public class Contact {
+/**
+ * Class without default constructor.
+ */
+public class Account {
     private String name;
 
-    public Contact(String name) {
+//    public Account() {
+//    }
+
+    public Account(String name) {
         this.name = name;
     }
 
@@ -15,6 +20,4 @@ public class Contact {
     public void setName(String name) {
         this.name = name;
     }
-
-
 }

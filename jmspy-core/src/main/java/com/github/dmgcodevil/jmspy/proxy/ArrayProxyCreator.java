@@ -17,19 +17,19 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isPrimitiveOrWrapper
 public class ArrayProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
 
-    ArrayProxyCreator(InvocationRecord invocationRecord, Map<Class<?>, Wrapper> wrappers) {
-        super(invocationRecord, wrappers);
+    ArrayProxyCreator(Map<Class<?>, Wrapper> wrappers) {
+        super(wrappers);
     }
 
     @Override
-    Object createProxy(Object target) throws Throwable {
+    <T> T createProxy(T target, String proxyId, InvocationRecord invocationRecord) throws Throwable {
         if (target == null || !target.getClass().isArray()) {
             return target;
         }
         Object[] sourceArray = (Object[]) target;
         Class componentType = target.getClass().getComponentType();
         if (sourceArray.length == 0 || isPrimitiveOrWrapper(componentType)) {
-            return sourceArray;
+            return (T)sourceArray;
         }
         Object[] proxy = (Object[]) Array.newInstance(componentType, sourceArray.length);
 
@@ -38,6 +38,6 @@ public class ArrayProxyCreator extends AbstractProxyCreator implements ProxyCrea
             proxy[i] = ProxyFactory.getInstance().create(sourceArray[i], invocationRecord);
         }
 
-        return proxy;
+        return (T)proxy;
     }
 }

@@ -17,30 +17,23 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.processUnmodifiable;
  */
 public class CollectionProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
-    CollectionProxyCreator(InvocationRecord invocationRecord, Map<Class<?>, Wrapper> wrappers) {
-        super(invocationRecord, wrappers);
+    CollectionProxyCreator(Map<Class<?>, Wrapper> wrappers) {
+        super(wrappers);
     }
 
     @Override
-    Object createProxy(Object target) throws Throwable {
-        return createCollectionProxy(target);
+   public  <T> T createProxy(T target, String proxyId, InvocationRecord invocationRecord) throws Throwable {
+        return createCollectionProxy(target,  proxyId, invocationRecord);
     }
 
-    private Object createCollectionProxy(Object target) throws Throwable {
+    private <T> T createCollectionProxy(T target,String proxyId,InvocationRecord invocationRecord) throws Throwable {
         if (!acceptable(target)) {
             return target;
         }
-        target = processUnmodifiable(target);
-        Collection sourceCol = (Collection) target;
-        Collection proxy = (Collection) enhancerFactory.create(target, invocationRecord).create();
-        if (sourceCol.isEmpty()) {
-            return proxy;
-        } else {
-            for (Object el : sourceCol) {
-                proxy.add(ProxyFactory.getInstance().create(el, invocationRecord));
-            }
-            return proxy;
-        }
+        target = (T)processUnmodifiable(target);
+
+        return new BeanProxyCreator(wrappers).createProxy(target, proxyId, invocationRecord);
+
     }
 
     private boolean acceptable(Object target) {

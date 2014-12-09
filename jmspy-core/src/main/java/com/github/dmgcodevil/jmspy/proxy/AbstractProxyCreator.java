@@ -19,29 +19,28 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
     protected Map<Class<?>, Wrapper> wrappers;
     protected EnhancerFactory enhancerFactory = EnhancerFactory.getInstance();
 
-    protected AbstractProxyCreator(InvocationRecord invocationRecord, Map<Class<?>, Wrapper> wrappers) {
-        this.invocationRecord = invocationRecord;
+    protected AbstractProxyCreator(Map<Class<?>, Wrapper> wrappers) {
         this.wrappers = wrappers;
     }
 
     @Override
-    public Object create(Object target) throws ProxyCreationException {
+    public <T> T create(T target, String proxyId, InvocationRecord invocationRecord) throws ProxyCreationException {
         if (target == null) {
             return null;
         }
-        Optional<Wrapper> wrapperOptional = findWrapper(target.getClass());
-        if (wrapperOptional.isPresent()) {
-            Wrapper wrapper = wrapperOptional.get().create(target);
-            Wrapper proxyWrapper = (Wrapper) enhancerFactory.create(wrapper, invocationRecord).create();
-            proxyWrapper.setTarget(wrapper.getTarget());
-            return proxyWrapper;
-        } else {
+//        Optional<Wrapper> wrapperOptional = findWrapper(target.getClass());
+//        if (wrapperOptional.isPresent()) {
+//            Wrapper wrapper = wrapperOptional.get().create(target);
+//            Wrapper proxyWrapper = (Wrapper) enhancerFactory.create(wrapper, invocationRecord).create();
+//            proxyWrapper.setTarget(wrapper.getTarget());
+//            return (T) proxyWrapper;
+//        } else {
             try {
-                return createProxy(target);
+                return createProxy(target, proxyId, invocationRecord);
             } catch (Throwable throwable) {
                 throw new ProxyCreationException("type: " + target.getClass(), throwable);
             }
-        }
+        //}
     }
 
     /**
@@ -52,7 +51,7 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
      * @return proxy
      * @throws Throwable in a case of any errors
      */
-    abstract Object createProxy(Object target) throws Throwable;
+    abstract <T> T createProxy(T target, String proxyId, InvocationRecord invocationRecord) throws Throwable;
 
     /**
      * Tries find a wrapper for the given type.

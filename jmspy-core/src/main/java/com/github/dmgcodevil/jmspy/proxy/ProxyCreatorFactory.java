@@ -17,15 +17,15 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isMap;
  */
 public class ProxyCreatorFactory {
 
-    public static ProxyCreator create(Class<?> type, InvocationRecord invocationRecord, Map<Class<?>, Wrapper> wrappers) {
+    public static ProxyCreator create(Class<?> type, Map<Class<?>, Wrapper> wrappers) {
         if (CommonUtils.isBean(type)) {
-            return new BeanProxyCreator(invocationRecord, wrappers);
+            return new BeanProxyCreator(wrappers);
         } else if (CommonUtils.isCollection(type)) {
-            return new CollectionProxyCreator(invocationRecord, wrappers);
+            return new CollectionProxyCreator(wrappers);
         } else if (isMap(type)) {
-            return new MapProxyCreator(invocationRecord, wrappers);
+            return new MapProxyCreator(wrappers);
         } else if (isArray(type)) {
-            return new ArrayProxyCreator(invocationRecord, wrappers);
+            return new ArrayProxyCreator(wrappers);
         } else {
             return primitiveProxyCreator;
             //throw new RuntimeException("failed to create proxy");
@@ -33,8 +33,9 @@ public class ProxyCreatorFactory {
     }
 
     private static ProxyCreator primitiveProxyCreator = new ProxyCreator() {
+
         @Override
-        public Object create(Object target) throws ProxyCreationException {
+        public <T> T create(T target, String proxyId, InvocationRecord invocationRecord) throws ProxyCreationException {
             return target;
         }
     };

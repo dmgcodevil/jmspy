@@ -17,24 +17,24 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.processUnmodifiable;
 public class MapProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
 
-    MapProxyCreator(InvocationRecord invocationRecord, Map<Class<?>, Wrapper> wrappers) {
-        super(invocationRecord, wrappers);
+    MapProxyCreator( Map<Class<?>, Wrapper> wrappers) {
+        super(wrappers);
     }
 
     @Override
-    Object createProxy(Object target) throws Throwable {
+    <T> T createProxy(T target, String proxyId, InvocationRecord invocationRecord) throws Throwable {
         return createMapProxy(target);
     }
 
-    private Object createMapProxy(Object target) throws Throwable {
+    private <T>T createMapProxy(T target) throws Throwable {
         if (!acceptable(target)) {
             return target;
         }
-        target = processUnmodifiable(target);
+        target = (T)processUnmodifiable(target);
         Map sourceMap = (Map) target;
         Map proxy = (Map) enhancerFactory.create(target, invocationRecord).create();
         if (sourceMap.isEmpty()) {
-            return proxy;
+            return (T)proxy;
         }
         for (Object entryObj : sourceMap.entrySet()) {
             Map.Entry entry = (Map.Entry) entryObj;
@@ -44,7 +44,7 @@ public class MapProxyCreator extends AbstractProxyCreator implements ProxyCreato
             val = ProxyFactory.getInstance().create(val, invocationRecord);
             proxy.put(key, val);
         }
-        return proxy;
+        return (T)proxy;
     }
 
     private boolean acceptable(Object target) {
