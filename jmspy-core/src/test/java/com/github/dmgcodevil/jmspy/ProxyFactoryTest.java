@@ -16,5 +16,8 @@ public class ProxyFactoryTest {
         User user = new User();
         User proxy1 =  ProxyFactory.getInstance().create(user);
         User proxy2 =  ProxyFactory.getInstance().create(user);
+
     }
+
+
 }

@@ -1,0 +1,22 @@
+apply plugin: 'java'
+
+repositories {
+    mavenCentral()
+}
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+    manifest {
+        attributes("Premain-Class": "agent.Agent",
+                "Can-Retransform-Classes": true)
+
+
+    }
+    //baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+
+dependencies {
+    compile 'org.ow2.asm:asm:4.2'
+}
