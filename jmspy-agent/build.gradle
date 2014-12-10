@@ -6,7 +6,7 @@ repositories {
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
     manifest {
-        attributes("Premain-Class": "agent.Agent",
+        attributes("Premain-Class": "com.github.dmgcodevil.jmspy.agent.Agent",
                 "Can-Retransform-Classes": true)
 
 
