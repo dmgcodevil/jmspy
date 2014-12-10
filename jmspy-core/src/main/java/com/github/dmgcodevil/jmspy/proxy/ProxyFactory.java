@@ -26,6 +26,8 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -78,6 +80,8 @@ public class ProxyFactory {
         PROXY_HELPER_INTERFACE = interfaceMaker.create();
         SERVICE_INTERFACES = new Class[]{PROXY_HELPER_INTERFACE};
     }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProxyFactory.class);
 
     private ProxyFactory() {
     }
@@ -176,59 +180,50 @@ public class ProxyFactory {
         return false;
     }
 
+
+    /**
+     * @param target
+     * @param proxyId
+     * @param invocationRecord
+     * @param <T>
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public <T> Class<T> createProxyClass(Object target, String proxyId, InvocationRecord invocationRecord) {
         Verify.verifyNotNull(target, "target object cannot be null");
         Class<?> superClass = target.getClass();
+//        if (target instanceof Wrapper) {
+//            target = ((Wrapper) target).getTarget();
+//        }
+
         Optional<Enhancer> enhancerOpt = enhancerHolder.lookup(superClass);
-        Callback[] callbacks = new Callback[]{
-                new ProxyIdentifierCallback(proxyId),
-                new BasicMethodInterceptor(target, invocationRecord),
-        };
+
         if (enhancerOpt.isPresent()) {
             Enhancer enhancer = enhancerOpt.get();
             Class<T> proxyClass = enhancer.createClass();
-            Enhancer.registerCallbacks(proxyClass, callbacks);
+            Enhancer.registerCallbacks(proxyClass, createCallbacks(target, proxyId, invocationRecord));
             return proxyClass;
         }
-
-        Class<?> transformed = null;
+        Class<T> proxyClass;
+        Enhancer enhancer = createEnhancer(superClass);
         try {
-            if (TypeUtils.isFinal(superClass.getModifiers())) {
-                ClassWriter classWriter = new ClassWriter(0);
-                ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM4, classWriter) {
-                    @Override
-                    public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
-                        super.visit(version, access & (~Opcodes.ACC_FINAL), name, signature, superName, interfaces);
-                    }
-                };
-
-                ClassReader classReader = new ClassReader(superClass.getName());
-
-                classReader.accept(classVisitor, 0);
-                ClassManager classManager = new ClassManager();
-                transformed = classManager.loadClass(superClass.getName(), superClass.getClassLoader(), classWriter.toByteArray());
-
-            }
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-        Enhancer enhancer;
-        if (transformed != null) {
-            enhancer = createEnhancer(transformed);
-        } else {
-            enhancer = createEnhancer(superClass);
+            proxyClass = enhancer.createClass();
+        } catch (Throwable th) {
+            LOGGER.error("failed to create proxy class for target type: '{}', error message: '{}'", superClass, th.getMessage());
+            return null;
         }
         enhancerHolder.hold(superClass, enhancer);
-        Class<T> proxyClass = enhancer.createClass();
-        Enhancer.registerCallbacks(proxyClass, callbacks);
-        try {
-            Class<?> act = Class.forName(superClass.getName());
-            System.out.println(act.isAssignableFrom(proxyClass));
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
+
+        Enhancer.registerCallbacks(proxyClass, createCallbacks(target, proxyId, invocationRecord));
+
         return proxyClass;
+    }
+
+    private Callback[] createCallbacks(Object target, String proxyId, InvocationRecord invocationRecord) {
+        return new Callback[]{
+                new ProxyIdentifierCallback(proxyId),
+                new BasicMethodInterceptor(target, invocationRecord),
+        };
     }
 
 
@@ -293,34 +288,4 @@ public class ProxyFactory {
         }
     }
 
-
-    private static class EnhancerHolder {
-        private Class<?> targetClass;
-        private Class<?> proxyClass;
-        private Enhancer enhancer;
-
-        public Class<?> getTargetClass() {
-            return targetClass;
-        }
-
-        public void setTargetClass(Class<?> targetClass) {
-            this.targetClass = targetClass;
-        }
-
-        public Class<?> getProxyClass() {
-            return proxyClass;
-        }
-
-        public void setProxyClass(Class<?> proxyClass) {
-            this.proxyClass = proxyClass;
-        }
-
-        public Enhancer getEnhancer() {
-            return enhancer;
-        }
-
-        public void setEnhancer(Enhancer enhancer) {
-            this.enhancer = enhancer;
-        }
-    }
 }

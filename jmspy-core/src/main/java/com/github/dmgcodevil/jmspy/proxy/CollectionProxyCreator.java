@@ -15,6 +15,7 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.processUnmodifiable;
  *
  * Created by dmgcodevil.
  */
+@Deprecated
 public class CollectionProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
     CollectionProxyCreator(Map<Class<?>, Wrapper> wrappers) {

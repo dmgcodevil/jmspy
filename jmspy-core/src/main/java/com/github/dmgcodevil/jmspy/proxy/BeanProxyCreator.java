@@ -4,6 +4,9 @@ import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 import com.github.dmgcodevil.jmspy.reflection.Instantiator;
+import com.google.common.base.Optional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -14,20 +17,29 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
  */
 public class BeanProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BeanProxyCreator.class);
 
     BeanProxyCreator(Map<Class<?>, Wrapper> wrappers) {
-        super( wrappers);
+        super(wrappers);
     }
 
     @Override
     <T> T createProxy(T target, String proxyId, InvocationRecord invocationRecord) throws Throwable {
 
         Class<T> proxyClass = ProxyFactory.getInstance().createProxyClass(target, proxyId, invocationRecord);
-        return Instantiator.getInstance().newInstance(proxyClass);
+        if (proxyClass != null) {
+            return Instantiator.getInstance().newInstance(proxyClass);
+        }
+        Optional<Wrapper> wrapperOpt = findWrapper(target.getClass());
+        if (wrapperOpt.isPresent()) {
+            Wrapper wr = wrapperOpt.get();
+            Wrapper wrapper = wr.create(target);
+            proxyClass = ProxyFactory.getInstance().createProxyClass(wrapper, proxyId, invocationRecord);
+            return Instantiator.getInstance().newInstance(proxyClass);
+        }
 
-//        Object proxy = ProxyFactory.getInstance().create(target, invocationRecord, ProxyCreationStrategy.DELEGATE);
-//        new BeanCopier(new SetProxyFieldInterceptor(ProxyFactory.getInstance(), invocationRecord)).copy(target, proxy);
-//        return proxy;
+        LOGGER.error("failed create proxy for type: '{}'", target.getClass());
+        return target;
     }
 
 }

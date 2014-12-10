@@ -14,6 +14,7 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.processUnmodifiable;
  *
  * Created by dmgcodevil.
  */
+@Deprecated
 public class MapProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
 

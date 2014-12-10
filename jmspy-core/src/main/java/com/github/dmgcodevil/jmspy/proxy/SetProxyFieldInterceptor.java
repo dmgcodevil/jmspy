@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 /**
  * Created by dmgcodevil on 11/14/2014.
  */
+@Deprecated
 public class SetProxyFieldInterceptor implements SetFieldInterceptor {
 
     public SetProxyFieldInterceptor(ProxyFactory proxyFactory, InvocationRecord invocationRecord) {

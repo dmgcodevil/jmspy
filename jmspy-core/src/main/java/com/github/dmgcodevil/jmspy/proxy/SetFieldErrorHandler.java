@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 /**
  * Created by dmgcodevil on 11/14/2014.
  */
+@Deprecated
 public interface SetFieldErrorHandler {
 
     public void handle(Object to, Field field, Throwable error);

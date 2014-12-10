@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 
-public final class User {
+public class User {
 
     private String login;
     private String password;

@@ -10,6 +10,7 @@ import static com.github.dmgcodevil.jmspy.proxy.ReflectionUtils.hasDefaultConstr
 /**
  * -javaagent:jmspy-core/lib/jmspy-agent.jar=com.github.dmgcodevil.jmspy.example.Candidate.class,com.github.dmgcodevil.jmspy.test.data
  */
+@Deprecated
 public class TestApp {
     public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 

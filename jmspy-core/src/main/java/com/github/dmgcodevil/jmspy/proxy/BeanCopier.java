@@ -16,6 +16,7 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.getOriginalType;
  *
  * @author dmgcodevil
  */
+@Deprecated
 public class BeanCopier {
 
     private SetFieldInterceptor setFieldInterceptor = DEFAULT_SET_FIELD_INTERCEPTOR;

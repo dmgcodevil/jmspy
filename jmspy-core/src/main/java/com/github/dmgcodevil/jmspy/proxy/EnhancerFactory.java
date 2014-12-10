@@ -30,6 +30,7 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
  * <p/>
  * Created by dmgcodevil.
  */
+@Deprecated
 public class EnhancerFactory {
 
     public static final Type[] EMPTY_PARAMS = new Type[]{};

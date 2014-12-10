@@ -17,6 +17,7 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
 
     protected InvocationRecord invocationRecord;
     protected Map<Class<?>, Wrapper> wrappers;
+    @Deprecated
     protected EnhancerFactory enhancerFactory = EnhancerFactory.getInstance();
 
     protected AbstractProxyCreator(Map<Class<?>, Wrapper> wrappers) {
@@ -35,11 +36,11 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
 //            proxyWrapper.setTarget(wrapper.getTarget());
 //            return (T) proxyWrapper;
 //        } else {
-            try {
-                return createProxy(target, proxyId, invocationRecord);
-            } catch (Throwable throwable) {
-                throw new ProxyCreationException("type: " + target.getClass(), throwable);
-            }
+        try {
+            return createProxy(target, proxyId, invocationRecord);
+        } catch (Throwable throwable) {
+            throw new ProxyCreationException("type: " + target.getClass(), throwable);
+        }
         //}
     }
 
