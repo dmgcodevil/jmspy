@@ -11,12 +11,22 @@ task fatJar(type: Jar) {
 
 
     }
-    //baseName = project.name + '-all'
+    baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
+}
+
+jar {
+    manifest {
+        attributes("Premain-Class": "com.github.dmgcodevil.jmspy.agent.Agent",
+                "Can-Retransform-Classes": true)
+
+
+    }
 }
 
 
 dependencies {
     compile 'org.ow2.asm:asm:4.2'
+    //compile 'asm:asm:3.1'
 }

@@ -131,7 +131,7 @@ public class ProxyFactory {
     protected boolean acceptable(Object target) {
         return target != null &&
                 //Jdk proxies aren't supported because cannot be wrapped in CGLIB proxy without some preparatory work.
-                !isJdkProxy(target) &&
+                //!isJdkProxy(target) &&
 
                 !isCglibProxy(target) &&
 
