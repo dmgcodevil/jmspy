@@ -1,7 +1,9 @@
 package com.github.dmgcodevil.jmspy.agent;
 
 /**
- * Created by dmgcodevil on 12/10/2014.
+ * Exception indicates that any errors occurred during building {@link com.github.dmgcodevil.jmspy.agent.JmspyAgentConfig}.
+ *
+ * @author dmgcodevil
  */
 public class AgentConfigurationException extends RuntimeException {
     public AgentConfigurationException() {
