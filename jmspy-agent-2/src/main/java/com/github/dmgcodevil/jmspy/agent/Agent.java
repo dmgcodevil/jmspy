@@ -210,7 +210,9 @@ public class Agent {
 
                     return classWriter.toByteArray();
                 } catch (Throwable e) {
-                    throw new IllegalClassFormatException(e.getMessage());
+                    // add logger
+                    System.out.println(e.getMessage());
+                    //throw new IllegalClassFormatException(e.getMessage());
                 }
             }
 
