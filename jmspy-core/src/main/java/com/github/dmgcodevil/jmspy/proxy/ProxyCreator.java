@@ -6,7 +6,7 @@ import com.github.dmgcodevil.jmspy.exception.ProxyCreationException;
 /**
  * Basic interface that defines several methods to create proxies.
  * <p/>
- * Created by dmgcodevil on 11/8/2014.
+ * @author dmgcodevil
  */
 public interface ProxyCreator {
 

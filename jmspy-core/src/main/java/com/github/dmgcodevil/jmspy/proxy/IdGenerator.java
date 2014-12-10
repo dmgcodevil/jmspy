@@ -3,9 +3,9 @@ package com.github.dmgcodevil.jmspy.proxy;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * // todo
+ * Generator to generate identifier for proxies.
  *
- * @author  dmgcodevil
+ * @author dmgcodevil
  */
 public class IdGenerator {
 
@@ -13,8 +13,8 @@ public class IdGenerator {
 
     private AtomicInteger atomicInteger = new AtomicInteger(0);
 
-    public int generate(){
-      return atomicInteger.incrementAndGet();
+    public int generate() {
+        return atomicInteger.incrementAndGet();
     }
 
     public static IdGenerator getInstance() {

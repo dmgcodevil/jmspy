@@ -23,6 +23,13 @@ public class InvocationContext implements Serializable {
     public InvocationContext() {
     }
 
+    /**
+     * Creates invocation context.
+     *
+     * @param root            the root caller method
+     * @param stackTrace      the array of {@link StackTraceElement}
+     * @param contextExplorer the context explorer
+     */
     public InvocationContext(Method root, StackTraceElement[] stackTrace, ContextExplorer contextExplorer) {
         if (root != null) {
             this.root = new JMethod(root);
@@ -39,6 +46,11 @@ public class InvocationContext implements Serializable {
         this(builder.root, builder.stackTrace, builder.contextExplorer);
     }
 
+    /**
+     * Creates builder.
+     *
+     * @return new builder
+     */
     public static Builder builder() {
         return new Builder();
     }
@@ -59,6 +71,9 @@ public class InvocationContext implements Serializable {
         return contextExplorer;
     }
 
+    /**
+     * Builder to create {@link InvocationContext} instances.
+     */
     public static class Builder {
         private Method root;
         private StackTraceElement[] stackTrace;
@@ -97,6 +112,11 @@ public class InvocationContext implements Serializable {
             return this;
         }
 
+        /**
+         * Creates new instance of {@link InvocationContext} based on parameters from the builder.
+         *
+         * @return new instance of {@link InvocationContext}
+         */
         public InvocationContext build() {
             return new InvocationContext(this);
         }

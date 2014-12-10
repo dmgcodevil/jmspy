@@ -10,11 +10,10 @@ import java.util.Map;
 /**
  * Basic implementation of {@link ProxyCreator}.
  * <p/>
- * Created by dmgcodevil.
+ * @author dmgcodevil
  */
 public abstract class AbstractProxyCreator implements ProxyCreator {
 
-    protected InvocationRecord invocationRecord;
     protected Map<Class<?>, Wrapper> wrappers;
 
     protected AbstractProxyCreator(Map<Class<?>, Wrapper> wrappers) {
@@ -26,19 +25,11 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
         if (target == null) {
             return null;
         }
-//        Optional<Wrapper> wrapperOptional = findWrapper(target.getClass());
-//        if (wrapperOptional.isPresent()) {
-//            Wrapper wrapper = wrapperOptional.get().create(target);
-//            Wrapper proxyWrapper = (Wrapper) enhancerFactory.create(wrapper, invocationRecord).create();
-//            proxyWrapper.setTarget(wrapper.getTarget());
-//            return (T) proxyWrapper;
-//        } else {
         try {
             return createProxy(target, proxyId, invocationRecord);
         } catch (Throwable throwable) {
             throw new ProxyCreationException("type: " + target.getClass(), throwable);
         }
-        //}
     }
 
     /**

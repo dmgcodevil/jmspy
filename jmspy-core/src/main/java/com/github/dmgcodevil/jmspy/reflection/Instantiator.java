@@ -87,7 +87,7 @@ public final class Instantiator {
     /**
      * Creates default constructor.
      */
-    // todo implement it using 'objenesis' library
+    // fixme ReflectionFactory is internal proprietary API and may be removed in a future release, implement it using 'objenesis' library
     private static class CreateDefaultConstructorStrategy implements Strategy {
         @SuppressWarnings("restriction")
         @Override

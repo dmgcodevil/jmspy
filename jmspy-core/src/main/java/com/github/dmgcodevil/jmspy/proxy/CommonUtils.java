@@ -24,9 +24,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * // todo
+ * Util class for common needs.
  *
- * @author  dmgcodevil
+ * @author dmgcodevil
  */
 public class CommonUtils {
 

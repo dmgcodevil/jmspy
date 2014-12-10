@@ -5,9 +5,9 @@ import net.sf.cglib.proxy.CallbackFilter;
 import java.lang.reflect.Method;
 
 /**
- * // todo
+ * Callback filter to chose certain callback implementation at runtime.
  *
- * @author  dmgcodevil
+ * @author dmgcodevil
  */
 public class CglibCallbackFilter implements CallbackFilter {
 

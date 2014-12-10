@@ -28,9 +28,9 @@ import java.util.Set;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.forEach;
 
 /**
- * Configuration for ProxyFactory.
+ * Configuration for {@link ProxyFactory}.
  *
- * @author Raman_Pliashkou
+ * @author dmgcodevil
  */
 public final class Configuration {
 

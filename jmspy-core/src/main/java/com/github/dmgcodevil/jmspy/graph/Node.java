@@ -2,6 +2,8 @@ package com.github.dmgcodevil.jmspy.graph;
 
 import com.github.dmgcodevil.jmspy.proxy.JMethod;
 import com.github.dmgcodevil.jmspy.proxy.JType;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.base.Verify;
 import com.google.common.collect.Iterables;
@@ -91,18 +93,23 @@ public class Node implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Node node = (Node) o;
+        Node that = (Node) o;
 
-        if (id != null ? !id.equals(node.id) : node.id != null) return false;
-        if (type != null ? !type.equals(node.type) : node.type != null) return false;
-
-        return true;
+        return Objects.equal(this.id, that.id) &&
+                Objects.equal(this.type, that.type);
     }
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        return result;
+        return Objects.hashCode(id, type);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("id", id)
+                .add("type", type)
+                .add("outgoingEdges", outgoingEdges)
+                .toString();
     }
 }

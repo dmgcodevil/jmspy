@@ -1,5 +1,7 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.google.common.base.Objects;
+
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -32,6 +34,7 @@ public class JMethod implements Serializable {
         return name;
     }
 
+    @Deprecated
     public void setName(String name) {
         this.name = name;
     }
@@ -40,6 +43,7 @@ public class JMethod implements Serializable {
         return returnType;
     }
 
+    @Deprecated
     public void setReturnType(String returnType) {
         this.returnType = returnType;
     }
@@ -58,22 +62,17 @@ public class JMethod implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        JMethod jMethod = (JMethod) o;
+        JMethod that = (JMethod) o;
 
-        if (name != null ? !name.equals(jMethod.name) : jMethod.name != null) return false;
-        if (parameters != null ? !parameters.equals(jMethod.parameters) : jMethod.parameters != null) return false;
-        if (returnType != null ? !returnType.equals(jMethod.returnType) : jMethod.returnType != null) return false;
-        if (targetClass != null ? !targetClass.equals(jMethod.targetClass) : jMethod.targetClass != null) return false;
-
-        return true;
+        return Objects.equal(this.name, that.name) &&
+                Objects.equal(this.parameters, that.parameters) &&
+                Objects.equal(this.returnType, that.returnType) &&
+                Objects.equal(this.targetClass, that.targetClass);
     }
 
     @Override
     public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
-        result = 31 * result + (returnType != null ? returnType.hashCode() : 0);
-        result = 31 * result + (targetClass != null ? targetClass.hashCode() : 0);
-        return result;
+        return Objects.hashCode(name, parameters, returnType, targetClass);
     }
+
 }

@@ -69,7 +69,6 @@ public class BasicMethodInterceptor implements MethodInterceptor {
                 if (out != null) {
                     if (!isArray(out.getClass())) {
                         out = ProxyFactory.getInstance().create(out, invocationRecord);
-                        //out =  ProxyFactory.getInstance().create(out);
                     }
 
                     String outId = getIdentifier(out);
@@ -88,7 +87,6 @@ public class BasicMethodInterceptor implements MethodInterceptor {
                     edge.setFrom(node);
                     edge.setTo(toNode);
 
-                    //toNode.addMethod(method);
                     node.addOutgoingEdge(edge);
                 }
 

@@ -29,13 +29,13 @@ import java.util.WeakHashMap;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isCglibProxy;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isEmptyData;
-import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isJdkProxy;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isNotPrimitiveOrWrapper;
 
 /**
  * Creates proxies for an objects.
  * <p/>
- * Created by dmgcodevil on 11/7/2014.
+ *
+ * @author dmgcodevil
  */
 public class ProxyFactory {
 
@@ -106,13 +106,12 @@ public class ProxyFactory {
         return create(target, null);
     }
 
-
     /**
      * Creates proxy for the given target object.
      *
      * @param target           the object to create proxy
      * @param invocationRecord the invocation record
-     * @return proxy
+     * @return proxy for the given target object
      */
     public <T> T create(T target, InvocationRecord invocationRecord) {
         if (target == null) {
@@ -128,10 +127,14 @@ public class ProxyFactory {
     }
 
 
+    /**
+     * Checks whether target object should be proxied or not.
+     *
+     * @param target the target object
+     * @return true if target should be proxied, otherwise - false
+     */
     protected boolean acceptable(Object target) {
         return target != null &&
-                //Jdk proxies aren't supported because cannot be wrapped in CGLIB proxy without some preparatory work.
-                //!isJdkProxy(target) &&
 
                 !isCglibProxy(target) &&
 
@@ -153,27 +156,24 @@ public class ProxyFactory {
             }
         }).isPresent();
         if (ignoreTypes.contains(aClass) || ignore) {
-            System.out.println("ignore: " + aClass);
+            LOGGER.debug("ignore type: '{}'", aClass);
             return true;
         }
         return false;
     }
 
-
     /**
-     * @param target
-     * @param proxyId
-     * @param invocationRecord
-     * @param <T>
-     * @return
+     * Creates proxy class for the given target object.
+     *
+     * @param target           the target object
+     * @param proxyId          the proxy id
+     * @param invocationRecord the invocation record
+     * @return proxy class or <code>null</code> if proxy class cannot be generated for the given target object
      */
     @SuppressWarnings("unchecked")
     public <T> Class<T> createProxyClass(Object target, String proxyId, InvocationRecord invocationRecord) {
         Verify.verifyNotNull(target, "target object cannot be null");
         Class<?> superClass = target.getClass();
-//        if (target instanceof Wrapper) {
-//            target = ((Wrapper) target).getTarget();
-//        }
 
         Optional<Enhancer> enhancerOpt = enhancerHolder.lookup(superClass);
 
@@ -205,7 +205,6 @@ public class ProxyFactory {
         };
     }
 
-
     private Enhancer createEnhancer(Class<?> type) {
         Enhancer enhancer = new Enhancer();
         enhancer.setSuperclass(type);
@@ -213,15 +212,6 @@ public class ProxyFactory {
         enhancer.setInterfaces(SERVICE_INTERFACES);
         enhancer.setCallbackFilter(CglibCallbackFilter.getInstance());
         return enhancer;
-    }
-
-    private Enhancer lookupEnhancer(final Class<?> type) {
-        return enhancerHolder.lookup(type, new Producer<Enhancer>() {
-            @Override
-            public Enhancer produce() {
-                return createEnhancer(type);
-            }
-        });
     }
 
     private void initInvocationGraph(String id, InvocationRecord invocationRecord) {
@@ -235,7 +225,6 @@ public class ProxyFactory {
             invocationGraph.getRoot().setId(id);
         }
     }
-
 
     private static class Holder<K, V> {
         private final Map<SoftReference<K>, V> data = new WeakHashMap<>();

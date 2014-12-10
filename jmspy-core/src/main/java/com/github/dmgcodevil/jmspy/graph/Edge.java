@@ -2,6 +2,8 @@ package com.github.dmgcodevil.jmspy.graph;
 
 import com.github.dmgcodevil.jmspy.context.InvocationContextInfo;
 import com.github.dmgcodevil.jmspy.proxy.JMethod;
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
 
 import java.io.Serializable;
 
@@ -56,21 +58,24 @@ public class Edge implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Edge edge = (Edge) o;
+        Edge that = (Edge) o;
 
-        if (from != null ? !from.equals(edge.from) : edge.from != null) return false;
-        if (method != null ? !method.equals(edge.method) : edge.method != null) return false;
-        if (to != null ? !to.equals(edge.to) : edge.to != null) return false;
-
-        return true;
+        return Objects.equal(this.from, that.from) &&
+                Objects.equal(this.method, that.method) &&
+                Objects.equal(this.to, that.to);
     }
 
     @Override
     public int hashCode() {
-        int result = from != null ? from.hashCode() : 0;
-        result = 31 * result + (to != null ? to.hashCode() : 0);
-        result = 31 * result + (method != null ? method.hashCode() : 0);
-        return result;
+        return Objects.hashCode(from, to, method);
     }
 
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("from", from)
+                .add("to", to)
+                .add("method", method)
+                .toString();
+    }
 }

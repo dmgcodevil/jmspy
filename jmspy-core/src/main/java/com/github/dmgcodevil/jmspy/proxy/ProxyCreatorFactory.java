@@ -7,7 +7,7 @@ import java.util.Map;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isArray;
 
 /**
- * Factory to create instances of specific {@link ProxyCreator} implementations depending on type
+ * Factory to create instances of specific {@link ProxyCreator} implementations depending on source type.
  *
  * @author dmgcodevil
  */

@@ -1,5 +1,8 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
+import com.google.common.base.MoreObjects;
+import com.google.common.base.Objects;
+
 import java.io.Serializable;
 
 /**
@@ -7,7 +10,7 @@ import java.io.Serializable;
  *
  * @author dmgcodevil
  */
-public class JType implements Serializable{
+public class JType implements Serializable {
     private String name;
 
     public JType() {
@@ -35,15 +38,20 @@ public class JType implements Serializable{
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        JType jType = (JType) o;
+        JType that = (JType) o;
 
-        if (name != null ? !name.equals(jType.name) : jType.name != null) return false;
-
-        return true;
+        return Objects.equal(this.name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return name != null ? name.hashCode() : 0;
+        return Objects.hashCode(name);
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("name", name)
+                .toString();
     }
 }

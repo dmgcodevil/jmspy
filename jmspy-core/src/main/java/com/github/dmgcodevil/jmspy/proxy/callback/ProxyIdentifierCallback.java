@@ -3,7 +3,7 @@ package com.github.dmgcodevil.jmspy.proxy.callback;
 import net.sf.cglib.proxy.FixedValue;
 
 /**
- * // todo
+ * Helper callback is used to intercept synthetic method to get proxy identifier.
  *
  * @author dmgcodevil
  */

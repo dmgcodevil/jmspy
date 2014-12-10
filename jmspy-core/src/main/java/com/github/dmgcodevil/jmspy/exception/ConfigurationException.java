@@ -1,7 +1,7 @@
 package com.github.dmgcodevil.jmspy.exception;
 
 /**
- * // todo
+ * Exception is used to indicate any issues during proxy factory configuration.
  *
  * @author  dmgcodevil
  */
