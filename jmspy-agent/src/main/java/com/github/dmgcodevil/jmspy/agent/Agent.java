@@ -1,18 +1,20 @@
 package com.github.dmgcodevil.jmspy.agent;
 
+import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.lang.instrument.Instrumentation;
 import java.security.ProtectionDomain;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -23,31 +25,42 @@ import java.util.Set;
  */
 public class Agent {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Agent.class);
+
     /**
      * Premain method is required to apply agent.
      *
-     * @param agentArgs the arguments for the agent. Whole string follows after '=' is considered as single parameter.
+     * @param agentArgs the arguments for the agent. Whole string follows after '=' is considered as single parameter
+     *                  or property from the property file.
      *                  <p/>
-     *                  Example:
+     *                  Examples:
+     *                  javaagent parameter:
      *                  -javaagent:jmspy-core/lib/jmspy-agent.jar=com.github.dmgcodevil.jmspy.example.Candidate.class,com.github.dmgcodevil.jmspy.test.data
+     *                  <p/>
+     *                  property file that should be placed at top project level for example:
+     *                  'src/main/resources\jmspy_agent.properties'
+     *                  or
+     *                  'src/test/resources\jmspy_agent.properties'
+     *                  Property name is "instrumentedResources", for instance: instrumentedResources=com.github.dmgcodevil.jmspy.example.Candidate.class
      *                  <p/>
      *                  Arguments allows specify concrete classes that should be instrumented or whole packages.
      *                  The agent expects argument string in the next format:
      *                  [ {canonicalClassName}.class, {package}, {canonicalClassName}.class, ... ]
-     *                  thus it's possible to specify classes or packages as much as needed
+     *                  thus it's possible to specify classes or packages as much as required
      *                  There are several significant notes:
-     *                  1. If agentArgs wasn't specified (null or empty string) then all classes will be transformed if need be.
+     *                  1. If agentArgs/property file weren't specified (nonexistent property file or empty string)
+     *                  then all classes will be transformed if need be.
      *                  2. Classes and packages must be separated using ',' sign
      *                  3. Class name must end with '.class' suffix, otherwise it will be considered as a package name
      *                  <p/>
      *                  Preferred to use packages names in a agentArgs instead of specifying concrete classes names
-     *                  instead of cases when you know exactly a class name in runtime,
+     *                  instead of cases when you know exactly a class name at runtime,
      *                  because it's possible that nested or anonymous classes that have class name like 'com/site/project/URLClassPath$FileLoader$1'
-     *                  will not be transformed, in this case better specify package name: 'com.site.project'
+     *                  will not be transformed, in this case better specify package name as 'com.site.project'
      * @param inst      the instrumentation instance
      */
     public static void premain(String agentArgs, Instrumentation inst) {
-        inst.addTransformer(new JmspyClassFileTransformer(agentArgs));
+        inst.addTransformer(new JmspyClassFileTransformer(new JmspyAgentConfig(agentArgs)));
     }
 
     /**
@@ -65,14 +78,9 @@ public class Agent {
         mv.visitEnd();
     }
 
-    private static class ClassInfoReader extends ClassVisitor {
+    private static class ClassInfoReader extends IdleClassVisitor {
         private static final String DEFAULT_CONSTRUCTOR_SIGNATURE = "<init>()V";
         private boolean defaultConstructor;
-
-        public ClassInfoReader() {
-            super(Opcodes.ASM4);
-        }
-
 
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
@@ -95,23 +103,9 @@ public class Agent {
         private Set<String> instrumentedPackages = Collections.emptySet();
         private Set<String> instrumentedClasses = Collections.emptySet();
 
-        private JmspyClassFileTransformer(String agentArgs) {
-            if (agentArgs != null && agentArgs.trim().length() > 0) {
-                agentArgs = agentArgs.replace(".", "/");
-                String[] elements = agentArgs.split(",");
-                if (elements.length > 0) {
-                    instrumentedPackages = new HashSet<>();
-                    instrumentedClasses = new HashSet<>();
-                    for (String el : elements) {
-                        el = el.trim();
-                        if (el.endsWith("/class")) {
-                            instrumentedClasses.add(el.replace("/class", ""));
-                        } else {
-                            instrumentedPackages.add(el);
-                        }
-                    }
-                }
-            }
+        private JmspyClassFileTransformer(JmspyAgentConfig agentConfig) {
+            instrumentedClasses = agentConfig.getInstrumentedClasses();
+            instrumentedPackages = agentConfig.getInstrumentedPackages();
         }
 
         private boolean isInstrumented(String className) {
@@ -148,7 +142,7 @@ public class Agent {
                         createDefaultConstructor(classWriter);
                     }
 
-                    ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM4, classWriter) {
+                    ClassVisitor classVisitor = new ClassAdapter(classWriter) {
                         @Override
                         public void visit(int version, int access, String name, String signature, String superName,
                                           String[] interfaces) {
@@ -169,7 +163,8 @@ public class Agent {
 
                     return classWriter.toByteArray();
                 } catch (Throwable e) {
-                    throw new IllegalClassFormatException(e.getMessage());
+                    // do nothing, just log error
+                    LOGGER.error("failed transform class. message: '{}'", e.getMessage());
                 }
             }
 

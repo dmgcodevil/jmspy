@@ -26,5 +26,5 @@ jar {
 }
 
 dependencies {
-    compile 'org.ow2.asm:asm:4.2'
+    compile 'asm:asm:3.3.1'
 }

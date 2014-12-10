@@ -1,1 +1,7 @@
 archivesBaseName='jmspy-core'
+
+dependencies {
+    /* proxy / aop*/
+    compile('cglib:cglib:2.2.2')
+    compile('aopalliance:aopalliance:1.0')
+}

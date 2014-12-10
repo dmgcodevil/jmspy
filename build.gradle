@@ -91,20 +91,18 @@ subprojects {
     }
 
     dependencies {
-        /* proxy / aop*/
-        compile('cglib:cglib:3.1')
-        compile('aopalliance:aopalliance:1.0')
 
+        /* -------------- third party libraries -------------- */
         compile('com.google.guava:guava:18.0')
         compile('commons-collections:commons-collections:3.2.1')
         compile('org.apache.commons:commons-lang3:3.1')
         compile('commons-beanutils:commons-beanutils:1.9.2')
+
         /* ---------------- test dependencies ---------------- */
         testCompile('org.testng:testng:6.8.7')
 
         /* ---------------- logger dependencies ---------------- */
         compile('org.slf4j:slf4j-api:1.6.4')
-
     }
 
 }
