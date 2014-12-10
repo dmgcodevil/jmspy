@@ -6,10 +6,8 @@ import com.github.dmgcodevil.jmspy.context.InvocationContextInfo;
 import com.github.dmgcodevil.jmspy.graph.Edge;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.graph.Node;
-import com.github.dmgcodevil.jmspy.proxy.Constants;
 import com.github.dmgcodevil.jmspy.proxy.JMethod;
 import com.github.dmgcodevil.jmspy.proxy.JType;
-import com.github.dmgcodevil.jmspy.proxy.ProxyCreationStrategy;
 import com.github.dmgcodevil.jmspy.proxy.ProxyFactory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
@@ -53,14 +51,11 @@ public class BasicMethodInterceptor implements MethodInterceptor {
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
         // calls super method
         Object out = null;
-        ProxyCreationStrategy strategy;
         synchronized (lock) {
             if (original != null) {
                 out = method.invoke(original, args);
-                strategy = ProxyCreationStrategy.DELEGATE;
             } else {
                 out = proxy.invokeSuper(obj, args);
-                strategy = ProxyCreationStrategy.COPY;
             }
 
             InvocationGraph invocationGraph = getInvocationGraph();
@@ -111,7 +106,7 @@ public class BasicMethodInterceptor implements MethodInterceptor {
         }
         if (isCglibProxy(obj)) {
             try {
-                Method method = obj.getClass().getMethod(Constants.GET_PROXY_IDENTIFIER);
+                Method method = obj.getClass().getMethod(ProxyIdentifierCallback.GET_PROXY_IDENTIFIER);
                 return (String) method.invoke(obj);
             } catch (NoSuchMethodException e) {
                 e.printStackTrace();

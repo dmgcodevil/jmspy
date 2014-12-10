@@ -12,7 +12,6 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
@@ -25,7 +24,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by dmgcodevil on 11/7/2014.
+ * // todo
+ *
+ * @author  dmgcodevil
  */
 public class CommonUtils {
 

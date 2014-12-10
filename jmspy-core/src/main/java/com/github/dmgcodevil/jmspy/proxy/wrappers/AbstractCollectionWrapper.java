@@ -1,7 +1,5 @@
 package com.github.dmgcodevil.jmspy.proxy.wrappers;
 
-import com.github.dmgcodevil.jmspy.proxy.NotProxy;
-
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -12,7 +10,6 @@ import java.util.Iterator;
  */
 public abstract class AbstractCollectionWrapper<T extends Collection> implements Collection, Wrapper<T> {
 
-    @NotProxy
     T target;
 
     public AbstractCollectionWrapper() {

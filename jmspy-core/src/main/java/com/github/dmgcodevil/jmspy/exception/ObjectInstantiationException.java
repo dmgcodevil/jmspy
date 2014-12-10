@@ -1,7 +1,9 @@
 package com.github.dmgcodevil.jmspy.exception;
 
 /**
- * Created by dmgcodevil on 12/8/2014.
+ * // todo
+ *
+ * @author  dmgcodevil
  */
 public class ObjectInstantiationException extends RuntimeException {
 

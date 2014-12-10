@@ -1,7 +1,5 @@
 package com.github.dmgcodevil.jmspy.proxy.wrappers;
 
-import com.github.dmgcodevil.jmspy.proxy.NotProxy;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +11,6 @@ import java.util.Set;
  */
 public class MapWrapper implements Map, Wrapper<Map> {
 
-    @NotProxy
     private Map target;
 
     public MapWrapper() {

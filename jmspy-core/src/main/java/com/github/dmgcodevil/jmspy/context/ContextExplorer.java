@@ -20,7 +20,7 @@ public interface ContextExplorer {
 
     /**
      * Gets info about current invocation context such as page name and etc.
-     * This method is invoked as soon as a method of proxy object is intercepted.
+     * This method is invoked as soon as a method of proxy object is intercepted and new node the invocation graph is created.
      *
      * @return {@link InvocationContextInfo}
      */

@@ -1,7 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.InvocationRecord;
-import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 import com.github.dmgcodevil.jmspy.reflection.Instantiator;
 import com.google.common.base.Optional;
@@ -9,8 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-
-import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
 
 /**
  * Creates proxy for a java beans.

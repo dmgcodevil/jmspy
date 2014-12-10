@@ -1,7 +1,5 @@
 package com.github.dmgcodevil.jmspy.proxy.wrappers;
 
-import com.github.dmgcodevil.jmspy.proxy.NotProxy;
-
 import java.util.ListIterator;
 
 /**
@@ -11,7 +9,6 @@ import java.util.ListIterator;
  */
 public class ListIteratorWrapper implements Wrapper<ListIterator>, ListIterator {
 
-    @NotProxy
     private ListIterator target;
 
     public ListIteratorWrapper() {

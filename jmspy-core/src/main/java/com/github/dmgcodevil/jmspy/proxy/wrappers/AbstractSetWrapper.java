@@ -1,7 +1,5 @@
 package com.github.dmgcodevil.jmspy.proxy.wrappers;
 
-import com.github.dmgcodevil.jmspy.proxy.NotProxy;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
@@ -15,7 +13,6 @@ import java.util.Set;
 @Deprecated
 public abstract class AbstractSetWrapper implements Set, Wrapper<Set> {
 
-    @NotProxy
     private Set target;
 
     /* default constructor is required */

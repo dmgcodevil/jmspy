@@ -2,7 +2,6 @@ package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.exception.ProxyCreationException;
-import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 import com.google.common.base.Optional;
 
@@ -17,8 +16,6 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
 
     protected InvocationRecord invocationRecord;
     protected Map<Class<?>, Wrapper> wrappers;
-    @Deprecated
-    protected EnhancerFactory enhancerFactory = EnhancerFactory.getInstance();
 
     protected AbstractProxyCreator(Map<Class<?>, Wrapper> wrappers) {
         this.wrappers = wrappers;
@@ -45,7 +42,8 @@ public abstract class AbstractProxyCreator implements ProxyCreator {
     }
 
     /**
-     * This abstract method is a part of template method {@link AbstractProxyCreator#createProxy(Object)}
+     * This abstract method is a part of template method
+     * {@link AbstractProxyCreator#createProxy(Object, String, com.github.dmgcodevil.jmspy.InvocationRecord)}
      * and used to create proxies.
      *
      * @param target the target object

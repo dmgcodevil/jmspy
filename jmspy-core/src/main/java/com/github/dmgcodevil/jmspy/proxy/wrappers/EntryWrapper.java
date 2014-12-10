@@ -1,7 +1,5 @@
 package com.github.dmgcodevil.jmspy.proxy.wrappers;
 
-import com.github.dmgcodevil.jmspy.proxy.NotProxy;
-
 import java.util.Map;
 
 /**
@@ -11,7 +9,6 @@ import java.util.Map;
  */
 public class EntryWrapper implements Map.Entry, Wrapper<Map.Entry> {
 
-    @NotProxy
     private Map.Entry target;
 
     public EntryWrapper() {

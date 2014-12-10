@@ -7,41 +7,21 @@ import com.github.dmgcodevil.jmspy.proxy.callback.BasicMethodInterceptor;
 import com.github.dmgcodevil.jmspy.proxy.callback.CglibCallbackFilter;
 import com.github.dmgcodevil.jmspy.proxy.callback.ProxyIdentifierCallback;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
-import com.github.dmgcodevil.jmspy.reflection.Instantiator;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Verify;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-import net.sf.cglib.core.ReflectUtils;
 import net.sf.cglib.core.Signature;
-import net.sf.cglib.core.TypeUtils;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.InterfaceMaker;
-import net.sf.cglib.transform.AbstractClassTransformer;
-import org.apache.commons.lang3.ClassUtils;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.lang.ref.SoftReference;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -59,7 +39,6 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isNotPrimitiveOrWrap
  */
 public class ProxyFactory {
 
-    ProxyCreationStrategy proxyCreationStrategy = ProxyCreationStrategy.COPY;
     private Map<Class<?>, Wrapper> wrappers = new HashMap<>();
     private Set<Class<?>> ignoreTypes = Sets.newHashSet();
     private Set<String> ignorePackages = Sets.newHashSet();

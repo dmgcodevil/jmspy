@@ -1,7 +1,9 @@
 package com.github.dmgcodevil.jmspy.exception;
 
 /**
- * Created by dmgcodevil on 11/12/2014.
+ * // todo
+ *
+ * @author  dmgcodevil
  */
 public class ProxyCreationException extends RuntimeException {
 

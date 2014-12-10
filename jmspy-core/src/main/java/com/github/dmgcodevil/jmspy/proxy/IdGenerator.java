@@ -3,7 +3,9 @@ package com.github.dmgcodevil.jmspy.proxy;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Created by dmgcodevil on 11/8/2014.
+ * // todo
+ *
+ * @author  dmgcodevil
  */
 public class IdGenerator {
 

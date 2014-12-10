@@ -1,7 +1,6 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.InvocationRecord;
-import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
 
 import java.lang.reflect.Array;

@@ -1,9 +1,9 @@
 package com.github.dmgcodevil.jmspy.exception;
 
 /**
- * Class description.
+ * // todo
  *
- * @author Raman_Pliashkou
+ * @author  dmgcodevil
  */
 public class ConfigurationException extends RuntimeException {
 

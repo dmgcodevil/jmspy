@@ -13,7 +13,6 @@ import com.github.dmgcodevil.jmspy.proxy.wrappers.MapValuesWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.MapWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.SetWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
-import com.google.common.annotations.Beta;
 import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -36,14 +35,12 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.forEach;
 public final class Configuration {
 
     private Map<Class<?>, Wrapper> wrappers = new HashMap<>();
-    private SetFieldInterceptor setFieldInterceptor;
     private Set<Class<?>> ignoreTypes = Sets.newHashSet();
     private Set<String> ignorePackages = Sets.newHashSet();
 
     private Configuration(Builder builder) {
         wrappers = ImmutableMap.copyOf(builder.wrappers);
         ignoreTypes = ImmutableSet.copyOf(builder.ignoreTypes);
-        setFieldInterceptor = builder.setFieldInterceptor;
         ignorePackages = ImmutableSet.copyOf(builder.ignorePackages);
     }
 
@@ -53,10 +50,6 @@ public final class Configuration {
 
     public Map<Class<?>, Wrapper> getWrappers() {
         return wrappers;
-    }
-
-    public SetFieldInterceptor getSetFieldInterceptor() {
-        return setFieldInterceptor;
     }
 
     public Set<Class<?>> getIgnoreTypes() {
@@ -69,7 +62,6 @@ public final class Configuration {
 
     public static class Builder {
         private Map<Class<?>, Wrapper> wrappers = Maps.newLinkedHashMap();
-        private SetFieldInterceptor setFieldInterceptor;
         private Set<Class<?>> ignoreTypes = Sets.newHashSet();
         private Set<String> ignorePackages = Sets.newHashSet();
 
@@ -134,12 +126,6 @@ public final class Configuration {
                     registerWrapper(input.getKey(), input.getValue());
                 }
             });
-            return this;
-        }
-
-        @Beta
-        public Builder setFieldInterceptor(SetFieldInterceptor setFieldInterceptor) {
-            this.setFieldInterceptor = setFieldInterceptor;
             return this;
         }
 
