@@ -3,7 +3,7 @@ jmspy
 
 ##Introduction
 
-Jmspy is a java library that allows recording of java methods invocations, saving data into a file called snapshot and analyzing it using jmspy viewer. The library uses CGLib to create proxies and graph data structure representing method invocations. It supports any number of nested call structures, e.g.:
+**Jmspy** is a java library that allows recording of java methods invocations, saving data into a file called snapshot and analyzing it using jmspy viewer. The library uses **CGLib** to create proxies and graph data structure representing method invocations. It supports any number of nested call structures, e.g.:
 
 ``` object.getCollection().iterator().next().getProperty() ```
 
@@ -163,7 +163,7 @@ You can’t extend it hence the decorator pattern wouldn’t work here. In this 
 
 ##Jmspy-agent
 
-It’s a java agent that uses asm library to transform classes, which solves the issues with final classes, methods and absent constructors. You just need to specify the jmspy-agent at your application startup via the appropriate command line parameter for JVM.
+It’s a java agent that uses **asm** library to transform classes, which solves the issues with final classes, methods and absent constructors. You just need to specify the jmspy-agent at your application startup via the appropriate command line parameter for JVM.
 You can pass an argument to the agent to indicate which classes or packages should be instrumented. It considers whole string after '=' as a single parameter. Basically, you have two variants to pass the parameter:
 
 1. using javaagent parameter
