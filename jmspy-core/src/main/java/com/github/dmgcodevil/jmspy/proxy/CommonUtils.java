@@ -8,6 +8,7 @@ import com.google.common.primitives.Primitives;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 
+import javax.lang.model.type.NullType;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -96,6 +97,9 @@ public class CommonUtils {
     }
 
     public static Class<?> getOriginalType(Object obj) {
+        if (obj == null) {
+            return NullType.class;
+        }
         return isCglibProxy(obj) ? obj.getClass().getSuperclass() : obj.getClass();
     }
 

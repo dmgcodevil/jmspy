@@ -11,14 +11,19 @@ import com.github.dmgcodevil.jmspy.proxy.JType;
 import com.github.dmgcodevil.jmspy.proxy.ProxyFactory;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.getOriginalType;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isArray;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isCglibProxy;
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isJdkProxy;
 
 /**
  * Intercepts methods and adds new edges and nodes to the invocation graph.
@@ -35,7 +40,9 @@ public class BasicMethodInterceptor implements MethodInterceptor {
 
     private final InvocationRecord invocationRecord;
     private final Object original;
-    private final Object lock = new Object();
+    private final Lock lock = new ReentrantLock();
+
+    private final Logger logger = LoggerFactory.getLogger(getClass());
 
     public BasicMethodInterceptor(Object original, InvocationRecord invocationRecord) {
         this.invocationRecord = invocationRecord;
@@ -49,15 +56,9 @@ public class BasicMethodInterceptor implements MethodInterceptor {
 
     @Override
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
-        // calls super method
-        Object out = null;
-        synchronized (lock) {
-            if (original != null) {
-                out = method.invoke(original, args);
-            } else {
-                out = proxy.invokeSuper(obj, args);
-            }
-
+        try {
+            lock.lock();
+            Object out = invoke(obj, method, args, proxy);
             InvocationGraph invocationGraph = getInvocationGraph();
             if (invocationGraph != null && method.getDeclaringClass() != Object.class) {
                 String parentId = getIdentifier(obj);
@@ -70,29 +71,29 @@ public class BasicMethodInterceptor implements MethodInterceptor {
                     if (!isArray(out.getClass())) {
                         out = ProxyFactory.getInstance().create(out, invocationRecord);
                     }
-
-                    String outId = getIdentifier(out);
-                    Node toNode = invocationGraph.findById(outId);
-
-
-                    if (toNode == null) {
-                        toNode = new Node();
-                        toNode.setId(outId);
-                        toNode.setType(new JType(getOriginalType(out)));
-                        toNode.setId(outId);
-                    }
-                    Edge edge = new Edge();
-                    edge.setMethod(new JMethod(method));
-                    edge.setContextInfo(getCurrentContextInfo());
-                    edge.setFrom(node);
-                    edge.setTo(toNode);
-
-                    node.addOutgoingEdge(edge);
                 }
+                String outId = getIdentifier(out);
+                Node toNode = invocationGraph.findById(outId);
 
+
+                if (toNode == null) {
+                    toNode = new Node();
+                    toNode.setId(outId);
+                    toNode.setType(new JType(getOriginalType(out)));
+                    toNode.setId(outId);
+                }
+                Edge edge = new Edge();
+                edge.setMethod(new JMethod(method));
+                edge.setContextInfo(getCurrentContextInfo());
+                edge.setFrom(node);
+                edge.setTo(toNode);
+
+                node.addOutgoingEdge(edge);
             }
+            return out;
+        } finally {
+            lock.unlock();
         }
-        return out;
     }
 
     private String getIdentifier(Object obj) throws InvocationTargetException, IllegalAccessException {
@@ -125,6 +126,26 @@ public class BasicMethodInterceptor implements MethodInterceptor {
 
     private InvocationGraph getInvocationGraph() {
         return invocationRecord != null ? invocationRecord.getInvocationGraph() : null;
+    }
+
+    private Object invoke(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
+        Object result;
+        if (original != null) {
+            result = method.invoke(original, args);
+            if (isJdkProxy(result)) {
+                // init
+                logger.debug("post processing: jdk proxy");
+                JdkProxyPostMethodInvocationProcessor.getInstance().process(result);
+                // load again
+                result = method.invoke(original, args);
+                if (isJdkProxy(result)) {
+                    logger.error("failed to unwrap jdk proxy, type: '{}'" + result.getClass());
+                }
+            }
+        } else {
+            result = proxy.invokeSuper(obj, args);
+        }
+        return result;
     }
 
 }

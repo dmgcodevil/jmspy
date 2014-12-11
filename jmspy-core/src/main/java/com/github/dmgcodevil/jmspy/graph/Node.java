@@ -109,7 +109,6 @@ public class Node implements Serializable {
         return MoreObjects.toStringHelper(this)
                 .add("id", id)
                 .add("type", type)
-                .add("outgoingEdges", outgoingEdges)
                 .toString();
     }
 }
