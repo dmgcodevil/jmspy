@@ -13,9 +13,9 @@ Jmspy is aware of the most used collection types like list, set and map, includi
 
 The components which form the basic API are: 
 
-*MethodInvocationRecorder* - the main class which the user interacts with.
-*ProxyFactory* - a factory to create proxies for objects
-*ContextExplorer* - an interface that’s used to provide additional information about invocation context.
+**MethodInvocationRecorder** - the main class which the user interacts with.
+**ProxyFactory** - a factory to create proxies for objects
+**ContextExplorer** - an interface that’s used to provide additional information about invocation context.
 
 Here are some more details on them.
 
@@ -32,18 +32,15 @@ ProxyFactory proxyFactory = ProxyFactory.getInstance(builder.build());
 
 ###ContextExplorer
 This is an interface which provides more information on the invocation context. Jmspy has some built-in implementations, for instance FreemarkerContextExplorer from jmspy-ext-freemarker. This implementation allows retrieving information on request url and FTL page. You can register only one ContextExplorer per MethodInvocationRecorder. The ContextExplorer  interface has two methods:
-- *getRootContextInfo* - gets info about the root invocation context, such as application name, request url and etc. This method is invoked as soon as an invocation record is created via the MethodInvocationRecorder#record(java.lang.reflect.Method, Object)} method.
-- *getCurrentContextInfo* - gets info about current invocation context such as page name and etc. This method is invoked as soon as a method of proxy object is intercepted.
+- **getRootContextInfo** - gets info about the root invocation context, such as application name, request url and etc. This method is invoked as soon as an invocation record is created via the MethodInvocationRecorder#record(java.lang.reflect.Method, Object)} method.
+- **getCurrentContextInfo** - gets info about current invocation context such as page name and etc. This method is invoked as soon as a method of proxy object is intercepted.
 
 ###MethodInvocationRecorder
 This is the main class with which the user must interact. This class has several constructors with an ability to pass the ProxyFactory and the ContextExplorer. It also has a default constructor, which yields a default configuration of ProxyFactory, but no default implementation for ContextExplorer is used. Thus, all three variants described below are correct:
 
-1. ```MethodInvocationRecorder methodInvocationRecorder = new MethodInvocationRecorder();```
-2. 
-```
-MethodInvocationRecorder methodInvocationRecorder = new MethodInvocationRecorder(ProxyFactory.getInstance(Configuration.builder().build()));
-```
-3. 
+- (1)  ```new MethodInvocationRecorder();```
+- (2) ``` new MethodInvocationRecorder(ProxyFactory.getInstance(Configuration.builder().build())); ```
+- (3) see the code below
 ```
 MethodInvocationRecorder methodInvocationRecorder = new MethodInvocationRecorder(new ContextExplorer() {
             @Override
@@ -57,7 +54,7 @@ MethodInvocationRecorder methodInvocationRecorder = new MethodInvocationRecorder
             }
         });
 ```
-4. 2+3
+- (4) = 2+3
 
 ##Restrictions
 Jmspy uses CGLIB lib to create proxies and there are several restrictions that come from CGLIB nature.
