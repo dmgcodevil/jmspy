@@ -1,7 +1,7 @@
 jmspy
 =====
 
-##Introduction
+#Introduction
 
 **Jmspy** is a java library that allows recording of java methods invocations, saving data into a file called snapshot and analyzing it using jmspy viewer. The library uses **CGLib** to create proxies and graph data structure representing method invocations. It supports any number of nested call structures, e.g.:
 
@@ -9,7 +9,7 @@ jmspy
 
 Jmspy is aware of the most used collection types like list, set and map, including unmodifiable collections from jdk and empty collections.
 
-##Jmspy-core
+#Jmspy-core
 
 The components which form the basic API are: 
 
@@ -19,7 +19,7 @@ The components which form the basic API are:
 
 Here are some more details on them.
 
-###ProxyFactory
+##ProxyFactory
 This factory allows creating proxies for client objects. There is an ability to configure the factory before using it, which can be useful if you deal with complex objects and you need some workarounds to create proxies. ProxyFactory is a singleton, i.e. you can initialize it only once using ProxyFactory#getInstance(Configuration config) and pass an instance of Configuration. 
 Example:
 ```java
@@ -56,7 +56,7 @@ MethodInvocationRecorder methodInvocationRecorder = new MethodInvocationRecorder
 ```
 - (4) = 2+3
 
-##Restrictions
+#Restrictions
 Jmspy uses CGLIB lib to create proxies and there are several restrictions that come from CGLIB nature.
 CGLIB uses inheritance when it creates dynamic proxy. Thus, each proxy belongs to a generated instrumented class that extends original type by including interfaces. Java has several restrictions with class inheritance, namely:
 - Final class cannot be extended
@@ -161,7 +161,7 @@ Now execution result is **true**. As you can see, jmspy managed to create the pr
 Issues with final methods and absence of default constructors also can be solved using the Wrapper approach, but what if you don’t have an interface for the FinalClass.class? 
 You can’t extend it hence the decorator pattern wouldn’t work here. In this case you need to use **Jmspy-agent**
 
-##Jmspy-agent
+#Jmspy-agent
 
 It’s a java agent that uses **asm** library to transform classes, which solves the issues with final classes, methods and absent constructors. You just need to specify the jmspy-agent at your application startup via the appropriate command line parameter for JVM.
 You can pass an argument to the agent to indicate which classes or packages should be instrumented. It considers whole string after '=' as a single parameter. Basically, you have two variants to pass the parameter:
@@ -189,7 +189,7 @@ There are several significant points to mention:
 In some cases the preferable option is to use package names in the agentArgs instead of specifying concrete class names, unless  you know the exact class name at runtime. This is because of the possibility that nested or anonymous classes with names like ``` com/site/project/URLClassPath$FileLoader$1 ```
 will not be transformed, if you specify an incorrect name. In this case it’s better to specify a package name like ```com.site.project ```
 
-##How to integrate JMSpy with an application
+#How to integrate JMSpy with an application
 
 It’s pretty easy to integrate jmspy in your project. One of the possible approaches is described below, but you can experiment with it in order to find the best approach for your case.
 Suppose you have a plain web application with the traditional three-tier architecture and you use spring as an ioc container. You want to monitor what is happening with your domains after a repository retrieves it from a storage. Below described the main steps for implementing it.
@@ -248,7 +248,7 @@ public class JmspyJmxOperations {
 Also you can add RESTful service to invoke invoke the MethodInvocationRecorder#makeSnapshot().
 
 
-##Dependencies
+#Dependencies
 
 All artifacts uploaded to maven central
 
@@ -264,7 +264,3 @@ Released modules:
 - jmspy-core
 - jmspy-agent
 - jmspy-ext-freemarker
-
-
-
-
