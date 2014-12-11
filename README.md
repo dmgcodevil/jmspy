@@ -39,8 +39,13 @@ This is an interface which provides more information on the invocation context. 
 This is the main class with which the user must interact. This class has several constructors with an ability to pass the ProxyFactory and the ContextExplorer. It also has a default constructor, which yields a default configuration of ProxyFactory, but no default implementation for ContextExplorer is used. Thus, all three variants described below are correct:
 
 1. ```MethodInvocationRecorder methodInvocationRecorder = new MethodInvocationRecorder();```
-2. ```MethodInvocationRecorder methodInvocationRecorder = new MethodInvocationRecorder(ProxyFactory.getInstance(Configuration.builder().build()));```
-3. ```MethodInvocationRecorder methodInvocationRecorder = new MethodInvocationRecorder(new ContextExplorer() {
+2. 
+```
+MethodInvocationRecorder methodInvocationRecorder = new MethodInvocationRecorder(ProxyFactory.getInstance(Configuration.builder().build()));
+```
+3. 
+```
+MethodInvocationRecorder methodInvocationRecorder = new MethodInvocationRecorder(new ContextExplorer() {
             @Override
             public InvocationContextInfo getRootContextInfo() {
                 return null;
