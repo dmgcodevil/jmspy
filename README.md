@@ -1,7 +1,8 @@
 jmspy
-![](https://github.com/dmgcodevil/jmspy/blob/master/resources/logo.png)
 =====
-
+<p align="center">
+  <img src="https://github.com/dmgcodevil/jmspy/blob/master/resources/logo.png"/>
+</p>
 ##Introduction
 
 **Jmspy** is a java library that allows recording of java methods invocations, saving data into a file called snapshot and analyzing it using jmspy viewer. The library uses **CGLib** to create proxies and graph data structure representing method invocations. It supports any number of nested call structures, e.g.:
