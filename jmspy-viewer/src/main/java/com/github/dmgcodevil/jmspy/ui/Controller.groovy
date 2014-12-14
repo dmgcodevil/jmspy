@@ -15,32 +15,24 @@ import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Parent
 import javafx.scene.Scene
-import javafx.scene.control.Button
-import javafx.scene.control.ContextMenu
-import javafx.scene.control.ContextMenuBuilder
-import javafx.scene.control.Label
-import javafx.scene.control.ListView
-import javafx.scene.control.MenuItemBuilder
-import javafx.scene.control.TextField
-import javafx.scene.control.TreeItem
-import javafx.scene.control.TreeView
+import javafx.scene.control.*
 import javafx.scene.input.Clipboard
 import javafx.scene.input.ClipboardContent
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.VBoxBuilder
-import javafx.scene.paint.Color
-import javafx.scene.shape.Circle
 import javafx.scene.text.Text
 import javafx.stage.FileChooser
 import javafx.stage.Modality
-import javafx.stage.Popup
 import javafx.stage.Stage
-import javafx.stage.WindowEvent
+import javafx.stage.StageStyle
 import org.apache.commons.lang3.StringUtils
 
 import java.nio.file.Paths
 import java.text.SimpleDateFormat
+
+import static com.github.dmgcodevil.jmspy.ui.UIUtils.createSimplePopup
+import static com.github.dmgcodevil.jmspy.ui.UIUtils.showPopupMessage
 
 /**
  * Created by dmgcodevil on 11/18/2014.
@@ -104,50 +96,81 @@ class Controller {
     }
 
     public void init() {
-        TreeItem<EdgeTreeItem> rootItem = new TreeItem<>(new EdgeTreeItem());
+        TreeItem<EdgeTreeItem> rootItem = new TreeItem<>(EdgeTreeItem.EMPTY);
         iGraphTree.setRoot(rootItem);
         skipMethodList.getItems().addAll("toString", "equals", "hasNext");
         addIGraphTreeContextMenu();
     }
 
-    private void addIGraphTreeContextMenu() {
+    private boolean notEmptyNode() {
+        EdgeTreeItem.EMPTY != iGraphTree.getSelectionModel().getSelectedItem().getValue()
+    }
 
-        def copyToClipboard = { event ->
+    private void addIGraphTreeContextMenu() {
+        def handlerWrapper = {
+            EventHandler handler ->
+
+                [handle: { event ->
+                    if (notEmptyNode()) {
+                        handler.handle event
+                    } else {
+                        showPopupMessage(createSimplePopup("This is empty node. At first, please open a snapshot",
+                                UIUtils.POPUP_WARN), stage)
+                    }
+
+                }] as EventHandler
+        }
+
+        def copyToClipboard = handlerWrapper { event ->
             final Clipboard clipboard = Clipboard.getSystemClipboard();
             final ClipboardContent content = new ClipboardContent();
             content.putString(iGraphTree.getSelectionModel().getSelectedItem().getValue().label);
             clipboard.setContent(content);
         }
 
-        def copyFullToClipboard = { event ->
+        def copyFullToClipboard = handlerWrapper { event ->
             final Clipboard clipboard = Clipboard.getSystemClipboard();
             final ClipboardContent content = new ClipboardContent();
             content.putString(nodeToString(iGraphTree.getSelectionModel().getSelectedItem(), new StringBuilder(), 0));
             clipboard.setContent(content);
         }
 
-        def excludeMethod = { event ->
+        def excludeMethod = handlerWrapper { event ->
             String methodName = iGraphTree.getSelectionModel().getSelectedItem().getValue()
             methodName = methodName.substring(0, methodName.indexOf("("));
             skipMethodList.getItems().add(methodName)
             refreshGraph()
         }
 
-        def showInfo = { event ->
+        def showInfo = handlerWrapper { event ->
             def contextInfo = iGraphTree.getSelectionModel().getSelectedItem().getValue().edge.contextInfo
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/invocation_context.fxml"));
-                Parent root = (Parent) loader.load();
-                InvocationContextInfoController controller = loader.getController();
-                controller.init(contextInfo)
-                Stage stage = new Stage();
-                stage.setScene(new Scene(root));
-                stage.show();
+            if (contextInfo != null) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/invocation_context.fxml"));
+                    Parent root = (Parent) loader.load();
+                    InvocationContextInfoController controller = loader.getController();
+                    controller.init(contextInfo)
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(root));
+                    stage.show();
+                }
+                catch (t) {
+                    t.printStackTrace()
+                }
+            } else {
+                Stage dialogStage = new Stage();
+                dialogStage.initModality(Modality.APPLICATION_MODAL);
+                dialogStage.initStyle(StageStyle.UTILITY);
+                Text text = new Text("There is no information for this method");
+                Button button = new Button("OK");
+                button.setOnMouseClicked({
+                    dialogStage.close();
+                })
+                dialogStage.setScene(new Scene(VBoxBuilder.create().
+                        children(text, button).
+                        alignment(Pos.CENTER).padding(new Insets(5)).build()));
+                dialogStage.show();
             }
-            catch (t) {
-                t.printStackTrace()
-            }
-
         }
 
         ContextMenu rootContextMenu = ContextMenuBuilder.create().items(
@@ -403,31 +426,10 @@ class Controller {
         }
     }
 
-    public static Popup createPopup(final String message) {
-        final Popup popup = new Popup();
-        popup.setAutoFix(true);
-        popup.setAutoHide(true);
-        popup.setHideOnEscape(true);
-        Label label = new Label(message);
-        label.setOnMouseReleased({ MouseEvent e -> popup.hide() });
-        label.getStylesheets().add("/css/styles.css");
-        label.getStyleClass().add("popup");
-        popup.getContent().add(label);
-        return popup;
-    }
-
-    public static void showPopupMessage(final String message, final Stage stage) {
-        final Popup popup = createPopup(message);
-        popup.setOnShown({ WindowEvent e ->
-            popup.setX(stage.getX() + stage.getWidth() / 2 - popup.getWidth() / 2);
-            popup.setY(stage.getY() + stage.getHeight() / 2 - popup.getHeight() / 2);
-        });
-        popup.show(stage);
-    }
-
     private static class EdgeTreeItem {
         String label = "empty";
         Edge edge;
+        final static EdgeTreeItem EMPTY = new EdgeTreeItem("empty");
 
         EdgeTreeItem() {
         }

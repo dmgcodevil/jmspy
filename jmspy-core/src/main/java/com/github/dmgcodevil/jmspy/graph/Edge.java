@@ -60,12 +60,13 @@ public class Edge implements Serializable {
 
         Edge that = (Edge) o;
 
-        return Objects.equal(this.method, that.method);
+        return Objects.equal(this.method, that.method) &&
+                Objects.equal(this.to, that.to);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(method);
+        return Objects.hashCode(method, to);
     }
 
     @Override

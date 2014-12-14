@@ -74,6 +74,10 @@ public class MethodInvocationRecorder {
         return Snapshot.save(new Snapshot(invocationRecords));
     }
 
+    public Snapshot saveSnapshot(Snapshot snapshot) {
+        return Snapshot.save(snapshot);
+    }
+
     private InvocationContext createInvocationContext(Method method) {
         return InvocationContext.builder()
                 .root(method)
