@@ -1,4 +1,5 @@
 jmspy
+![](https://github.com/dmgcodevil/jmspy/blob/master/resources/logo.png)
 =====
 
 ##Introduction
