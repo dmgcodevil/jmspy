@@ -1,8 +1,7 @@
 apply plugin: 'java'
 apply plugin: 'groovy'
-
-
-
+apply plugin: 'maven'
+apply from: 'javafx.plugin'
 
 sourceSets.main.java.srcDirs = []
 sourceSets.test.java.srcDirs = []
@@ -12,7 +11,122 @@ sourceSets.main.groovy.srcDir 'src/main/java'
 
 
 def jdkHome = System.getenv("JAVA_HOME")
+group = 'com.github.dmgcodevil'
+version = '1.1.1'
 
+javafx {
+
+    profiles {
+        // not every possible platform override, but ones that have a known impact
+        windows {
+            id = 'c533f663-1efd-489f-b910-4c7ec20c7fd0'
+            category = 'opensource'
+            javaRuntime = 'c:/Program Files/Java/jdk1.7.0_71'
+        }
+
+        macosx {
+            id = 'net.java.openjdk.openjfx.Ensemble2'
+            category = 'public.app-category.developer-tools'
+            javaRuntime = '/Library/Java/JavaVirtualMachines/jdk1.7.0_71.jdk/'
+        }
+
+        linux {
+            // linux doesn't care about id, it goes un-used at the moment
+            category = 'Development'
+            // good luck finding a standard location for the JDK
+            //javaRuntime = '/usr/lib/jvm/java-7-oracle'
+        }
+    }
+
+    debugKey {
+        alias = 'buggyKey'
+        keyPass = '123456'
+        keyStore = file('veryinsecure.jks')
+        storePass = '123456'
+    }
+    // don't get too excited, the release key is overridden by gradle.properties
+    releaseKey {
+        alias = 'imaginary'
+        keyPass = 'bad'
+        keyStore = file('nonexistant.jks')
+        storePass = 'bad'
+    }
+    signingMode 'release'
+
+    appID 'JMSpyViewer'
+    appName 'jmspy-viewer'
+    mainClass 'com.github.dmgcodevil.jmspy.ui.JMSpyApp'
+
+    jvmArgs = ['-XX:+AggressiveOpts', '-XX:CompileThreshold=1']
+    systemProperties = ['prism.disableRegionCaching': 'true']
+    arguments = ['1AC', '1NC', '2AC', '2NC', '1NR', '1AR', '2NR', '2AR']
+
+    embedLauncher = true // caution: class-path not set and is overwritten if set to false
+
+    // applet and webstart stuff
+    width = 800
+    height = 600
+    embedJNLP = false
+
+    // deplpy/info attributes
+    category = 'open source'
+    copyright = 'open source'
+    description = '''A viewer to open and analyze jmspy snapshots'''
+    licenseType = 'Apache License v2.0'
+    vendor = 'dmgcodevil'
+
+    // deploy/preferences attributes
+    installSystemWide = true
+    menu = true
+    shortcut = true
+
+    codebase = 'http://example.com/bogus/JNLP/Codebase'
+
+    // app icons
+    icons {
+        shortcut = ['jmspy_logo-32@2x.png']
+        volume = 'javafx-icon.png'
+        setup = 'javafx-icon.png'
+    }
+
+    // jnlp icons, legacy
+    icon {
+        href = 'src/main/resources/javafx-icon.png'
+        kind = 'splash'
+        width = 128
+        height = 128
+    }
+    icon {
+        href = 'jmspy_logo-32@2x.png'
+        kind = 'selected'
+        width = 16
+        height = 16
+        scale = 1
+    }
+}
+
+compileJava {
+    sourceCompatibility = 7
+    targetCompatibility = 7
+}
+
+jfxDeploy {
+    // verbose output of the deployment, to the info chanel
+    // it leaves files in the temp dir if set to true
+    verbose = false
+}
+
+generateDebugKey {
+    dname = 'ou=them'
+    validity = 1
+}
+
+jar {
+    manifest {
+        attributes('-x-bogus': 'a bogus attribute',
+                '-x-bogus-2': 'a second bogus attribute')
+    }
+}
 
 
 dependencies {
@@ -21,4 +135,6 @@ dependencies {
     compile('org.codehaus.groovy:groovy-all:2.3.7')
     compile files("$jdkHome/jre/lib/jfxrt.jar")
 }
+
+
 
