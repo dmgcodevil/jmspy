@@ -258,7 +258,7 @@ All artifacts uploaded to maven central
 <dependency>
     <groupId>com.github.dmgcodevil</groupId>
     <artifactId>jmspy-core</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 </dependency>
 ```
 
