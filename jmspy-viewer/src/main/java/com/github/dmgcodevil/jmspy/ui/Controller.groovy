@@ -15,7 +15,16 @@ import javafx.geometry.Insets
 import javafx.geometry.Pos
 import javafx.scene.Parent
 import javafx.scene.Scene
-import javafx.scene.control.*
+import javafx.scene.control.Button
+import javafx.scene.control.CheckBox
+import javafx.scene.control.ContextMenu
+import javafx.scene.control.ContextMenuBuilder
+import javafx.scene.control.Label
+import javafx.scene.control.ListView
+import javafx.scene.control.MenuItemBuilder
+import javafx.scene.control.TextField
+import javafx.scene.control.TreeItem
+import javafx.scene.control.TreeView
 import javafx.scene.input.Clipboard
 import javafx.scene.input.ClipboardContent
 import javafx.scene.input.KeyEvent
@@ -79,6 +88,9 @@ class Controller {
     @FXML
     private Button copyStacktraceBtn;
 
+    @FXML
+    private CheckBox collapseChBox;
+
     private Snapshot snapshot;
 
     private File currDir;
@@ -86,6 +98,10 @@ class Controller {
     private InvocationGraph invocationGraph;
 
     private InvocationContext context;
+
+    private boolean collapse = true;
+
+
 
     public Stage getStage() {
         return stage;
@@ -135,6 +151,12 @@ class Controller {
             clipboard.setContent(content);
         }
 
+        def collapseMethod = handlerWrapper { event ->
+        }
+
+        def expandMethod = handlerWrapper { event ->
+        }
+
         def excludeMethod = handlerWrapper { event ->
             String methodName = iGraphTree.getSelectionModel().getSelectedItem().getValue()
             methodName = methodName.substring(0, methodName.indexOf("("));
@@ -178,6 +200,8 @@ class Controller {
                 MenuItemBuilder.create().text("Copy whole node to clipboard").onAction(copyFullToClipboard).build(),
                 MenuItemBuilder.create().text("Exclude/skip").onAction(excludeMethod).build(),
                 MenuItemBuilder.create().text("Show info").onAction(showInfo).build())
+        //MenuItemBuilder.create().text("Collapse").onAction(collapseMethod).build(),
+        //MenuItemBuilder.create().text("Expand").onAction(expandMethod).build())
                 .build();
 
         iGraphTree.setContextMenu(rootContextMenu);
@@ -273,6 +297,11 @@ class Controller {
             }
         }
     }
+    @FXML
+    private void collapse(ActionEvent event){
+        collapse = collapseChBox.selected
+        refreshGraph();
+    }
 
     @FXML
     private void addSkipMethod(MouseEvent event) {
@@ -357,13 +386,31 @@ class Controller {
 
     private void addItem(TreeItem<EdgeTreeItem> rootItem, Edge edge, int level, Filter filter) {
         if (!isSkipped(edge.getMethod()) && filter.apply(edge.getMethod().name, level)) {
-            TreeItem<EdgeTreeItem> child = new TreeItem<>(new EdgeTreeItem(edge));
-            rootItem.getChildren().add(child);
+            TreeItem<EdgeTreeItem> child = findTreeItem(rootItem, edge)
+            if (collapse) {
+                if (child == null) {
+                    child = new TreeItem<>(new EdgeTreeItem(edge));
+                    rootItem.getChildren().add(child);
+                }
+                child.value.incCollapse();
+            } else {
+                child = new TreeItem<>(new EdgeTreeItem(edge));
+                rootItem.getChildren().add(child);
+            }
+
             if (edge.to != null) {
                 child.setExpanded(false);
                 edge.to.outgoingEdges.each {
                     addItem(child, it, level + 1, filter)
                 }
+            }
+        }
+    }
+
+    private TreeItem<EdgeTreeItem> findTreeItem(TreeItem<EdgeTreeItem> rootItem, Edge edge) {
+        rootItem.children.find {
+            if (it.value.edge != null && it.value.edge.method != null && it.value.edge.method.name.equals(edge.method.name)) {
+                return it
             }
         }
     }
@@ -430,6 +477,8 @@ class Controller {
         String label = "empty";
         Edge edge;
         final static EdgeTreeItem EMPTY = new EdgeTreeItem("empty");
+        boolean collapse;
+        int countCollapsed;
 
         EdgeTreeItem() {
         }
@@ -443,9 +492,17 @@ class Controller {
             label = edge.method.toString();
         }
 
+        void incCollapse() {
+            countCollapsed++;
+        }
+
         @Override
         public String toString() {
-            return label;
+            String suffix = ''
+            if (countCollapsed > 0) {
+                suffix = "($countCollapsed)"
+            }
+            return label + suffix;
         }
     }
 
