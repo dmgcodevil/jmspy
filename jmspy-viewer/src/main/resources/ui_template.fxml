@@ -24,17 +24,12 @@
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <MenuItem fx:id="openGraph" mnemonicParsing="false" onAction="#handleMenuItemOpenGraph" text="Open graph" />
-                    </items>
-                </Menu>
-                <Menu mnemonicParsing="false" text="Edit">
-                    <items>
-                        <MenuItem mnemonicParsing="false" text="Delete" />
+                        <MenuItem fx:id="openGraph" mnemonicParsing="false" onAction="#handleMenuItemOpenGraph" text="Open snapshot" />
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="About" />
+                        <MenuItem mnemonicParsing="false" onAction="#showAboutInfo" text="About" />
                     </items>
                 </Menu>
             </menus>
@@ -139,14 +134,15 @@
                               <Insets />
                            </HBox.margin>
                         </TextField>
-                        <Button fx:id="addSkipMethodBtn" mnemonicParsing="false" onMouseClicked="#addSkipMethod" prefHeight="22.0" prefWidth="48.0" text="add">
+                        <Button fx:id="addSkipMethodBtn" mnemonicParsing="false" onMouseClicked="#addSkipMethod" text="+">
                            <HBox.margin>
                               <Insets left="5.0" right="5.0" />
                            </HBox.margin>
                         </Button>
+                        <Button fx:id="removeSkipMethodBtn" mnemonicParsing="false" onMouseClicked="#removeSkipMethod" text="-" />
                         <Button fx:id="clearSkipMethodListBtn" mnemonicParsing="false" onMouseClicked="#clearSkipMethodList" text="clear">
                            <HBox.margin>
-                              <Insets right="5.0" />
+                              <Insets left="5.0" right="5.0" />
                            </HBox.margin>
                         </Button>
                         <Button fx:id="refreshBtn" mnemonicParsing="false" onMouseClicked="#refreshGraph" text="refresh" />

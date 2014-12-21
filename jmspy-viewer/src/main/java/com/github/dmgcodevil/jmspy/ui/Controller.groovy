@@ -42,6 +42,7 @@ import java.text.SimpleDateFormat
 
 import static com.github.dmgcodevil.jmspy.ui.UIUtils.createSimplePopup
 import static com.github.dmgcodevil.jmspy.ui.UIUtils.showPopupMessage
+import static org.apache.commons.lang3.StringUtils.isNotEmpty
 
 /**
  * Created by dmgcodevil on 11/18/2014.
@@ -63,6 +64,9 @@ class Controller {
 
     @FXML
     private Button addSkipMethodBtn;
+
+    @FXML
+    private Button removeSkipMethodBtn;
 
     @FXML
     private Button refreshBtn;
@@ -99,9 +103,9 @@ class Controller {
 
     private InvocationContext context;
 
-    private boolean collapse = true;
+    private boolean collapse;
 
-
+    private static final String BUILD_VERSION = "1.1.2";
 
     public Stage getStage() {
         return stage;
@@ -151,12 +155,6 @@ class Controller {
             clipboard.setContent(content);
         }
 
-        def collapseMethod = handlerWrapper { event ->
-        }
-
-        def expandMethod = handlerWrapper { event ->
-        }
-
         def excludeMethod = handlerWrapper { event ->
             String methodName = iGraphTree.getSelectionModel().getSelectedItem().getValue()
             methodName = methodName.substring(0, methodName.indexOf("("));
@@ -200,8 +198,6 @@ class Controller {
                 MenuItemBuilder.create().text("Copy whole node to clipboard").onAction(copyFullToClipboard).build(),
                 MenuItemBuilder.create().text("Exclude/skip").onAction(excludeMethod).build(),
                 MenuItemBuilder.create().text("Show info").onAction(showInfo).build())
-        //MenuItemBuilder.create().text("Collapse").onAction(collapseMethod).build(),
-        //MenuItemBuilder.create().text("Expand").onAction(expandMethod).build())
                 .build();
 
         iGraphTree.setContextMenu(rootContextMenu);
@@ -237,7 +233,13 @@ class Controller {
             }
 
         }
+    }
 
+    @FXML
+    private void showAboutInfo(ActionEvent event) {
+        showPopupMessage("The viewer to analyze JMSPY snapshots.\n\n" +
+                "--------------------------------------------\n" +
+                "   build version '$BUILD_VERSION'", stage)
     }
 
     @FXML
@@ -291,22 +293,33 @@ class Controller {
                 return lbl
         }
         if (snapshot != null) {
+            invocationRecordsListView.getItems().clear();
             snapshot.invocationRecords.each { it ->
                 InvocationRecordListItem item = new InvocationRecordListItem(label(it), it.id);
                 invocationRecordsListView.getItems().add(item)
             }
         }
     }
+
     @FXML
-    private void collapse(ActionEvent event){
+    private void collapse(ActionEvent event) {
         collapse = collapseChBox.selected
         refreshGraph();
     }
 
     @FXML
     private void addSkipMethod(MouseEvent event) {
-        skipMethodList.getItems().add(skipMethodEdit.getText());
-        skipMethodEdit.clear();
+        def methodName = skipMethodEdit.getText();
+        if (isNotEmpty(methodName)) {
+            skipMethodList.getItems().add(methodName);
+            skipMethodEdit.clear();
+        }
+    }
+
+    @FXML
+    private void removeSkipMethod(MouseEvent event) {
+        def si = skipMethodList.getSelectionModel().getSelectedItem();
+        skipMethodList.getItems().remove(si);
     }
 
     @FXML
