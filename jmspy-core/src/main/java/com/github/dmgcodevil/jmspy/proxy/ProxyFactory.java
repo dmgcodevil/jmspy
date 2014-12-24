@@ -207,6 +207,7 @@ public class ProxyFactory {
 
     private Enhancer createEnhancer(Class<?> type) {
         Enhancer enhancer = new Enhancer();
+        enhancer.setClassLoader(Thread.currentThread().getContextClassLoader());
         enhancer.setSuperclass(type);
         enhancer.setCallbackTypes(new Class[]{ProxyIdentifierCallback.class, BasicMethodInterceptor.class});
         enhancer.setInterfaces(SERVICE_INTERFACES);

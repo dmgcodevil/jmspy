@@ -13,6 +13,7 @@ import com.github.dmgcodevil.jmspy.proxy.wrappers.MapValuesWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.MapWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.SetWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
+import com.github.dmgcodevil.jmspy.proxy.wrappers.WrappersManagerFactory;
 import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -61,36 +62,18 @@ public final class Configuration {
     }
 
     public static class Builder {
-        private Map<Class<?>, Wrapper> wrappers = Maps.newLinkedHashMap();
+        private Map<Class<?>, Wrapper> wrappers;
         private Set<Class<?>> ignoreTypes = Sets.newHashSet();
         private Set<String> ignorePackages = Sets.newHashSet();
 
         public Builder() {
             initDefaultWrappers();
+            ignoreType(java.math.BigDecimal.class);
         }
 
         private void initDefaultWrappers() {
             try {
-                wrappers.put(Iterator.class, new IteratorWrapper());
-                wrappers.put(ListIterator.class, new ListIteratorWrapper());
-                wrappers.put(Class.forName("java.util.HashMap$EntrySet"), new EntrySetWrapper());
-                wrappers.put(Class.forName("java.util.HashMap$Values"), new MapValuesWrapper());
-                wrappers.put(Class.forName("java.util.HashMap$KeySet"), new MapKeySetWrapper());
-                wrappers.put(Class.forName("java.util.HashMap$KeyIterator"), new IteratorWrapper());
-                wrappers.put(Class.forName("java.util.LinkedHashMap$KeyIterator"), new IteratorWrapper());
-
-                wrappers.put(Class.forName("java.util.ArrayList$Itr"), new IteratorWrapper());
-                wrappers.put(Class.forName("java.util.ArrayList$ListItr"), new ListIteratorWrapper());
-
-                wrappers.put(Class.forName("java.util.Collections$UnmodifiableMap"), new MapWrapper());
-                wrappers.put(Class.forName("java.util.Collections$UnmodifiableSet"), new SetWrapper());
-                wrappers.put(Class.forName("java.util.Collections$UnmodifiableRandomAccessList"), new ListWrapper());
-                wrappers.put(Class.forName("java.util.Collections$UnmodifiableList"), new ListWrapper());
-                wrappers.put(Class.forName("java.util.Collections$UnmodifiableCollection"), new CollectionWrapper());
-                wrappers.put(Map.Entry.class, new EntryWrapper());
-
-                ignoreType(java.math.BigDecimal.class);
-
+                wrappers = WrappersManagerFactory.createWrappersManager().getWrappers();
             } catch (ClassNotFoundException e) {
                 throw new ConfigurationException(e);
             }
