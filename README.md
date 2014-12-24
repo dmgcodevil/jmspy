@@ -218,7 +218,7 @@ Spring xml context:
         </constructor-arg>
     </bean>
 
-<bean id="jmspyProxyFactoryConstructor" class="com.edmunds.vehiclelanding.jmspy.JmspyProxyFactoryConstructor" />
+<bean id="jmspyProxyFactoryConstructor" class="com.github.dmgcodevil.jmspy.example.JmspyProxyFactoryConstructor" />
 ```
 
 2. **Create AOP aspect to intercept repository methods**
@@ -235,7 +235,7 @@ Note that you need to return the result of the MethodInvocationRecorder#record m
 
 JMSpy creates snapshots on demand which means that you need to manually invoke  the ```MethodInvocationRecorder#makeSnapshot()``` method when you are sure that you have collected all necessary data.
 ```java
-@ManagedResource(objectName = "Edmunds:type=JMSpy,concern=Concern,name=JmspyJmxOperations")
+@ManagedResource(objectName = "TypeName:type=JMSpy,concern=Concern,name=JmspyJmxOperations")
 public class JmspyJmxOperations {
 
     @Autowired
