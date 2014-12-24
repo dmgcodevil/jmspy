@@ -163,6 +163,8 @@ Now execution result is **true**. As you can see, jmspy managed to create the pr
 Issues with final methods and absence of default constructors also can be solved using the Wrapper approach, but what if you don’t have an interface for the FinalClass.class? 
 You can’t extend it hence the decorator pattern wouldn’t work here. In this case you need to use **Jmspy-agent**
 
+**Library works with java version 7 and earlier, java 8 isn't supported yet**
+
 ##Jmspy-agent
 
 It’s a java agent that uses **asm** library to transform classes, which solves the issues with final classes, methods and absent constructors. You just need to specify the jmspy-agent at your application startup via the appropriate command line parameter for JVM.
