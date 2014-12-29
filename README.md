@@ -251,13 +251,12 @@ Also you can add RESTful service to invoke invoke the MethodInvocationRecorder#m
 
 ##Dependencies
 
-All artifacts uploaded to maven central
-
+All artifacts uploaded to maven central, latest version is 1.2.1
 ```xml
 <dependency>
     <groupId>com.github.dmgcodevil</groupId>
     <artifactId>jmspy-core</artifactId>
-    <version>1.1.2</version>
+    <version>1.2.1</version>
 </dependency>
 ```
 
