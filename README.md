@@ -1,4 +1,4 @@
-jmspy
+JMSpy- Spy for Java methods
 =====
 <p align="center">
   <img src="https://github.com/dmgcodevil/jmspy/blob/master/resources/logo.png"/>
