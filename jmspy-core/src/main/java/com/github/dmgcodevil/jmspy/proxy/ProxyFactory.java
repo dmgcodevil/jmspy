@@ -5,7 +5,6 @@ import com.github.dmgcodevil.jmspy.functional.Producer;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.callback.BasicMethodInterceptor;
 import com.github.dmgcodevil.jmspy.proxy.callback.ProxyIdentifierCallback;
-import com.github.dmgcodevil.jmspy.proxy.wrapper.DefaultWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrapper.Wrapper;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
@@ -23,6 +22,7 @@ import java.util.WeakHashMap;
 
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.createIdentifier;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isCglibProxy;
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isCustomWrapper;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isEmptyData;
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isNotPrimitiveOrWrapper;
 
@@ -182,6 +182,9 @@ public class ProxyFactory {
         }
 
         enhancerHolder.hold(superClass, enhancer);
+        if (isCustomWrapper(proxyClass)) {
+            target = null;
+        }
 
         Enhancer.registerCallbacks(proxyClass, createCallbacks(target, proxyId, invocationRecord));
 
@@ -194,7 +197,6 @@ public class ProxyFactory {
                 new BasicMethodInterceptor(target, invocationRecord),
         };
     }
-
 
     private CreateProxyClassOperation createClass(Enhancer enhancer) {
         CreateProxyClassOperation op = new CreateProxyClassOperation();

@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isCustomWrapper;
+
 /**
  * Creates proxy for a java beans.
  */
@@ -24,7 +26,12 @@ public class BeanProxyCreator extends AbstractProxyCreator implements ProxyCreat
 
         Class<T> proxyClass = ProxyFactory.getInstance().createProxyClass(target, proxyId, invocationRecord);
         if (proxyClass != null) {
-            return Instantiator.getInstance().newInstance(proxyClass);
+            T proxy = Instantiator.getInstance().newInstance(proxyClass);
+            if (isCustomWrapper(proxyClass)) {
+                Wrapper<T> wrapper = (Wrapper) proxy;
+                wrapper.setTarget(target);
+            }
+            return proxy;
         }
         LOGGER.error("failed create proxy for type: '{}'", target.getClass());
         return target;

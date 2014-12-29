@@ -1,6 +1,7 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.functional.Consumer;
+import com.github.dmgcodevil.jmspy.proxy.wrapper.Wrapper;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Iterables;
@@ -191,6 +192,10 @@ public class CommonUtils {
                 consumer.consume(el);
             }
         }
+    }
+
+    public static boolean isCustomWrapper(Class<?> type) {
+        return !DefaultWrapper.class.isAssignableFrom(type) && Wrapper.class.isAssignableFrom(type);
     }
 
 }

@@ -1,10 +1,10 @@
-package com.github.dmgcodevil.jmspy;
+package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.proxy.Configuration;
 import com.github.dmgcodevil.jmspy.proxy.EnhancerFactory;
 import com.github.dmgcodevil.jmspy.proxy.ProxyFactory;
 import com.github.dmgcodevil.jmspy.proxy.wrapper.AbstractWrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrapper.DefaultWrapper;
+import com.github.dmgcodevil.jmspy.proxy.DefaultWrapper;
 import com.github.dmgcodevil.jmspy.proxy.wrapper.Wrapper;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
