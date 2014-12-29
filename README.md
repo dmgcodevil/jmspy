@@ -110,7 +110,7 @@ public class FinalClassWrapper implements IFinalClass, Wrapper<IFinalClass> {
     private IFinalClass target;
 
     public FinalClassWrapper() {
-    // default constructor is required !
+    // default constructor
     }
 
     @Override
@@ -153,10 +153,11 @@ true
 wrapper: 1
 ```
 As you can see, jmspy managed to create the proxy.
-NOTICE: A wrapper implementation must have default constructor, it's required.
 
-Issues with final methods also can be solved using the Wrapper approach, but what if you don’t have an interface for the FinalClass.class? 
-You can’t extend it hence the decorator pattern wouldn’t work here. In this case you need to use **Jmspy-agent**
+NOTICE: The wrapper implementation ```FinalClassWrapper``` has default constructor, it isn't required but desirable.
+You can register a wrapper for an interface but in this case a proxies for all classes that implement this interface will be created using registered wrapper. If you want have different wrappers for different implementations then you need to register a wrapper for a class rather than an interface.
+
+Issues with final methods also can be solved using the Wrapper approach, but what if you don’t have an interface for the FinalClass.class?  You can’t extend it hence the decorator pattern wouldn’t work here. In this case you need to use **Jmspy-agent**
 
 **Library works with java version 7 and earlier, java 8 isn't supported yet**
 
