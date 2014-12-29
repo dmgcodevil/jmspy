@@ -65,7 +65,7 @@ CGLIB uses inheritance when it creates dynamic proxy. Thus, each proxy belongs t
 - Final methods cannot be overridden
 
 Also CGLIB can't create proxies for nested classes that have default/package modifier and loaded using bootstrap class loader, for example the classes from core Java libraries located 
-in the <JAVA_HOME>/jre/lib director, for instance Collections#UnmodifiableList.class.
+in the <JAVA_HOME>/jre/lib directory, for instance Collections#UnmodifiableList.class.
 All this issues are partially resolved in jmspy-core, for example the restrictions with final classes or classes from java core libraries can be resolved using feature called ```Wrapper```. If JMSpy fails to create proxy for a class then it will automatically try to create a wrapper for target class and create proxy for wrapper instead of target class. This approach works fine if you have an interface for a class and you work with this interface instead of concrete implementation.
 For example:
 
