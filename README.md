@@ -146,6 +146,7 @@ Now you need to register this wrapper:
         IFinalClass finalClass = new FinalClass();  // change class FinalClass to interface IFinalClass 
         IFinalClass proxy = invocationRecorder.record(finalClass); // change class FinalClass to interface IFinalClass
         System.out.println(isCglibProxy(proxy));
+        System.out.println(proxy.getId());
     }
 ```
 Now execution result is:
