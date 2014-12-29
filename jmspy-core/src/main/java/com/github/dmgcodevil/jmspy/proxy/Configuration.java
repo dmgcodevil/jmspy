@@ -1,28 +1,13 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
-import com.github.dmgcodevil.jmspy.exception.ConfigurationException;
 import com.github.dmgcodevil.jmspy.functional.Consumer;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.CollectionWrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.EntrySetWrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.EntryWrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.IteratorWrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.ListIteratorWrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.ListWrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.MapKeySetWrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.MapValuesWrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.MapWrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.SetWrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.WrappersManagerFactory;
+import com.github.dmgcodevil.jmspy.proxy.wrapper.Wrapper;
 import com.google.common.base.Verify;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,21 +20,23 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.forEach;
  */
 public final class Configuration {
 
-    private Map<Class<?>, Wrapper> wrappers = new HashMap<>();
+    private Map<Class<?>, Class<? extends Wrapper>> wrappers = new HashMap<>();
     private Set<Class<?>> ignoreTypes = Sets.newHashSet();
     private Set<String> ignorePackages = Sets.newHashSet();
+    private EnhancerFactory enhancerFactory;
 
     private Configuration(Builder builder) {
         wrappers = ImmutableMap.copyOf(builder.wrappers);
         ignoreTypes = ImmutableSet.copyOf(builder.ignoreTypes);
         ignorePackages = ImmutableSet.copyOf(builder.ignorePackages);
+        enhancerFactory = builder.enhancerFactory;
     }
 
     public static Builder builder() {
         return new Builder();
     }
 
-    public Map<Class<?>, Wrapper> getWrappers() {
+    public Map<Class<?>, Class<? extends Wrapper>> getWrappers() {
         return wrappers;
     }
 
@@ -61,32 +48,33 @@ public final class Configuration {
         return ignorePackages;
     }
 
+    public EnhancerFactory getEnhancerFactory() {
+        return enhancerFactory;
+    }
+
     public static class Builder {
-        private Map<Class<?>, Wrapper> wrappers;
+        private Map<Class<?>, Class<? extends Wrapper>> wrappers = new HashMap<>();
         private Set<Class<?>> ignoreTypes = Sets.newHashSet();
         private Set<String> ignorePackages = Sets.newHashSet();
+        private EnhancerFactory enhancerFactory = new EnhancerFactory();
 
         public Builder() {
-            initDefaultWrappers();
             ignoreType(java.math.BigDecimal.class);
         }
 
-        private void initDefaultWrappers() {
-            try {
-                wrappers = WrappersManagerFactory.createWrappersManager().getWrappers();
-            } catch (ClassNotFoundException e) {
-                throw new ConfigurationException(e);
-            }
+        public Builder enhancerFactory(EnhancerFactory enhancerFactory) {
+            this.enhancerFactory = enhancerFactory;
+            return this;
         }
 
         /**
-         * Register an wrapper for the given type.
+         * Register a wrapper for the given type.
          *
          * @param type    the type for that the given wrapper must be registered
-         * @param wrapper the wrapper
+         * @param wrapper the wrapper class
          * @return this instance
          */
-        public Builder registerWrapper(Class<?> type, Wrapper wrapper) {
+        public Builder registerWrapper(Class<?> type, Class<? extends Wrapper> wrapper) {
             Verify.verifyNotNull(type, "type cannot be null");
             Verify.verifyNotNull(wrapper, "wrapper cannot be null");
             wrappers.put(type, wrapper);
@@ -94,18 +82,17 @@ public final class Configuration {
         }
 
         /**
-         * Register an batch of wrappers for the given types types.
-         * Wrappers make possible to create proxies for classes that don't have default constructor.
-         * Basically default constructor can be created by changing byte code of a class but for the initial version
-         * this problem was solved by adding the Wrappers mechanism.
+         * Register a batch of wrappers for the given types.
+         * Wrappers are useful if {@link ProxyFactory} fails to create proxy for some reasons:
+         * final class, class loaded using bootstrap class loader and etc.
          *
          * @param wrappers the wrappers
          * @return this instance
          */
-        public Builder wrappers(Map<Class<?>, Wrapper> wrappers) {
-            forEach(wrappers, new Consumer<Map.Entry<Class<?>, Wrapper>>() {
+        public Builder wrappers(Map<Class<?>, Class<? extends Wrapper>> wrappers) {
+            forEach(wrappers, new Consumer<Map.Entry<Class<?>, Class<? extends Wrapper>>>() {
                 @Override
-                public void consume(Map.Entry<Class<?>, Wrapper> input) {
+                public void consume(Map.Entry<Class<?>, Class<? extends Wrapper>> input) {
                     registerWrapper(input.getKey(), input.getValue());
                 }
             });

@@ -70,12 +70,33 @@ public class MethodInvocationRecorder {
         }
     }
 
+    /**
+     * Makes snapshot but doesn't save it, to save snapshot use {@link #saveSnapshot(Snapshot)}
+     * or {@link #saveSnapshot(Snapshot, String)}.
+     *
+     * @return the snapshot
+     */
     public Snapshot makeSnapshot() {
-        return Snapshot.save(new Snapshot(invocationRecords));
+        return new Snapshot(invocationRecords); // todo make a copy of all record including graphs
     }
 
-    public Snapshot saveSnapshot(Snapshot snapshot) {
-        return Snapshot.save(snapshot);
+    /**
+     * Saves snapshot.
+     *
+     * @param snapshot the snapshot to save
+     */
+    public void saveSnapshot(Snapshot snapshot) {
+        Snapshot.save(snapshot);
+    }
+
+    /**
+     * Saves snapshot.
+     *
+     * @param snapshot the snapshot to save
+     * @param fileName the name of file to save snapshot
+     */
+    public void saveSnapshot(Snapshot snapshot, String fileName) {
+        Snapshot.save(snapshot, fileName);
     }
 
     private InvocationContext createInvocationContext(Method method) {

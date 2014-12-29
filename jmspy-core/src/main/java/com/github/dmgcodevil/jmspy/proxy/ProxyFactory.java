@@ -4,24 +4,19 @@ import com.github.dmgcodevil.jmspy.InvocationRecord;
 import com.github.dmgcodevil.jmspy.functional.Producer;
 import com.github.dmgcodevil.jmspy.graph.InvocationGraph;
 import com.github.dmgcodevil.jmspy.proxy.callback.BasicMethodInterceptor;
-import com.github.dmgcodevil.jmspy.proxy.callback.CglibCallbackFilter;
 import com.github.dmgcodevil.jmspy.proxy.callback.ProxyIdentifierCallback;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
+import com.github.dmgcodevil.jmspy.proxy.wrapper.DefaultWrapper;
+import com.github.dmgcodevil.jmspy.proxy.wrapper.Wrapper;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Verify;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
-import net.sf.cglib.core.Signature;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.InterfaceMaker;
-import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.ref.SoftReference;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
@@ -39,30 +34,21 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isNotPrimitiveOrWrap
  */
 public class ProxyFactory {
 
-    private Map<Class<?>, Wrapper> wrappers = new HashMap<>();
-    private Set<Class<?>> ignoreTypes = Sets.newHashSet();
-    private Set<String> ignorePackages = Sets.newHashSet();
+    private final Map<Class<?>, Class<? extends Wrapper>> wrappers;
+    private final Set<Class<?>> ignoreTypes;
+    private final Set<String> ignorePackages;
+    private final EnhancerFactory enhancerFactory;
     private final Holder<Class<?>, Enhancer> enhancerHolder = new Holder<>();
     private static volatile ProxyFactory instance;
     private static final Configuration DEF_CONFIGURATION = Configuration.builder().build();
-    public static final Type[] EMPTY_PARAMS = new Type[]{};
-
-    private static final Signature GET_PROXY_IDENTIFIER_METHOD =
-            new Signature(ProxyIdentifierCallback.GET_PROXY_IDENTIFIER, Type.getType(String.class), EMPTY_PARAMS);
-
-    private static final Class PROXY_HELPER_INTERFACE;
-    private static final Class[] SERVICE_INTERFACES;
-
-    static {
-        InterfaceMaker interfaceMaker = new InterfaceMaker();
-        interfaceMaker.add(GET_PROXY_IDENTIFIER_METHOD, EMPTY_PARAMS);
-        PROXY_HELPER_INTERFACE = interfaceMaker.create();
-        SERVICE_INTERFACES = new Class[]{PROXY_HELPER_INTERFACE};
-    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ProxyFactory.class);
 
-    private ProxyFactory() {
+    private ProxyFactory(Configuration config) {
+        wrappers = config.getWrappers();
+        ignoreTypes = config.getIgnoreTypes();
+        ignorePackages = config.getIgnorePackages();
+        enhancerFactory = config.getEnhancerFactory();
     }
 
     /**
@@ -77,10 +63,7 @@ public class ProxyFactory {
             synchronized (ProxyFactory.class) {
                 localInstance = instance;
                 if (localInstance == null) {
-                    instance = localInstance = new ProxyFactory();
-                    instance.wrappers = config.getWrappers();
-                    instance.ignoreTypes = config.getIgnoreTypes();
-                    instance.ignorePackages = config.getIgnorePackages();
+                    instance = localInstance = new ProxyFactory(config);
                 }
             }
         }
@@ -183,14 +166,21 @@ public class ProxyFactory {
             Enhancer.registerCallbacks(proxyClass, createCallbacks(target, proxyId, invocationRecord));
             return proxyClass;
         }
-        Class<T> proxyClass;
-        Enhancer enhancer = createEnhancer(superClass);
-        try {
-            proxyClass = enhancer.createClass();
-        } catch (Throwable th) {
-            LOGGER.error("failed to create proxy class for target type: '{}', error message: '{}'", superClass, th.getMessage());
+        Class proxyClass;
+        Enhancer enhancer = enhancerFactory.createEnhancer(superClass);
+        CreateProxyClassOperation operation = createClass(enhancer);
+        proxyClass = operation.proxyClass;
+        if (proxyClass == null) {
+            LOGGER.warn("failed to create proxy class for target type: '{}', error message: '{}'", superClass, operation.error);
+            enhancer = enhancerFactory.createEnhancerWithWrapper(superClass, findWrapper(superClass));
+            operation = createClass(enhancer);
+            proxyClass = operation.proxyClass;
+        }
+        if (proxyClass == null) {
+            LOGGER.error("failed to create proxy class for target type: '{}', error message: '{}'", superClass, operation.error);
             return null;
         }
+
         enhancerHolder.hold(superClass, enhancer);
 
         Enhancer.registerCallbacks(proxyClass, createCallbacks(target, proxyId, invocationRecord));
@@ -205,15 +195,17 @@ public class ProxyFactory {
         };
     }
 
-    private Enhancer createEnhancer(Class<?> type) {
-        Enhancer enhancer = new Enhancer();
-        enhancer.setClassLoader(Thread.currentThread().getContextClassLoader());
-        enhancer.setSuperclass(type);
-        enhancer.setCallbackTypes(new Class[]{ProxyIdentifierCallback.class, BasicMethodInterceptor.class});
-        enhancer.setInterfaces(SERVICE_INTERFACES);
-        enhancer.setCallbackFilter(CglibCallbackFilter.getInstance());
-        return enhancer;
+
+    private CreateProxyClassOperation createClass(Enhancer enhancer) {
+        CreateProxyClassOperation op = new CreateProxyClassOperation();
+        try {
+            op.proxyClass = enhancer.createClass();
+        } catch (Throwable th) {
+            op.error = th;
+        }
+        return op;
     }
+
 
     private void initInvocationGraph(String id, InvocationRecord invocationRecord) {
         if (invocationRecord != null) {
@@ -225,6 +217,36 @@ public class ProxyFactory {
         if (invocationGraph != null && invocationGraph.getRoot() != null && invocationGraph.getRoot().getId() == null) {
             invocationGraph.getRoot().setId(id);
         }
+    }
+
+    /**
+     * Tries find a wrapper for the given type.
+     *
+     * @param type the type to find certain wrapper
+     * @return holder of result object. to check whether holder contains a (non-null)
+     * instance use {@link com.google.common.base.Optional#isPresent()}
+     */
+    private Class<? extends Wrapper> findWrapper(Class<?> type) {
+        Optional<Class<? extends Wrapper>> optional = Optional.absent();
+        for (Map.Entry<Class<?>, Class<? extends Wrapper>> entry : wrappers.entrySet()) {
+            if (entry.getKey().equals(type)) {
+                optional = Optional.<Class<? extends Wrapper>>of(entry.getValue());
+                break;
+            }
+        }
+
+        // this iteration is required because if a wrapper was registered for an interface instead of class is used to create proxy
+        // or we deal with nested or anonymous classes that are subclasses of some public classes or interfaces then condition based
+        // on equals() to find wrapper isn't enough, thus we need to use isAssignableFrom() to find wrapper
+        if (!optional.isPresent()) {
+            for (Map.Entry<Class<?>, Class<? extends Wrapper>> entry : wrappers.entrySet()) {
+                if (entry.getKey().isAssignableFrom(type)) {
+                    optional = Optional.<Class<? extends Wrapper>>of(entry.getValue());
+                    break;
+                }
+            }
+        }
+        return optional.or(Optional.of(DefaultWrapper.class)).get();
     }
 
     private static class Holder<K, V> {
@@ -255,6 +277,11 @@ public class ProxyFactory {
         private void hold(K k, V v) {
             data.put(new SoftReference<>(k), v);
         }
+    }
+
+    private static class CreateProxyClassOperation {
+        Class proxyClass;
+        Throwable error;
     }
 
 }

@@ -3,6 +3,9 @@ package com.github.dmgcodevil.jmspy.collection;
 import com.github.dmgcodevil.jmspy.MethodInvocationRecorder;
 import org.testng.annotations.Test;
 
+import java.util.Map;
+import java.util.Set;
+
 import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isCglibProxy;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
@@ -105,16 +108,18 @@ public class CollectionFactoryTest {
         MethodInvocationRecorder invocationRecorder = new MethodInvocationRecorder();
         CollectionFactory proxy = invocationRecorder.record(collectionFactory);
         assertTrue(isCglibProxy(proxy));
-        assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap()));
-        assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap().entrySet()));
-        assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap().entrySet().iterator()));
+        Map map = proxy.getDataJdkImmutableMap();
+        assertTrue(isCglibProxy(map));
+        Set set = map.entrySet();
+        assertTrue(isCglibProxy(set));
+        assertTrue(isCglibProxy(set.iterator()));
         assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap().entrySet().iterator().next()));
         assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap().entrySet().iterator().next().getKey()));
         assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap().entrySet().iterator().next().getValue()));
         assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap().keySet()));
         assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap().keySet().iterator()));
         assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap().keySet().iterator().next()));
-        assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap().values()));
+        assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap()));
         assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap().values().iterator()));
         assertTrue(isCglibProxy(proxy.getDataJdkImmutableMap().values().iterator().next()));
     }

@@ -58,6 +58,10 @@ public class BasicMethodInterceptor implements MethodInterceptor {
     public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
         try {
             lock.lock();
+            // skip method if return type is Void
+            if (method.getReturnType().equals(Void.TYPE)) {
+                return proxy.invokeSuper(obj, args);
+            }
             Object out = invoke(obj, method, args, proxy);
             InvocationGraph invocationGraph = getInvocationGraph();
             if (invocationGraph != null && method.getDeclaringClass() != Object.class) {

@@ -100,6 +100,7 @@ subprojects {
 
         /* ---------------- test dependencies ---------------- */
         testCompile('org.testng:testng:6.8.7')
+        testCompile('org.mockito:mockito-all:1.9.5')
 
         /* ---------------- logger dependencies ---------------- */
         compile('org.slf4j:slf4j-api:1.6.4')

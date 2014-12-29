@@ -1,7 +1,7 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.InvocationRecord;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
+import com.github.dmgcodevil.jmspy.proxy.wrapper.Wrapper;
 
 import java.lang.reflect.Array;
 import java.util.Map;
@@ -16,7 +16,7 @@ import static com.github.dmgcodevil.jmspy.proxy.CommonUtils.isPrimitiveOrWrapper
 public class ArrayProxyCreator extends AbstractProxyCreator implements ProxyCreator {
 
 
-    ArrayProxyCreator(Map<Class<?>, Wrapper> wrappers) {
+    ArrayProxyCreator(Map<Class<?>, Class<? extends Wrapper>> wrappers) {
         super(wrappers);
     }
 

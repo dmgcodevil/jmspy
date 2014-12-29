@@ -1,9 +1,8 @@
 package com.github.dmgcodevil.jmspy.proxy;
 
 import com.github.dmgcodevil.jmspy.InvocationRecord;
-import com.github.dmgcodevil.jmspy.proxy.wrappers.Wrapper;
+import com.github.dmgcodevil.jmspy.proxy.wrapper.Wrapper;
 import com.github.dmgcodevil.jmspy.reflection.Instantiator;
-import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +15,7 @@ public class BeanProxyCreator extends AbstractProxyCreator implements ProxyCreat
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BeanProxyCreator.class);
 
-    BeanProxyCreator(Map<Class<?>, Wrapper> wrappers) {
+    BeanProxyCreator(Map<Class<?>, Class<? extends Wrapper>> wrappers) {
         super(wrappers);
     }
 
@@ -27,14 +26,6 @@ public class BeanProxyCreator extends AbstractProxyCreator implements ProxyCreat
         if (proxyClass != null) {
             return Instantiator.getInstance().newInstance(proxyClass);
         }
-        Optional<Wrapper> wrapperOpt = findWrapper(target.getClass());
-        if (wrapperOpt.isPresent()) {
-            Wrapper wr = wrapperOpt.get();
-            Wrapper wrapper = wr.create(target);
-            proxyClass = ProxyFactory.getInstance().createProxyClass(wrapper, proxyId, invocationRecord);
-            return Instantiator.getInstance().newInstance(proxyClass);
-        }
-
         LOGGER.error("failed create proxy for type: '{}'", target.getClass());
         return target;
     }
