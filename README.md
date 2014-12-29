@@ -63,11 +63,11 @@ Jmspy uses CGLIB lib to create proxies and there are several restrictions that c
 CGLIB uses inheritance when it creates dynamic proxy. Thus, each proxy belongs to a generated instrumented class that extends original type by including interfaces. Java has several restrictions with class inheritance, namely:
 - Final class cannot be extended
 - Final methods cannot be overridden
-- It isn’t possible to create instances of classes without default constructor.
 
-All this issues are partially resolved in jmspy-core, for example the restriction with  final classes can be resolved using feature called Wrapper. Wrapper is an interface that provides several methods to create, set and get  target instance. It’s easy to use, lets consider simple example.
-Suppose you have a final class on whom you want to record invocations
-
+Also CGLIB can't create proxies for nested classes that have default/package modifier and loaded using bootstrap class loader, for example the classes from core Java libraries located 
+in the <JAVA_HOME>/jre/lib director, for instance Collections#UnmodifiableList.class.
+All this issues are partially resolved in jmspy-core, for example the restrictions with final classes or classes from java core libraries can be resolved using feature called ```Wrapper```. If JMSpy fails to create proxy for a class then it will automatically try to create a wrapper for target class and create proxy for wrapper instead of target class. This approach works fine if you have an interface for a class and you work with this interface instead of concrete implementation.
+For example:
 **Interface**
 ```java
 public interface IFinalClass {
@@ -95,34 +95,22 @@ App class:
 ```java
 public static void main(String[] args) {
         MethodInvocationRecorder invocationRecorder = new MethodInvocationRecorder();
-        FinalClass finalClass = new FinalClass();
-        FinalClass proxy = invocationRecorder.record(finalClass);
+        IFinalClass finalClass = new FinalClass();
+        IFinalClass proxy = invocationRecorder.record(finalClass);
         System.out.println(isCglibProxy(proxy));
     }
 ```
 
-Execution result is **false**
+Although the ```FinalClass``` is final class the result is **true**
 
-As you can seejmspy has failed to create a proxy for ‘finalClass’ variable.
-To solve this issue you need to create a wrapper for the FinalClass. 
-Suppose you are lucky and have an interface for FinalClass class, it's ```IFinalClass```
-
-Then the wrapper will look like that:
+Also you can register your own wrapper for ```FinalClass```  if you want, example:
 ```java
 public class FinalClassWrapper implements IFinalClass, Wrapper<IFinalClass> {
 
     private IFinalClass target;
 
     public FinalClassWrapper() {
-    }
-
-    public FinalClassWrapper(IFinalClass target) {
-        this.target = target;
-    }
-
-    @Override
-    public Wrapper create(IFinalClass target) {
-        return new FinalClassWrapper(target);
+    // default constructor is required !
     }
 
     @Override
@@ -142,7 +130,7 @@ public class FinalClassWrapper implements IFinalClass, Wrapper<IFinalClass> {
 
     @Override
     public String getId() {
-        return target.getId();
+        return "wrapper: " + target.getId();
     }
 }
 ```
@@ -150,7 +138,7 @@ Now you need to register this wrapper:
 ```java
     public static void main(String[] args) {
         Configuration conf = Configuration.builder()
-                .registerWrapper(FinalClass.class, new FinalClassWrapper()) //register our wrapper
+                .registerWrapper(FinalClass.class, FinalClassWrapper.class) //register our wrapper
                 .build();
         ProxyFactory proxyFactory = ProxyFactory.getInstance(conf);
         MethodInvocationRecorder invocationRecorder = new MethodInvocationRecorder(proxyFactory);
@@ -159,8 +147,15 @@ Now you need to register this wrapper:
         System.out.println(isCglibProxy(proxy));
     }
 ```
-Now execution result is **true**. As you can see, jmspy managed to create the proxy.
-Issues with final methods and absence of default constructors also can be solved using the Wrapper approach, but what if you don’t have an interface for the FinalClass.class? 
+Now execution result is:
+```
+true
+wrapper: 1
+```
+As you can see, jmspy managed to create the proxy.
+NOTICE: A wrapper implementation must have default constructor, it's required.
+
+Issues with final methods also can be solved using the Wrapper approach, but what if you don’t have an interface for the FinalClass.class? 
 You can’t extend it hence the decorator pattern wouldn’t work here. In this case you need to use **Jmspy-agent**
 
 **Library works with java version 7 and earlier, java 8 isn't supported yet**
